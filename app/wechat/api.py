@@ -3,6 +3,7 @@
 from rest_framework import viewsets
 from lib.core.decorator.response import Core_connector
 from rest_framework.decorators import list_route
+from django.shortcuts import HttpResponse
 
 
 from app.wechat.utils import CustomHash
@@ -23,6 +24,6 @@ class WeChatAPIView(viewsets.ViewSet):
         encrypt="b3aa7790500908e9a9e454b4fd1d126f"
 
         if CustomHash(token=token).tokenCheck(nonce=nonce,timestamp=timestamp,signature=signature):
-            return echostr
+            return HttpResponse(echostr)
         else:
-            return ""
+            return HttpResponse("")
