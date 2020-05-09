@@ -23,6 +23,6 @@ class WeChatAPIView(viewsets.ViewSet):
         encrypt="b3aa7790500908e9a9e454b4fd1d126f"
 
         if CustomHash(token=token).tokenCheck(nonce=nonce,timestamp=timestamp,signature=signature):
-            print("成功")
+            return echostr
         else:
-            print("失败")
+            return ""
