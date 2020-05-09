@@ -2,7 +2,6 @@
 
 from rest_framework import viewsets
 from lib.core.decorator.response import Core_connector
-from app.wechat.utils.WXBizMsgCrypt import SHA1
 from rest_framework.decorators import list_route
 
 
