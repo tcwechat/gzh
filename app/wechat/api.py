@@ -10,7 +10,7 @@ from app.wechat.utils import CustomHash
 class WeChatAPIView(viewsets.ViewSet):
 
     @list_route(methods=['GET'])
-    @Core_connector()
+    @Core_connector(isReturn=True)
     def initCheck(self,request, *args, **kwargs):
         print(request.query_params_format)
         signature = request.query_params_format.get("signature",None)
