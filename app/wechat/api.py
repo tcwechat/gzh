@@ -5,6 +5,9 @@ from lib.core.decorator.response import Core_connector
 from app.wechat.utils.WXBizMsgCrypt import SHA1
 from rest_framework.decorators import list_route
 
+
+from app.wechat.utils import CustomHash
+
 class WeChatAPIView(viewsets.ViewSet):
 
     @list_route(methods=['GET'])
@@ -20,4 +23,7 @@ class WeChatAPIView(viewsets.ViewSet):
         token="b3aa7790500908e9a9e454b4fd1d126f"
         encrypt="b3aa7790500908e9a9e454b4fd1d126f"
 
-        print(SHA1().getSHA1(token=token,timestamp=timestamp,nonce=nonce,encrypt=encrypt))
+        if CustomHash(token=token).tokenCheck(nonce=nonce,timestamp=timestamp,signature=signature):
+            print("成功")
+        else:
+            print("失败")
