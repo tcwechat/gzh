@@ -14,9 +14,6 @@ class WeChatAPIView(viewsets.ViewSet):
     @list_route(methods=['POST'])
     @Core_connector(isReturn=True,isRVliad=True)
     def notice(self,request, *args, **kwargs):
-        msg = request.body.decode('utf-8')
-        print(msg)
-        print(request.query_params)
 
         ticket = WechatMsgValid(xmltext=request.body.decode('utf-8')).run(
             request.query_params['timestamp'],
