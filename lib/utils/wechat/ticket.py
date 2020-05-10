@@ -28,6 +28,7 @@ class WechatMsgValid(WechatBase):
     def run(self,timestamp,nonce,signature):
 
         encrypt = self.xml_tree.find("Encrypt").text
+
         self.checkSignatrue(timestamp,nonce,signature,encrypt)
 
         pc = Prpcrypt(self.key)
