@@ -9,7 +9,7 @@ from django.shortcuts import HttpResponse
 class WeChatAPIView(viewsets.ViewSet):
 
     @list_route(methods=['POST'])
-    @Core_connector(isReturn=True)
+    @Core_connector(isReturn=True,isRVliad=True)
     def notice(self,request, *args, **kwargs):
         msg = request.body.decode('utf-8')
         print(msg)

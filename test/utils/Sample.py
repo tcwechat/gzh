@@ -6,8 +6,9 @@
 # File Name: demo.py
 # Description: WXBizMsgCrypt 使用demo文件
 #########################################################################
-from app.wechat.utils.WXBizMsgCrypt import WXBizMsgCrypt
-if __name__ == "__main__":   
+from test.utils import WXBizMsgCrypt
+
+if __name__ == "__main__":
    """ 
    1.第三方回复加密消息给公众平台；
    2.第三方收到公众平台发送的消息，验证消息的安全性，并对消息进行解密。

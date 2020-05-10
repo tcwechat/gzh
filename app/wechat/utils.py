@@ -1,25 +1,23 @@
 
 import hashlib
+from project.config_include.params import TX_WECHAT_TOKEN
 
 
+def requestValid(params):
+    print(params)
 
-class CustomBase(object):
+    sortlist = [TX_WECHAT_TOKEN, params.get("timestamp"), params.get("nonce")]
 
-    def __init__(self,**kwargs):
-        self.appid = "123"
+    sortlist.sort()
+    sha = hashlib.sha1()
+    sha.update("".join(sortlist).encode("utf8"))
+    newsignature = sha.hexdigest()
 
-
-class CustomAuthorize(CustomBase):
-
-    def authorizeUrl(self):
-
-        redirect_uri=""
-
-        url = """
-        https://open.weixin.qq.com/connect/oauth2/authorize?appid={}&redirect_uri={}&response_type=code&scope=snsapi_userinfo&state=State#wechat_redirect
-        """.format(self.appid,redirect_uri)
-
-        return url
+    print("{},{}".format(params.get("signature",None),newsignature))
+    if newsignature != params.get("signature",None):
+        return False
+    else:
+        return True
 
 
 
@@ -43,3 +41,21 @@ class CustomAuthorize(CustomBase):
 #             return False
 #         else:
 #             return True
+
+
+
+if __name__ == '__main__':
+
+    signature="434450a1d34ee7866ee00ba64b2ecbca4405d3a1"
+
+    sortlist = ["eNoUNRR4e7V85KLb", '1589126299', '1632400849']
+    sortlist.sort()
+    sha = hashlib.sha1()
+    sha.update("".join(sortlist).encode("utf8"))
+    newsignature = sha.hexdigest()
+
+    print("{},{}".format(signature,newsignature))
+    if newsignature != signature:
+        print(False)
+    else:
+        print(True)

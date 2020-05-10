@@ -7,6 +7,10 @@ import os
 # TX_SECRET_KEY = os.getenv("TX_SECRET_KEY",None)
 
 
+TX_WECHAT_TOKEN = os.getenv("TX_WECHAT_TOKEN","eNoUNRR4e7V85KLb")
+
+
+
 import os
 
 BASEURL = os.getenv("BASEURL","http://localhost:9006")
