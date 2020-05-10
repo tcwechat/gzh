@@ -21,7 +21,7 @@ class WeChatAPIView(viewsets.ViewSet):
         ticket = WechatMsgValid(xmltext=request.body.decode('utf-8')).run(
             request.query_params['timestamp'],
             request.query_params['nonce'],
-            request.query_params['signature'],
+            request.query_params['signature']
         )
 
         RedisTicketHandler().set(ticket)
