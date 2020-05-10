@@ -52,27 +52,9 @@ CACHES = {
             "PASSWORD": REDISPASSWORD
         }
     },
-    "orders": {
+    "wechatTicket": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://{}:{}/3".format(REDISURL, REDISPORT),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            'CONNECTION_POOL_KWARGS': {"max_connections": 100},
-            "PASSWORD": REDISPASSWORD
-        }
-    },
-    "generator": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://{}:{}/4".format(REDISURL, REDISPORT),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            'CONNECTION_POOL_KWARGS': {"max_connections": 100},
-            "PASSWORD": REDISPASSWORD
-        }
-    },
-    "sso": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://{}:{}/5".format(REDISURL, REDISPORT),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             'CONNECTION_POOL_KWARGS': {"max_connections": 100},

@@ -5,6 +5,9 @@ from lib.core.decorator.response import Core_connector
 from rest_framework.decorators import list_route
 from django.shortcuts import HttpResponse
 
+from lib.utils.wechat.ticket import WechatMsgValid
+from lib.utils.db import RedisTicketHandler
+
 
 class WeChatAPIView(viewsets.ViewSet):
 
@@ -14,6 +17,16 @@ class WeChatAPIView(viewsets.ViewSet):
         msg = request.body.decode('utf-8')
         print(msg)
         print(request.query_params)
+
+        ticket = WechatMsgValid(xmltext=request.body.decode('utf-8')).run(
+            request.query_params['timestamp'],
+            request.query_params['nonce'],
+            request.query_params['signature'],
+        )
+
+        RedisTicketHandler().set(ticket)
+
+        return HttpResponse("success")
 
     # @list_route(methods=['GET'])
     # @Core_connector(isReturn=True)
