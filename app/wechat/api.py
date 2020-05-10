@@ -11,8 +11,9 @@ class WeChatAPIView(viewsets.ViewSet):
     @list_route(methods=['POST'])
     @Core_connector(isReturn=True)
     def notice(self,request, *args, **kwargs):
-        print(request.data)
-        print(request.query_params_format)
+        msg = request.body.decode('utf-8')
+        print(msg)
+        print(request.query_params)
 
     # @list_route(methods=['GET'])
     # @Core_connector(isReturn=True)
