@@ -6,24 +6,27 @@ from rest_framework.decorators import list_route
 from django.shortcuts import HttpResponse
 
 
-from app.wechat.utils import CustomHash
-
 class WeChatAPIView(viewsets.ViewSet):
 
-    @list_route(methods=['GET'])
+    @list_route(methods=['POST'])
     @Core_connector(isReturn=True)
-    def initCheck(self,request, *args, **kwargs):
-        print(request.query_params_format)
-        signature = request.query_params_format.get("signature",None)
-        timestamp = request.query_params_format.get("timestamp",None)
-        nonce = request.query_params_format.get("nonce",None)
-        echostr = request.query_params_format.get("echostr",None)
+    def notice(self,request, *args, **kwargs):
+        print(request.data)
 
-
-        token="b3aa7790500908e9a9e454b4fd1d126f"
-        encrypt="b3aa7790500908e9a9e454b4fd1d126f"
-
-        if CustomHash(token=token).tokenCheck(nonce=nonce,timestamp=timestamp,signature=signature):
-            return HttpResponse(echostr)
-        else:
-            return HttpResponse("")
+    # @list_route(methods=['GET'])
+    # @Core_connector(isReturn=True)
+    # def initCheck(self,request, *args, **kwargs):
+    #     print(request.query_params_format)
+    #     signature = request.query_params_format.get("signature",None)
+    #     timestamp = request.query_params_format.get("timestamp",None)
+    #     nonce = request.query_params_format.get("nonce",None)
+    #     echostr = request.query_params_format.get("echostr",None)
+    #
+    #
+    #     token="b3aa7790500908e9a9e454b4fd1d126f"
+    #     encrypt="b3aa7790500908e9a9e454b4fd1d126f"
+    #
+    #     if CustomHash(token=token).tokenCheck(nonce=nonce,timestamp=timestamp,signature=signature):
+    #         return HttpResponse(echostr)
+    #     else:
+    #         return HttpResponse("")
