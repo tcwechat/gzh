@@ -21,6 +21,17 @@ class RedisTicketHandler(RedisHandler):
     def get(self):
         return self.redis_client.get(self.key)
 
+class RedisAccessTokenHandler(RedisHandler):
+    def __init__(self):
+        super().__init__(db="wechatTicket",key="component_access_token")
+
+    def set(self,value,expire):
+        self.redis_client.set(self.key, value)
+        self.redis_client.set(self.key,expire)
+
+    def get(self):
+        return self.redis_client.get(self.key)
+
 class RedisTokenHandler(RedisHandler):
 
     def __init__(self,**kwargs):

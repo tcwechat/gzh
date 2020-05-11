@@ -6,6 +6,7 @@ from rest_framework.decorators import list_route
 from django.shortcuts import HttpResponse
 
 from lib.utils.wechat.ticket import WechatMsgValid
+from lib.utils.wechat.base import WechatBase
 from lib.utils.db import RedisTicketHandler
 
 
@@ -24,6 +25,15 @@ class WeChatAPIView(viewsets.ViewSet):
         RedisTicketHandler().set(ticket)
 
         return HttpResponse("success")
+
+    @list_route(methods=['POST'])
+    @Core_connector(isReturn=True)
+    def test(self,request, *args, **kwargs):
+
+        WechatBase(isAccessToken=True)
+
+        return HttpResponse("success")
+
 
     # @list_route(methods=['GET'])
     # @Core_connector(isReturn=True)
