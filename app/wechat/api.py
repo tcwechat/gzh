@@ -49,7 +49,7 @@ class WeChatAPIView(viewsets.ViewSet):
         return {"data":WechatBaseForUser(isAccessToken=True).get_auth_url()}
 
     @list_route(methods=['POST','GET'])
-    @Core_connector(isReturn=True)
+    @Core_connector(isReturn=True,isTransaction=True)
     def authCallback(self,request, *args, **kwargs):
 
         """
