@@ -1,5 +1,6 @@
 
 import json
+import xml.etree.cElementTree as ET
 
 from rest_framework import viewsets
 from lib.core.decorator.response import Core_connector
@@ -11,7 +12,7 @@ from lib.utils.wechat.base import WechatBaseForUser
 from lib.utils.db import RedisTicketHandler
 
 from app.wechat.models import Acc
-
+from lib.utils.exceptions import PubErrorCustom
 
 class WeChatAPIView(viewsets.ViewSet):
 
@@ -27,13 +28,19 @@ class WeChatAPIView(viewsets.ViewSet):
         :return:
         """
 
-        ticket = WechatMsgValid(xmltext=request.body.decode('utf-8')).run(
+        xml_content = WechatMsgValid(xmltext=request.body.decode('utf-8')).run(
             request.query_params['timestamp'],
             request.query_params['nonce'],
             request.query_params['msg_signature']
         )
 
-        RedisTicketHandler().set(ticket)
+        InfoType = ET.fromstring(xml_content).find("InfoType").text
+
+        if InfoType == 'component_verify_ticket':
+            RedisTicketHandler().set(ET.fromstring(xml_content).find("ComponentVerifyTicket").text)
+        else:
+            print("类型有误: {}".format(InfoType))
+            raise PubErrorCustom("类型有误!")
 
         return HttpResponse("success")
 

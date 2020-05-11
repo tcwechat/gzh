@@ -1,6 +1,6 @@
 
 from lib.utils.wechat.base import WechatBase
-import xml.etree.cElementTree as ET
+
 from lib.utils.wechat.utils import Prpcrypt
 
 class WechatRequestValid(WechatBase):
@@ -35,7 +35,7 @@ class WechatMsgValid(WechatBase):
         xml_content = pc.decrypt(encrypt.encode('utf-8'), self.appid)
         print(xml_content)
 
-        return ET.fromstring(xml_content).find("ComponentVerifyTicket").text
+        return xml_content
 
 if __name__=='__main__':
     xmltext="""
