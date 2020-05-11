@@ -28,7 +28,7 @@ class RedisAccessTokenHandler(RedisHandler):
 
     def set(self,value,expire):
         self.redis_client.set(self.key, value)
-        self.redis_client.set(self.key,expire)
+        self.redis_client.expire(self.key,expire)
 
     def get(self):
         res = self.redis_client.get(self.key)
