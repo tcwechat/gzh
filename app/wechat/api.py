@@ -28,6 +28,15 @@ class WeChatAPIView(viewsets.ViewSet):
 
     @list_route(methods=['POST'])
     @Core_connector(isReturn=True)
+    def authCallback(self,request, *args, **kwargs):
+
+        auth_code = request.query_params['auth_code']
+        expires_in =  request.query_params['expires_in']
+
+        return HttpResponse("success")
+
+    @list_route(methods=['POST'])
+    @Core_connector(isReturn=True)
     def test(self,request, *args, **kwargs):
 
         s = WechatBaseForUser(isAccessToken=True)

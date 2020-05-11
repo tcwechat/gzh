@@ -84,3 +84,9 @@ class WechatBaseForUser(WechatBase):
             return response['pre_auth_code']
         else:
             return res
+
+    def get_auth_url(self):
+
+        return """
+        https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid={}&pre_auth_code={}&redirect_uri={}&auth_type=1
+        """.format(self.appid,self.pre_auth_code,"https://tc.hanggetuoke.cn/v1/api/wechat/authCallback")
