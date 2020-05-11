@@ -35,6 +35,12 @@ class WeChatAPIView(viewsets.ViewSet):
 
         return HttpResponse("success")
 
+    @list_route(methods=['GET'])
+    @Core_connector()
+    def getPreAuthUrl(self,request):
+
+        return {"data":WechatBaseForUser(isAccessToken=True).get_auth_url()}
+
     @list_route(methods=['POST'])
     @Core_connector(isReturn=True)
     def test(self,request, *args, **kwargs):
