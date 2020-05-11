@@ -27,7 +27,7 @@ class Acc(models.Model):
 
         if not self.createtime:
             self.createtime = UtilTime().timestamp
-
+        return super(Acc, self).save(*args, **kwargs)
     class Meta:
         verbose_name = '公众号列表'
         verbose_name_plural = verbose_name
