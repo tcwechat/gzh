@@ -26,7 +26,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
         return HttpResponse("success")
 
-    @list_route(methods=['POST'])
+    @list_route(methods=['POST','GET'])
     @Core_connector(isReturn=True)
     def authCallback(self,request, *args, **kwargs):
 
