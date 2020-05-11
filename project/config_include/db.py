@@ -2,11 +2,11 @@
 
 import os
 
-DBHOST = os.environ.get('DBHOST', 'localhost')
-DBPORT = os.environ.get('DBPORT', '3306')
-DBNAME = os.environ.get('DBNAME', 'shop')
-DBUSER = os.environ.get('DBUSER', 'root')
-DBPASS = os.environ.get('DBPASS', '123456')
+DBHOST = os.environ.get('DBHOST1', 'localhost')
+DBPORT = os.environ.get('DBPORT1', '3306')
+DBNAME = os.environ.get('DBNAME1', 'hdb')
+DBUSER = os.environ.get('DBUSER1', 'root')
+DBPASS = os.environ.get('DBPASS1', '123456')
 
 DATABASES = {
     'default': {

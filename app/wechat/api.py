@@ -1,4 +1,5 @@
 
+import json
 
 from rest_framework import viewsets
 from lib.core.decorator.response import Core_connector
@@ -9,12 +10,22 @@ from lib.utils.wechat.ticket import WechatMsgValid
 from lib.utils.wechat.base import WechatBaseForUser
 from lib.utils.db import RedisTicketHandler
 
+from app.wechat.models import Acc
+
 
 class WeChatAPIView(viewsets.ViewSet):
 
     @list_route(methods=['POST'])
     @Core_connector(isReturn=True,isRVliad=True)
     def notice(self,request, *args, **kwargs):
+
+        """
+        验证票据获取
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
 
         ticket = WechatMsgValid(xmltext=request.body.decode('utf-8')).run(
             request.query_params['timestamp'],
@@ -26,20 +37,54 @@ class WeChatAPIView(viewsets.ViewSet):
 
         return HttpResponse("success")
 
-    @list_route(methods=['POST','GET'])
-    @Core_connector(isReturn=True)
-    def authCallback(self,request, *args, **kwargs):
-
-        auth_code = request.query_params['auth_code']
-        expires_in =  request.query_params['expires_in']
-
-        return HttpResponse("success")
-
     @list_route(methods=['GET'])
     @Core_connector()
     def getPreAuthUrl(self,request):
 
+        """
+        获取授权Url
+        :param request:
+        :return:
+        """
         return {"data":WechatBaseForUser(isAccessToken=True).get_auth_url()}
+
+    @list_route(methods=['POST','GET'])
+    @Core_connector(isReturn=True)
+    def authCallback(self,request, *args, **kwargs):
+
+        """
+        授权后回调处理
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+
+        auth_code = request.query_params['auth_code']
+        expires_in =  request.query_params['expires_in']
+
+        t = WechatBaseForUser(isAccessToken=True)
+
+        authorization_info = t.get_auth_by_authcode(auth_code)
+        authorizer_info = t.get_authorizer_info(authorization_info)
+
+        accObj = Acc.objects.create(**dict(
+            authorizer_appid = authorization_info['authorizer_appid'],
+            authorizer_refresh_token = authorization_info['authorizer_refresh_token'],
+            nick_name = authorizer_info['nick_name'],
+            head_img = authorizer_info['head_img'],
+            service_type_info=json.dumps(authorizer_info['service_type_info']),
+            verify_type_info=json.dumps(authorizer_info['verify_type_info']),
+            user_name=authorizer_info['user_name'],
+            principal_name=authorizer_info['principal_name'],
+            alias=authorizer_info['alias'],
+            business_info=json.dumps(authorizer_info['business_info']),
+            qrcode_url=authorizer_info['qrcode_url'],
+        ))
+
+        t.refrech_auth_access_token(accObj.accid,authorization_info['authorizer_access_token'],authorization_info['expires_in'])
+
+        return HttpResponse("success")
 
     @list_route(methods=['POST'])
     @Core_connector(isReturn=True)

@@ -1,8 +1,10 @@
 
 import base64,hashlib,json
 import xml.etree.cElementTree as ET
-from lib.utils.db import RedisAccessTokenHandler,RedisTicketHandler,RedisPreAuthCodeHandler
+from lib.utils.db import RedisAccessTokenHandler,RedisTicketHandler,RedisPreAuthCodeHandler,RedisAuthAccessTokenHandler
 from requests import request
+from app.wechat.models import Acc
+from lib.utils.exceptions import PubErrorCustom
 
 class FormatException(Exception):
     pass
@@ -25,15 +27,23 @@ class WechatBase(object):
 
         self.xml_tree = ET.fromstring(kwargs.get("xmltext",None)) if kwargs.get("xmltext",None) else None
 
-        if kwargs.get("isAccessToken",None):
-            self.accesstoken = self.getAccessToken()
-
         try:
             self.key = base64.b64decode("FDl8GfVXfGWwKs9LKc11xE6N2f8DM6MB8cyMm6xYsac" + "=")
             assert len(self.key) == 32
         except Exception:
             throw_exception("[error]: EncodingAESKey unvalid !",
                             FormatException)
+
+        if kwargs.get("isAccessToken",None):
+            self.accesstoken = self.getAccessToken()
+
+        if kwargs.get("accid",None):
+            try:
+                self.acc = Acc.objects.get(accid=kwargs.get("accid",None))
+            except Acc.DoesNotExist:
+                raise PubErrorCustom("该账号不存在!")
+
+            self.auth_accesstoken = self.getAuthAccessToken()
 
     def getAccessToken(self):
         t = RedisAccessTokenHandler()
@@ -49,6 +59,24 @@ class WechatBase(object):
             response = json.loads(response.content.decode('utf-8'))
             t.set(response['component_access_token'],response['expires_in'])
             return response['component_access_token']
+        else:
+            return res
+
+    def getAuthAccessToken(self):
+        t = RedisAuthAccessTokenHandler()
+
+        res = t.get()
+        if not res:
+            response = request(method="POST", url="https://api.weixin.qq.com/cgi-bin/component/api_authorizer_token?component_access_token={}".format(self.accesstoken),
+                               json={
+                                   "component_appid": self.appid,
+                                   "authorizer_appid": self.acc.authorizer_appid,
+                                   "authorizer_refresh_token": self.acc.authorizer_refresh_token
+                               })
+            print(response.text)
+            response = json.loads(response.content.decode('utf-8'))
+            t.set(response['authorizer_access_token'], response['expires_in'])
+            return response['authorizer_access_token']
         else:
             return res
 
@@ -88,3 +116,33 @@ class WechatBaseForUser(WechatBase):
     def get_auth_url(self):
 
         return """https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid={}&pre_auth_code={}&redirect_uri={}&auth_type=1""".format(self.appid,self.pre_auth_code,"https://tc.hanggetuoke.cn/v1/api/wechat/authCallback")
+
+    def get_auth_by_authcode(self,authorization_code):
+
+        response = request(method="POST",
+                           url="https://api.weixin.qq.com/cgi-bin/component/api_query_auth?component_access_token={}".format(
+                               self.accesstoken),
+                           json={
+                               "component_appid": self.appid,
+                               "authorization_code":authorization_code
+                           })
+        print(response.text)
+        response = json.loads(response.content.decode('utf-8'))
+        return response['authorization_info']
+
+    def get_authorizer_info(self,authorization_info):
+
+        response = request(method="POST",
+                           url="https://api.weixin.qq.com/cgi-bin/component/api_get_authorizer_info?component_access_token={}".format(
+                               self.accesstoken),
+                           json={
+                               "component_appid": self.appid,
+                               "authorizer_appid":authorization_info['authorizer_appid']
+                           })
+        print(response.text)
+        response = json.loads(response.content.decode('utf-8'))
+        return response['authorizer_info']
+
+    def refrech_auth_access_token(self,accid,value,expire):
+
+        RedisAuthAccessTokenHandler(str(accid)).set(value,expire)
