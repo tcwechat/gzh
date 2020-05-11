@@ -19,7 +19,9 @@ class RedisTicketHandler(RedisHandler):
         self.redis_client.set(self.key, value)
 
     def get(self):
-        return self.redis_client.get(self.key)
+        s=self.redis_client.get(self.key)
+        print("{ticket:{}".format(s))
+        return s
 
 class RedisAccessTokenHandler(RedisHandler):
     def __init__(self):
