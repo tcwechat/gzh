@@ -145,4 +145,4 @@ class WechatBaseForUser(WechatBase):
 
     def refrech_auth_access_token(self,accid,value,expire):
 
-        RedisAuthAccessTokenHandler(str(accid)).set(value,expire)
+        RedisAuthAccessTokenHandler(before=str(accid)).set(value,expire)

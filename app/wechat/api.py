@@ -68,19 +68,31 @@ class WeChatAPIView(viewsets.ViewSet):
         authorization_info = t.get_auth_by_authcode(auth_code)
         authorizer_info = t.get_authorizer_info(authorization_info)
 
-        accObj = Acc.objects.create(**dict(
-            authorizer_appid = authorization_info['authorizer_appid'],
-            authorizer_refresh_token = authorization_info['authorizer_refresh_token'],
-            nick_name = authorizer_info['nick_name'],
-            head_img = authorizer_info['head_img'],
-            service_type_info=json.dumps(authorizer_info['service_type_info']),
-            verify_type_info=json.dumps(authorizer_info['verify_type_info']),
-            user_name=authorizer_info['user_name'],
-            principal_name=authorizer_info['principal_name'],
-            alias=authorizer_info['alias'],
-            business_info=json.dumps(authorizer_info['business_info']),
-            qrcode_url=authorizer_info['qrcode_url'],
-        ))
+
+        try:
+            accObj = Acc.objects.get(authorizer_appid=authorization_info['authorizer_appid'])
+            accObj.authorizer_refresh_token = authorization_info['authorizer_refresh_token']
+            accObj.nick_name = authorizer_info['nick_name']
+            accObj.head_img = authorizer_info['head_img']
+            accObj.user_name = authorizer_info['user_name']
+            accObj.principal_name = authorizer_info['principal_name']
+            accObj.alias = authorizer_info['alias']
+            accObj.qrcode_url = authorizer_info['qrcode_url']
+            accObj.save()
+        except Acc.DoesNotExist:
+            accObj = Acc.objects.create(**dict(
+                authorizer_appid = authorization_info['authorizer_appid'],
+                authorizer_refresh_token = authorization_info['authorizer_refresh_token'],
+                nick_name = authorizer_info['nick_name'],
+                head_img = authorizer_info['head_img'],
+                # service_type_info=json.dumps(authorizer_info['service_type_info']),
+                # verify_type_info=json.dumps(authorizer_info['verify_type_info']),
+                user_name=authorizer_info['user_name'],
+                principal_name=authorizer_info['principal_name'],
+                alias=authorizer_info['alias'],
+                # business_info=json.dumps(authorizer_info['business_info']),
+                qrcode_url=authorizer_info['qrcode_url'],
+            ))
 
         t.refrech_auth_access_token(accObj.accid,authorization_info['authorizer_access_token'],authorization_info['expires_in'])
 
