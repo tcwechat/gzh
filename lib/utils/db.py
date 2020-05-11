@@ -19,9 +19,8 @@ class RedisTicketHandler(RedisHandler):
         self.redis_client.set(self.key, value)
 
     def get(self):
-        s=self.redis_client.get(self.key)
-        print("ticket:{}".format(s))
-        return s
+        res=self.redis_client.get(self.key)
+        return res.decode('utf-8') if res else None
 
 class RedisAccessTokenHandler(RedisHandler):
     def __init__(self):
@@ -32,7 +31,8 @@ class RedisAccessTokenHandler(RedisHandler):
         self.redis_client.set(self.key,expire)
 
     def get(self):
-        return self.redis_client.get(self.key)
+        res = self.redis_client.get(self.key)
+        return res.decode('utf-8') if res else None
 
 class RedisTokenHandler(RedisHandler):
 
