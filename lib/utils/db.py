@@ -20,7 +20,7 @@ class RedisTicketHandler(RedisHandler):
 
     def get(self):
         s=self.redis_client.get(self.key)
-        print("{ticket:{}".format(s))
+        print("ticket:{}".format(s))
         return s
 
 class RedisAccessTokenHandler(RedisHandler):
