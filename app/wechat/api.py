@@ -34,6 +34,8 @@ class WeChatAPIView(viewsets.ViewSet):
             request.query_params['msg_signature']
         )
 
+        print("拆解信息:{}".format(xml_content))
+
         InfoType = ET.fromstring(xml_content).find("InfoType").text
 
         if InfoType == 'component_verify_ticket':

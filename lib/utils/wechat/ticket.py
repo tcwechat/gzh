@@ -33,7 +33,6 @@ class WechatMsgValid(WechatBase):
 
         pc = Prpcrypt(self.key)
         xml_content = pc.decrypt(encrypt.encode('utf-8'), self.appid)
-        print(xml_content)
 
         return xml_content
 
