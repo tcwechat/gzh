@@ -34,6 +34,18 @@ class RedisAccessTokenHandler(RedisHandler):
         res = self.redis_client.get(self.key)
         return res.decode('utf-8') if res else None
 
+class RedisPreAuthCodeHandler(RedisHandler):
+    def __init__(self):
+        super().__init__(db="wechatTicket",key="pre_auth_code")
+
+    def set(self,value,expire):
+        self.redis_client.set(self.key, value)
+        self.redis_client.expire(self.key,expire)
+
+    def get(self):
+        res = self.redis_client.get(self.key)
+        return res.decode('utf-8') if res else None
+
 class RedisTokenHandler(RedisHandler):
 
     def __init__(self,**kwargs):

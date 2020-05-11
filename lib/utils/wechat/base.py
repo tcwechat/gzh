@@ -1,7 +1,7 @@
 
 import base64,hashlib,json
 import xml.etree.cElementTree as ET
-from lib.utils.db import RedisAccessTokenHandler,RedisTicketHandler
+from lib.utils.db import RedisAccessTokenHandler,RedisTicketHandler,RedisPreAuthCodeHandler
 from requests import request
 
 class FormatException(Exception):
@@ -57,3 +57,30 @@ class WechatBase(object):
         sha = hashlib.sha1()
         sha.update("".join(sortlist).encode("utf8"))
         return sha.hexdigest()
+
+
+class WechatBaseForUser(WechatBase):
+
+    def __init__(self,**kwargs):
+
+        super().__init__(isAccessToken=True)
+
+        self.pre_auth_code = self.get_pre_auth_code()
+
+    def get_pre_auth_code(self):
+
+        t = RedisPreAuthCodeHandler()
+
+        res = t.get()
+        if not res:
+            response = request(method="POST",
+                               url="https://api.weixin.qq.com/cgi-bin/component/api_create_preauthcode?component_access_token={}".format(self.accesstoken),
+                               json={
+                                   "component_appid": self.appid
+                               })
+            print(response.text)
+            response = json.loads(response.content.decode('utf-8'))
+            t.set(response['pre_auth_code'], response['expires_in'])
+            return response['pre_auth_code']
+        else:
+            return res
