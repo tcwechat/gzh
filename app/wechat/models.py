@@ -77,8 +77,8 @@ class AccQrcode(models.Model):
     name = models.CharField(max_length=60,default="",verbose_name="二维码名称")
     accid = models.BigIntegerField(verbose_name="公众号ID")
     tot_count = models.IntegerField(verbose_name="总扫码次数(既扫码也关注)",default=0)
-    new_count = models.IntegerField(verbose_name="新扫码且关注")
-    follow_count = models.IntegerField(verbose_name="已关注扫码")
+    new_count = models.IntegerField(verbose_name="新扫码且关注",default=0)
+    follow_count = models.IntegerField(verbose_name="已关注扫码",default=0)
     type = models.CharField(max_length=1,verbose_name="类型,0-临时,1-永久",default="1")
     endtime = models.BigIntegerField(default=0)
 
