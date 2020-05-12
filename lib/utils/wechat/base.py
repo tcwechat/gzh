@@ -38,10 +38,8 @@ class WechatBase(object):
             self.accesstoken = self.getAccessToken()
 
         if kwargs.get("accid",None):
-            try:
-                self.acc = Acc.objects.get(accid=kwargs.get("accid",None))
-            except Acc.DoesNotExist:
-                raise PubErrorCustom("该账号不存在!")
+
+            self.accid = kwargs.get("accid",None)
 
             self.auth_accesstoken = self.getAuthAccessToken()
 
@@ -67,6 +65,12 @@ class WechatBase(object):
 
         res = t.get()
         if not res:
+
+            try:
+                self.acc = Acc.objects.get(accid=self.accid)
+            except Acc.DoesNotExist:
+                raise PubErrorCustom("该公众号不存在!{}".format(self.accid))
+
             response = request(method="POST", url="https://api.weixin.qq.com/cgi-bin/component/api_authorizer_token?component_access_token={}".format(self.accesstoken),
                                json={
                                    "component_appid": self.appid,
@@ -91,7 +95,7 @@ class WechatBaseForUser(WechatBase):
 
     def __init__(self,**kwargs):
 
-        super().__init__(isAccessToken=True)
+        super().__init__(isAccessToken=True,accid=kwargs.get("accid",None))
 
         self.pre_auth_code = self.get_pre_auth_code()
 

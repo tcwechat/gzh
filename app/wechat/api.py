@@ -9,9 +9,10 @@ from django.shortcuts import HttpResponse
 
 from lib.utils.wechat.ticket import WechatMsgValid
 from lib.utils.wechat.base import WechatBaseForUser
+from lib.utils.wechat.qrcode import WechatQrcode
 from lib.utils.db import RedisTicketHandler
 
-from app.wechat.models import Acc,AccTag as AccTagModel
+from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeModel
 from lib.utils.exceptions import PubErrorCustom
 
 from app.wechat.serialiers import AccSerializer,AccTagModelSerializer
@@ -45,6 +46,56 @@ class WeChatAPIView(viewsets.ViewSet):
         else:
             print("类型有误: {}".format(InfoType))
             raise PubErrorCustom("类型有误!")
+
+        return HttpResponse("success")
+
+    @list_route(methods=['POST','GET'])
+    @Core_connector(isReturn=True,isTransaction=True)
+    def authCallback(self,request, *args, **kwargs):
+
+        """
+        授权后回调处理
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+
+        auth_code = request.query_params['auth_code']
+        expires_in =  request.query_params['expires_in']
+
+        t = WechatBaseForUser(isAccessToken=True)
+
+        authorization_info = t.get_auth_by_authcode(auth_code)
+        authorizer_info = t.get_authorizer_info(authorization_info)
+
+
+        try:
+            accObj = Acc.objects.get(authorizer_appid=authorization_info['authorizer_appid'])
+            accObj.authorizer_refresh_token = authorization_info['authorizer_refresh_token']
+            accObj.nick_name = authorizer_info['nick_name']
+            accObj.head_img = authorizer_info['head_img']
+            accObj.user_name = authorizer_info['user_name']
+            accObj.principal_name = authorizer_info['principal_name']
+            accObj.alias = authorizer_info['alias']
+            accObj.qrcode_url = authorizer_info['qrcode_url']
+            accObj.save()
+        except Acc.DoesNotExist:
+            accObj = Acc.objects.create(**dict(
+                authorizer_appid = authorization_info['authorizer_appid'],
+                authorizer_refresh_token = authorization_info['authorizer_refresh_token'],
+                nick_name = authorizer_info['nick_name'],
+                head_img = authorizer_info['head_img'],
+                # service_type_info=json.dumps(authorizer_info['service_type_info']),
+                # verify_type_info=json.dumps(authorizer_info['verify_type_info']),
+                user_name=authorizer_info['user_name'],
+                principal_name=authorizer_info['principal_name'],
+                alias=authorizer_info['alias'],
+                # business_info=json.dumps(authorizer_info['business_info']),
+                qrcode_url=authorizer_info['qrcode_url'],
+            ))
+
+        t.refrech_auth_access_token(accObj.accid,authorization_info['authorizer_access_token'],authorization_info['expires_in'])
 
         return HttpResponse("success")
 
@@ -96,56 +147,16 @@ class WeChatAPIView(viewsets.ViewSet):
 
         return None
 
+    @list_route(methods=['POST','GET','PUT','DELETE'])
+    @Core_connector(isTransaction=True)
+    def AccQrcode(self,request,*args,**kwargs):
 
-    @list_route(methods=['POST','GET'])
-    @Core_connector(isReturn=True,isTransaction=True)
-    def authCallback(self,request, *args, **kwargs):
+        if request.method == 'POST':
+            res = WechatQrcode(accid=request.data_format.get('accid')).qrcode_create()
 
-        """
-        授权后回调处理
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
+            print(res)
+        return None
 
-        auth_code = request.query_params['auth_code']
-        expires_in =  request.query_params['expires_in']
-
-        t = WechatBaseForUser(isAccessToken=True)
-
-        authorization_info = t.get_auth_by_authcode(auth_code)
-        authorizer_info = t.get_authorizer_info(authorization_info)
-
-
-        try:
-            accObj = Acc.objects.get(authorizer_appid=authorization_info['authorizer_appid'])
-            accObj.authorizer_refresh_token = authorization_info['authorizer_refresh_token']
-            accObj.nick_name = authorizer_info['nick_name']
-            accObj.head_img = authorizer_info['head_img']
-            accObj.user_name = authorizer_info['user_name']
-            accObj.principal_name = authorizer_info['principal_name']
-            accObj.alias = authorizer_info['alias']
-            accObj.qrcode_url = authorizer_info['qrcode_url']
-            accObj.save()
-        except Acc.DoesNotExist:
-            accObj = Acc.objects.create(**dict(
-                authorizer_appid = authorization_info['authorizer_appid'],
-                authorizer_refresh_token = authorization_info['authorizer_refresh_token'],
-                nick_name = authorizer_info['nick_name'],
-                head_img = authorizer_info['head_img'],
-                # service_type_info=json.dumps(authorizer_info['service_type_info']),
-                # verify_type_info=json.dumps(authorizer_info['verify_type_info']),
-                user_name=authorizer_info['user_name'],
-                principal_name=authorizer_info['principal_name'],
-                alias=authorizer_info['alias'],
-                # business_info=json.dumps(authorizer_info['business_info']),
-                qrcode_url=authorizer_info['qrcode_url'],
-            ))
-
-        t.refrech_auth_access_token(accObj.accid,authorization_info['authorizer_access_token'],authorization_info['expires_in'])
-
-        return HttpResponse("success")
 
     @list_route(methods=['POST'])
     @Core_connector(isReturn=True)

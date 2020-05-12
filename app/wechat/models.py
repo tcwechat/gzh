@@ -84,6 +84,8 @@ class AccQrcode(models.Model):
 
     qr_type = models.CharField(max_length=1,verbose_name="扫码推送:0-新建扫码推送消息,1-不启用",default="0")
 
+    tags = models.CharField(max_length=1024,verbose_name="标签集合",default="[]")
+
     send_type = models.CharField(max_length=1,verbose_name="推送方式:0-随机推送一条,1-全部推送",default="0")
 
     createtime = models.BigIntegerField(default=0)
@@ -101,3 +103,24 @@ class AccQrcode(models.Model):
         verbose_name = '渠道二维码'
         verbose_name_plural = verbose_name
         db_table = 'accqrcode'
+
+
+class AccQrcodeList(models.Model):
+    """
+    渠道二维码内容明细
+    """
+
+    id = models.BigAutoField(primary_key=True)
+
+    qrid = models.BigIntegerField(verbose_name="二维码ID")
+
+    type = models.CharField(max_length=1,verbose_name="类型,0-图文,1-图片,2-文字,3-音频,4-视频")
+
+    
+
+
+
+    class Meta:
+        verbose_name = '渠道二维码内容明细'
+        verbose_name_plural = verbose_name
+        db_table = 'accqrcodelist'
