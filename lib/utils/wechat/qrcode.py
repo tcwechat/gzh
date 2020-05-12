@@ -33,4 +33,20 @@ class WechatQrcode(WechatBaseForUser):
         response = json.loads(response.content.decode('utf-8'))
         return response['url']
 
+    def qrcode_create_forever(self):
+        """
+        生成永久二维码
+        :return:
+        """
+        response = request(method="POST",
+                           url="https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token={}".format(
+                               self.auth_accesstoken),
+                           json={
+                               "action_name":"QR_LIMIT_SCENE",
+                               "action_info": {"scene": {"scene_id": 1}}
+                           })
+        print(response.text)
+        response = json.loads(response.content.decode('utf-8'))
+        return response['url']
+
 

@@ -99,6 +99,22 @@ class WeChatAPIView(viewsets.ViewSet):
 
         return HttpResponse("success")
 
+    @detail_route(methods=['POST'])
+    @Core_connector(isReturn=True,isRVliad=True)
+    def callback(self,request, *args, **kwargs):
+
+        pk= kwargs.get("pk")
+
+        cH = WechatMsgValid()
+
+        if not cH.check_appid(pk):
+            raise PubErrorCustom("非法请求!{}".format(pk))
+        # cH.run()
+        print(request.body.decode('utf-8'))
+
+        return HttpResponse("success")
+
+
     @list_route(methods=['GET'])
     @Core_connector(isTicket=True)
     def getPreAuthUrl(self,request):
@@ -152,18 +168,30 @@ class WeChatAPIView(viewsets.ViewSet):
     def AccQrcode(self,request,*args,**kwargs):
 
         if request.method == 'POST':
-            res = WechatQrcode(accid=request.data_format.get('accid')).qrcode_create()
 
-            print(res)
+            obj = AccQrcodeModel.objects.create(**dict(
+                name = request.data_format.get('name'),
+                accid = request.data_format.get('accid'),
+                type=request.data_format.get('type'),
+                qr_type=request.data_format.get('qr_type'),
+                send_type=request.data_format.get('send_type'),
+                tags=json.dumps(request.data_format.get('tags')),
+            ))
+
+            if obj.type == '0':
+                obj.url = WechatQrcode(accid=obj.accid).qrcode_create()
+            else:
+                obj.url = WechatQrcode(accid=obj.accid).qrcode_create_forever()
+
+            obj.save()
         return None
 
 
-    @list_route(methods=['POST'])
+    @detail_route(methods=['POST'])
     @Core_connector(isReturn=True)
     def test(self,request, *args, **kwargs):
 
-        s = WechatBaseForUser(isAccessToken=True)
-        print(s.pre_auth_code)
+        pk= kwargs.get("pk")
 
         return HttpResponse("success")
 

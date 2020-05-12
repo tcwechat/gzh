@@ -90,6 +90,9 @@ class WechatBase(object):
         sha.update("".join(sortlist).encode("utf8"))
         return sha.hexdigest()
 
+    def check_appid(self,appid):
+
+        return appid == self.appid
 
 class WechatBaseForUser(WechatBase):
 

@@ -88,6 +88,8 @@ class AccQrcode(models.Model):
 
     send_type = models.CharField(max_length=1,verbose_name="推送方式:0-随机推送一条,1-全部推送",default="0")
 
+    url = models.CharField(max_length=255,verbose_name="二维码链接",default="")
+
     createtime = models.BigIntegerField(default=0)
 
     def save(self, *args, **kwargs):
@@ -116,7 +118,7 @@ class AccQrcodeList(models.Model):
 
     type = models.CharField(max_length=1,verbose_name="类型,0-图文,1-图片,2-文字,3-音频,4-视频")
 
-    
+
 
 
 
