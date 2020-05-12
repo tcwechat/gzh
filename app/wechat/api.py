@@ -4,17 +4,17 @@ import xml.etree.cElementTree as ET
 
 from rest_framework import viewsets
 from lib.core.decorator.response import Core_connector
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route,detail_route
 from django.shortcuts import HttpResponse
 
 from lib.utils.wechat.ticket import WechatMsgValid
 from lib.utils.wechat.base import WechatBaseForUser
 from lib.utils.db import RedisTicketHandler
 
-from app.wechat.models import Acc
+from app.wechat.models import Acc,AccTag as AccTagModel
 from lib.utils.exceptions import PubErrorCustom
 
-from app.wechat.serialiers import AccSerializer
+from app.wechat.serialiers import AccSerializer,AccTagModelSerializer
 
 class WeChatAPIView(viewsets.ViewSet):
 
@@ -69,6 +69,32 @@ class WeChatAPIView(viewsets.ViewSet):
         :return:
         """
         return {"data":AccSerializer(Acc.objects.filter(),many=True).data}
+
+    @list_route(methods=['POST','GET','PUT','DELETE'])
+    @Core_connector(isTransaction=True)
+    def AccTag(self,request,*args,**kwargs):
+
+        if request.method =='POST':
+            obj = AccTagModel.objects.create(**dict(
+                name = request.data_format.get("name"),
+                accid = request.data_format.get("accid")
+            ))
+            return {"data":{"id":obj.id}}
+        elif request.method =='PUT':
+            try:
+                obj = AccTagModel.objects.get(id=request.data_format.get("id"))
+                obj.name = request.data_format.get("name")
+                obj.save()
+            except AccTagModel.DoesNotExist:
+                raise PubErrorCustom("不存在此标签!")
+        elif request.method == 'DELETE':
+            AccTagModel.objects.filter(id=request.data_format.get("id")).delete()
+        elif request.method == 'GET':
+            return { "data":AccTagModelSerializer(AccTagModel.objects.filter(accid=request.query_params_format.get("accid")),many=True).data}
+        else:
+            raise PubErrorCustom("拒绝访问!")
+
+        return None
 
 
     @list_route(methods=['POST','GET'])
