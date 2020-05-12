@@ -36,25 +36,6 @@ class WechatMsgValid(WechatBase):
 
         return xml_content
 
-class WechatAccMsgValid(WechatBase):
-
-    def checkSignatrue(self,timestamp,nonce,signature,encrypt):
-        print("时间戳{}-随机数{}-签名{}-内容{}".format(timestamp,nonce,signature,encrypt))
-        sortlist = [self.token, timestamp, nonce,encrypt]
-        newsignature = self.sha1(sortlist)
-        if newsignature != signature:
-            raise Exception("checkSignatrue Error!")
-
-    def run(self,timestamp,nonce,signature,appid):
-
-        encrypt = self.xml_tree.find("Encrypt").text
-
-        self.checkSignatrue(timestamp,nonce,signature,encrypt)
-
-        pc = Prpcrypt(self.key)
-        xml_content = pc.decrypt(encrypt.encode('utf-8'), appid)
-
-        return xml_content
 
 if __name__=='__main__':
     xmltext="""
