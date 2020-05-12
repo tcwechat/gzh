@@ -105,12 +105,19 @@ class WeChatAPIView(viewsets.ViewSet):
 
         pk= kwargs.get("pk")
 
-        cH = WechatMsgValid()
-
-        # if not cH.check_appid(pk):
-        #     raise PubErrorCustom("非法请求!{}".format(pk))
-        print(cH.run())
+        # cH = WechatMsgValid()
+        #
+        # # if not cH.check_appid(pk):
+        # #     raise PubErrorCustom("非法请求!{}".format(pk))
+        # print(cH.run())
         # print(request.body.decode('utf-8'))
+
+        xml_content = WechatMsgValid(xmltext=request.body.decode('utf-8')).run(
+            request.query_params['timestamp'],
+            request.query_params['nonce'],
+            request.query_params['msg_signature']
+        )
+        print(xml_content)
 
         return HttpResponse("success")
 
