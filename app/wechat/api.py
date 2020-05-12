@@ -7,7 +7,7 @@ from lib.core.decorator.response import Core_connector
 from rest_framework.decorators import list_route,detail_route
 from django.shortcuts import HttpResponse
 
-from lib.utils.wechat.ticket import WechatMsgValid
+from lib.utils.wechat.ticket import WechatMsgValid,WechatAccMsgValid
 from lib.utils.wechat.base import WechatBaseForUser
 from lib.utils.wechat.qrcode import WechatQrcode
 from lib.utils.db import RedisTicketHandler
@@ -112,10 +112,11 @@ class WeChatAPIView(viewsets.ViewSet):
         # print(cH.run())
         # print(request.body.decode('utf-8'))
 
-        xml_content = WechatMsgValid(xmltext=request.body.decode('utf-8')).run(
+        xml_content = WechatAccMsgValid(xmltext=request.body.decode('utf-8')).run(
             request.query_params['timestamp'],
             request.query_params['nonce'],
-            request.query_params['msg_signature']
+            request.query_params['msg_signature'],
+            pk
         )
         print(xml_content)
 
