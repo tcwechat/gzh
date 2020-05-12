@@ -185,6 +185,8 @@ class Prpcrypt(object):
             from_appid = content[xml_len + 4:]
         except Exception as e:
             return ierror.WXBizMsgCrypt_IllegalBuffer, None
+
+        print(from_appid,appid)
         if from_appid != appid:
             return ierror.WXBizMsgCrypt_ValidateAppid_Error, None
         return 0, xml_content.decode()
