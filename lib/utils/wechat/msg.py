@@ -5,9 +5,9 @@ from lib.utils.wechat.WXBizMsgCrypt import WXBizMsgCrypt
 
 class WechatAccMsg(WechatBase):
 
-    def DecryptMsg(self,appid,timestamp,nonce,signature,xmlc):
+    def DecryptMsg(self,timestamp,nonce,signature,xmlc):
 
-        print(WXBizMsgCrypt(self.token,self.key,appid).DecryptMsg(
+        print(WXBizMsgCrypt(self.token,self.key,self.appid).DecryptMsg(
             xmlc,
             signature,
             timestamp,
