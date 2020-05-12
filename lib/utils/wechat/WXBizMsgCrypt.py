@@ -204,12 +204,9 @@ class WXBizMsgCrypt(object):
     # @param sEncodingAESKey: 公众平台上，开发者设置的EncodingAESKey
     # @param sAppId: 企业号的AppId
     def __init__(self, sToken, sEncodingAESKey, sAppId):
-        try:
-            self.key = base64.b64decode(sEncodingAESKey + "=")
-            assert len(self.key) == 32
-        except Exception:
-            throw_exception("[error]: EncodingAESKey unvalid !",
-                            FormatException)
+
+        self.key = base64.b64decode(sEncodingAESKey + "=")
+
         #return ierror.WXBizMsgCrypt_IllegalAesKey)
         self.token = sToken
         self.appid = sAppId.encode()
