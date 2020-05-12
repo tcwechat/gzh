@@ -109,8 +109,8 @@ class WeChatAPIView(viewsets.ViewSet):
 
         # if not cH.check_appid(pk):
         #     raise PubErrorCustom("非法请求!{}".format(pk))
-        # # cH.run()
-        print(request.body.decode('utf-8'))
+        print(cH.run())
+        # print(request.body.decode('utf-8'))
 
         return HttpResponse("success")
 
