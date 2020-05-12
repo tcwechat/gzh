@@ -11,7 +11,7 @@ from app.user.models import Users,Role
 
 class UserAPIView(viewsets.ViewSet):
 
-    @list_route(methods=['POST'])
+    @list_route(methods=['GET'])
     @Core_connector(isTicket=True)
     def userinfo(self,request, *args, **kwargs):
 
