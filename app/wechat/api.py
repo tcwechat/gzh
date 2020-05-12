@@ -113,7 +113,7 @@ class WeChatAPIView(viewsets.ViewSet):
         # print(cH.run())
         # print(request.body.decode('utf-8'))
 
-        xml_content = WechatAccMsg(xmltext=request.body.decode('utf-8')).run(
+        xml_content = WechatAccMsg(xmltext=request.body.decode('utf-8')).DecryptMsg(
             pk,
             request.query_params['timestamp'],
             request.query_params['nonce'],
