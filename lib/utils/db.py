@@ -72,3 +72,6 @@ class RedisTokenHandler(RedisHandler):
     def get(self):
         res = self.redis_client.get(self.key)
         return json.loads(res) if res else res
+
+    def delete(self):
+        self.redis_client.delete(self.key)

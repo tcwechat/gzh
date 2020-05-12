@@ -4,6 +4,10 @@ from lib.utils.mytime import UtilTime
 
 class Acc(models.Model):
 
+    """
+    公众号列表
+    """
+
     accid=models.BigAutoField(primary_key=True)
 
     authorizer_appid = models.CharField(max_length=60,verbose_name="授权方appid")
@@ -28,7 +32,72 @@ class Acc(models.Model):
         if not self.createtime:
             self.createtime = UtilTime().timestamp
         return super(Acc, self).save(*args, **kwargs)
+
     class Meta:
         verbose_name = '公众号列表'
         verbose_name_plural = verbose_name
         db_table = 'acc'
+
+
+class AccTag(models.Model):
+    """
+    标签
+    """
+
+    id = models.BigAutoField(primary_key=True)
+
+    name = models.CharField(max_length=60,default="",verbose_name="标签名字")
+    accid = models.BigIntegerField(verbose_name="公众号ID")
+    fans_count = models.IntegerField(default=0,verbose_name="粉丝数量")
+
+    wechat_fans_count = models.IntegerField(default=0,verbose_name="微信粉丝数量")
+
+    createtime = models.BigIntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+
+        ut =  UtilTime()
+        if not self.createtime:
+            self.createtime = ut.timestamp
+        return super(AccTag, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = '标签'
+        verbose_name_plural = verbose_name
+        db_table = 'acctag'
+
+
+class AccQrcode(models.Model):
+    """
+    渠道二维码
+    """
+
+    id = models.BigAutoField(primary_key=True)
+
+    name = models.CharField(max_length=60,default="",verbose_name="二维码名称")
+    accid = models.BigIntegerField(verbose_name="公众号ID")
+    tot_count = models.IntegerField(verbose_name="总扫码次数(既扫码也关注)",default=0)
+    new_count = models.IntegerField(verbose_name="新扫码且关注")
+    follow_count = models.IntegerField(verbose_name="已关注扫码")
+    type = models.CharField(max_length=1,verbose_name="类型,0-临时,1-永久",default="1")
+    endtime = models.BigIntegerField(default=0)
+
+    qr_type = models.CharField(max_length=1,verbose_name="扫码推送:0-新建扫码推送消息,1-不启用",default="0")
+
+    send_type = models.CharField(max_length=1,verbose_name="推送方式:0-随机推送一条,1-全部推送",default="0")
+
+    createtime = models.BigIntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+
+        ut =  UtilTime()
+        if not self.createtime:
+            self.createtime = ut.timestamp
+        if self.type == '0':
+            self.endtime = ut.today.shift(days=30).timestamp
+        return super(AccQrcode, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = '渠道二维码'
+        verbose_name_plural = verbose_name
+        db_table = 'accqrcode'

@@ -11,4 +11,15 @@ from app.user.models import Users,Role
 
 class UserAPIView(viewsets.ViewSet):
 
-    pass
+    @list_route(methods=['POST'])
+    @Core_connector(isTicket=True)
+    def userinfo(self,request, *args, **kwargs):
+
+        return {"data": {
+            "userid": request.user.get("userid"),
+            "loginname": request.user.get("uuid"),
+            "username": request.user.get("name"),
+            "rolecode":request.user.get("rolecode"),
+            "avatar": ServerUrl+'/static/images/pic.jpg',
+            "menu": []
+        }}

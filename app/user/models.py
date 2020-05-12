@@ -10,7 +10,6 @@ class Login(models.Model):
     ip = models.CharField(max_length=255,default='')
     user_agent = models.CharField(max_length=255,default='')
 
-
     def save(self, *args, **kwargs):
         if not self.createtime:
             self.createtime = UtilTime().timestamp
@@ -23,10 +22,10 @@ class Login(models.Model):
 
 class Users(models.Model):
 
-    id=models.AutoField(primary_key=True)
+    id=  models.BigIntegerField(primary_key=True)
 
     userid = models.BigIntegerField(verbose_name="用户ID")
-    rolecode=models.IntegerField(verbose_name="角色代码")
+    rolecode = models.IntegerField(verbose_name="角色代码")
 
     name = models.CharField(max_length=120, verbose_name="名称", default='', null=True)
     passwd = models.CharField(max_length=60,verbose_name='密码',default='')
@@ -34,7 +33,6 @@ class Users(models.Model):
     addr = models.CharField(max_length=255, verbose_name="地址", default='', null=True)
     sex = models.CharField(max_length=10, verbose_name="性别", default='', null=True)
 
-    appid = models.CharField(max_length=60, verbose_name="用户小程序应用ID", default='', null=True)
     uuid =  models.CharField(max_length=60, verbose_name="用户小程序ID/用户账号", default='', null=True)
     mobile = models.CharField(max_length=60, verbose_name="手机号", default='', null=True)
 
@@ -42,11 +40,8 @@ class Users(models.Model):
 
     status = models.CharField(max_length=1,default='0',verbose_name="状态:0-正常，1-到期,2-冻结",null=True)
 
-    isvip = models.CharField(max_length=1,default='0',verbose_name="是否会员:0-否，1-是")
-
     bal = models.DecimalField(max_digits=18,decimal_places=6,default=0.000,verbose_name="余额")
     createtime=models.BigIntegerField(default=0)
-    updtime = models.BigIntegerField(default=0)
 
     def save(self, *args, **kwargs):
 
@@ -86,26 +81,3 @@ class Role(models.Model):
         verbose_name = '角色表'
         verbose_name_plural = verbose_name
         db_table = 'role'
-
-
-class BalList(models.Model):
-
-    id = models.BigAutoField(primary_key=True)
-    userid =  models.BigIntegerField(default=0,verbose_name="用户ID")
-    amount = models.DecimalField(max_digits=18,decimal_places=6,default=0.000,verbose_name="交易金额")
-    bal = models.DecimalField(max_digits=18, decimal_places=6, default=0.000, verbose_name="交易前金额")
-    confirm_bal = models.DecimalField(max_digits=18, decimal_places=6, default=0.000, verbose_name="交易后金额")
-    memo = models.CharField(max_length=255,verbose_name="交易摘要")
-    orderid = models.CharField(max_length=120,default='0',verbose_name="订单号")
-
-    createtime = models.BigIntegerField()
-
-    def save(self, *args, **kwargs):
-        if not self.createtime:
-            self.createtime = UtilTime().timestamp
-        return super(BalList, self).save(*args, **kwargs)
-
-    class Meta:
-        verbose_name = '动账明细表'
-        verbose_name_plural = verbose_name
-        db_table = 'ballist'

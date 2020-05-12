@@ -14,6 +14,8 @@ from lib.utils.db import RedisTicketHandler
 from app.wechat.models import Acc
 from lib.utils.exceptions import PubErrorCustom
 
+from app.wechat.serialiers import AccSerializer
+
 class WeChatAPIView(viewsets.ViewSet):
 
     @list_route(methods=['POST'])
@@ -47,7 +49,7 @@ class WeChatAPIView(viewsets.ViewSet):
         return HttpResponse("success")
 
     @list_route(methods=['GET'])
-    @Core_connector()
+    @Core_connector(isTicket=True)
     def getPreAuthUrl(self,request):
 
         """
@@ -56,6 +58,18 @@ class WeChatAPIView(viewsets.ViewSet):
         :return:
         """
         return {"data":WechatBaseForUser(isAccessToken=True).get_auth_url()}
+
+    @list_route(methods=['GET'])
+    @Core_connector(isTicket=True)
+    def getAcc(self,request):
+
+        """
+        获取公众号
+        :param request:
+        :return:
+        """
+        return {"data":AccSerializer(Acc.objects.filter(),many=True).data}
+
 
     @list_route(methods=['POST','GET'])
     @Core_connector(isReturn=True,isTransaction=True)
