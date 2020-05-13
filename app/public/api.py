@@ -35,7 +35,7 @@ class PublicAPIView(viewsets.ViewSet):
     @Core_connector(isTransaction=True)
     def meterial(self, request, *args, **kwargs):
 
-        media_id, url = WechatMaterial(isAccid=True, accid=request.data_format.get("accid", "")).create_forever(
+        media_id, url = WechatMaterial(accid=request.data_format.get("accid", "")).create_forever(
             meterialObj=request.FILES.get('filename'),
             type=request.data_format.get("type", ""),
             title=request.data_format.get("title", ""),
@@ -55,4 +55,4 @@ class PublicAPIView(viewsets.ViewSet):
     @Core_connector(isReturn=True)
     def meterial_get(self, request, *args, **kwargs):
 
-        return WechatMaterial().get_forever(request.query_params_format.get("id", 0))
+        return WechatMaterial(accid=request.query_params_format.get("accid", "")).get_forever(request.query_params_format.get("id", 0))

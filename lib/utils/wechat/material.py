@@ -12,13 +12,10 @@ class WechatMaterial(WechatBaseForUser):
 
     def __init__(self,**kwargs):
 
-        if kwargs.get("isAccid",None):
-            accid = kwargs.get("accid",None)
-            if not accid:
-                raise PubErrorCustom("accid为空!")
-            super().__init__(accid=accid)
-        else:
-            super().__init__()
+        accid = kwargs.get("accid",None)
+        if not accid:
+            raise PubErrorCustom("accid为空!")
+        super().__init__(accid=accid)
 
     def get_file_by_url(self,url):
 
