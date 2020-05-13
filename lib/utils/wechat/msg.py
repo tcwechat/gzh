@@ -67,7 +67,6 @@ class WechatAccMsg(WechatBase):
 
                 try:
                     alu_obj = AccLinkUser.objects.get(accid=aqc_obj.accid,openid=self.xml_data['FromUserName'])
-                    alu_obj.tags = json.loads(alu_obj.tags)
                     alu_obj.tags = json.dumps(list(set(json.loads(alu_obj.tags)).union(set(json.loads(aqc_obj.tags)))))
                     alu_obj.save()
                 except AccLinkUser.DoesNotExist:
