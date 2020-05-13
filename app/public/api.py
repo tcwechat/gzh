@@ -35,18 +35,24 @@ class PublicAPIView(viewsets.ViewSet):
     @Core_connector(isTransaction=True)
     def meterial(self, request, *args, **kwargs):
 
-        #chunk for chunk in request.FILES.get('filename').chunks()
-        media_id,url = WechatMaterial(accid=request.data_format.get("accid","")).create_forever(
+        media_id, url = WechatMaterial(isAccid=True, accid=request.data_format.get("accid", "")).create_forever(
             meterialObj=request.FILES.get('filename'),
-            type=request.data_format.get("type",""),
-            title=request.data_format.get("title",""),
-            introduction=request.data_format.get("introduction","")
+            type=request.data_format.get("type", ""),
+            title=request.data_format.get("title", ""),
+            introduction=request.data_format.get("introduction", "")
         )
-        print(media_id,url)
-        Meterial.objects.create(** dict(
-            type = request.data_format.get("type",""),
-            title = request.data_format.get("title",""),
+        print(media_id, url)
+        Meterial.objects.create(**dict(
+            type=request.data_format.get("type", ""),
+            title=request.data_format.get("title", ""),
             introduction=request.data_format.get("introduction", ""),
-            media_id = media_id,
-            url = url
+            media_id=media_id,
+            url=url
         ))
+        return {"data": {"media_id": media_id, "url": url}}
+
+    @list_route(methods=['GET'])
+    @Core_connector(isReturn=True)
+    def meterial_get(self, request, *args, **kwargs):
+
+        return WechatMaterial().get_forever(request.query_params_format.get("id", 0))
