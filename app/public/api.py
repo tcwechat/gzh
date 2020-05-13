@@ -35,7 +35,7 @@ class PublicAPIView(viewsets.ViewSet):
     @Core_connector()
     def wechat_file(self, request, *args, **kwargs):
 
-        media_id,url = WechatMaterial().create_forever(
+        media_id,url = WechatMaterial(accid=request.data.get("accid","")).create_forever(
             meterialObj=request.FILES.get('filename'),
             type=request.data.get("type",""),
             title=request.data.get("title",""),
