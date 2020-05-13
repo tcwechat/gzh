@@ -20,7 +20,7 @@ class WechatAccMsg(WechatBase):
         if res[0] != 0:
             raise PubErrorCustom("解密错误!{}".format(res[0]))
 
-        self.xml_data = xmltodict.parse(res[1])
+        self.xml_data = xmltodict.parse(res[1])['xml']
 
     def DecryptMsg(self,timestamp,nonce,signature,xmlc):
 
