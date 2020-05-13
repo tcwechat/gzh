@@ -77,6 +77,9 @@ class WechatMaterial(WechatBaseForUser):
                            files={"media":(meterialObj.name,meterialObj.read())},
                            json={
                                 "type":type
+                           } if type !='video' else {
+                               "title":title,
+                               "introduction":introduction
                            })
         print(response.text)
         response = json.loads(response.content.decode('utf-8'))

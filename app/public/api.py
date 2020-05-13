@@ -32,8 +32,8 @@ class PublicAPIView(viewsets.ViewSet):
             raise PubErrorCustom("文件上传失败!")
 
     @list_route(methods=['POST', 'OPTIONS'])
-    @Core_connector()
-    def wechat_file(self, request, *args, **kwargs):
+    @Core_connector(isTransaction=True)
+    def meterial(self, request, *args, **kwargs):
 
         #chunk for chunk in request.FILES.get('filename').chunks()
         media_id,url = WechatMaterial(accid=request.data_format.get("accid","")).create_forever(
