@@ -31,6 +31,8 @@ class WechatAccMsg(WechatBase):
 
     def eventHandler(self):
 
+        print(self.xml_data)
+
         if self.xml_data['MsgType'] == 'event':
             """
             扫描带参数二维码事件
