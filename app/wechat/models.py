@@ -39,6 +39,31 @@ class Acc(models.Model):
         db_table = 'acc'
 
 
+class AccLinkUser(models.Model):
+
+    """
+    公众号用户关联表
+    """
+
+    id=models.BigAutoField(primary_key=True)
+    accid = models.BigIntegerField(verbose_name="公众号ID")
+    openid = models.CharField(max_length=60,verbose_name="粉丝openid")
+    tags = models.CharField(max_length=1024, verbose_name="标签集合", default="[]")
+    createtime=models.BigIntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+
+        if not self.createtime:
+            self.createtime = UtilTime().timestamp
+        return super(AccLinkUser, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = '公众号用户关联表'
+        verbose_name_plural = verbose_name
+        db_table = 'acclinkuser'
+
+
+
 class AccTag(models.Model):
     """
     标签

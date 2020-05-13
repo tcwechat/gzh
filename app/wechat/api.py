@@ -101,7 +101,7 @@ class WeChatAPIView(viewsets.ViewSet):
         return HttpResponse("success")
 
     @detail_route(methods=['POST'])
-    @Core_connector(isReturn=True,isRVliad=True)
+    @Core_connector(isReturn=True,isRVliad=True,isTransaction=True)
     def callback(self,request, *args, **kwargs):
 
         pk= kwargs.get("pk")
@@ -188,9 +188,9 @@ class WeChatAPIView(viewsets.ViewSet):
             ))
 
             if obj.type == '0':
-                obj.url = WechatQrcode(accid=obj.accid).qrcode_create()
+                obj.url = WechatQrcode(accid=obj.accid).qrcode_create(obj.id)
             else:
-                obj.url = WechatQrcode(accid=obj.accid).qrcode_create_forever()
+                obj.url = WechatQrcode(accid=obj.accid).qrcode_create_forever(obj.id)
 
             obj.save()
         return None
