@@ -1,5 +1,5 @@
 
-
+import json
 from lib.utils.wechat.base import WechatBase
 from lib.utils.wechat.WXBizMsgCrypt import WXBizMsgCrypt
 from lib.utils.exceptions import PubErrorCustom
@@ -63,11 +63,17 @@ class WechatAccMsg(WechatBase):
                     aqc_obj.new_count +=1
                     aqc_obj.save()
 
-                AccLinkUser.objects.create(**{
-                    "accid" : aqc_obj.accid,
-                    "openid" : self.xml_data['FromUserName'],
-                    "tags" : aqc_obj.tags
-                })
+                try:
+                    alu_obj = AccLinkUser.objects.get(accid=aqc_obj.accid,openid=self.xml_data['FromUserName'])
+                    alu_obj.tags = json.loads(alu_obj.tags)
+                    alu_obj.tags = json.dumps(list(set(json.loads(alu_obj.tags)).union(set(json.loads(aqc_obj.tags)))))
+                    alu_obj.save()
+                except AccLinkUser.DoesNotExist:
+                    AccLinkUser.objects.create(**{
+                        "accid" : aqc_obj.accid,
+                        "openid" : self.xml_data['FromUserName'],
+                        "tags" : aqc_obj.tags
+                    })
 
             else:
                 raise PubErrorCustom("事件未定义{}".format(self.xml_data))
