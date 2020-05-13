@@ -6,7 +6,7 @@ from lib.utils.wechat.base import WechatBaseForUser
 from lib.utils.exceptions import PubErrorCustom
 
 from app.public.models import Meterial
-from django.http.response import  StreamingHttpResponse
+from django.shortcuts import HttpResponse
 
 class WechatMaterial(WechatBaseForUser):
 
@@ -117,6 +117,4 @@ class WechatMaterial(WechatBaseForUser):
             response = json.loads(response.content.decode('utf-8'))
             return {"data":response}
         else:
-            response = StreamingHttpResponse(response.content)
-            response['Content-Type'] = 'application/txt'
-            return response
+            return HttpResponse(response,"content_type='image/png'")
