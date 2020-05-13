@@ -35,17 +35,17 @@ class PublicAPIView(viewsets.ViewSet):
     @Core_connector()
     def wechat_file(self, request, *args, **kwargs):
 
-        media_id,url = WechatMaterial(accid=request.data.get("accid","")).create_forever(
+        media_id,url = WechatMaterial(accid=request.data_format.get("accid","")).create_forever(
             meterialObj=request.FILES.get('filename'),
-            type=request.data.get("type",""),
-            title=request.data.get("title",""),
-            introduction=request.data.get("introduction","")
+            type=request.data_format.get("type",""),
+            title=request.data_format.get("title",""),
+            introduction=request.data_format.get("introduction","")
         )
         print(media_id,url)
         Meterial.objects.create(** dict(
-            type = request.data.get("type",""),
-            title = request.data.get("title",""),
-            introduction=request.data.get("introduction", ""),
+            type = request.data_format.get("type",""),
+            title = request.data_format.get("title",""),
+            introduction=request.data_format.get("introduction", ""),
             media_id = media_id,
             url = url
         ))
