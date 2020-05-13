@@ -2,7 +2,7 @@
 from django.db import models
 from lib.utils.mytime import UtilTime
 
-class Meterial(models):
+class Meterial(models.Model):
 
     """
     素材库

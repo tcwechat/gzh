@@ -15,6 +15,7 @@ INSTALLED_APPS_CUSTOM = [
     'app.sso',
     'app.user',
     'app.file',
+    'app.public',
     'app.wechat',
     'django_crontab'
 ]
