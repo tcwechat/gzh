@@ -74,7 +74,7 @@ class WechatMaterial(WechatBaseForUser):
         response = request(method="POST",
                            url="https://api.weixin.qq.com/cgi-bin/material/add_material?access_token={}&type={}".format(
                                self.auth_accesstoken,type),
-                           files={"media":(meterialObj.name,[chunk for chunk in meterialObj.chunks()])},
+                           files={"media":(meterialObj.name,meterialObj.read())},
                            json={
                                 "type":type
                            })
