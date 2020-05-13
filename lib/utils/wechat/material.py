@@ -72,8 +72,8 @@ class WechatMaterial(WechatBaseForUser):
             raise PubErrorCustom("类型有误!")
 
         response = request(method="POST",
-                           url="https://api.weixin.qq.com/cgi-bin/media/uploadimg?access_token={}".format(
-                               self.auth_accesstoken),
+                           url="https://api.weixin.qq.com/cgi-bin/material/add_material?access_token={}&type={}".format(
+                               self.auth_accesstoken,type),
                            files=meterialObj,
                            json={
                                 "type":type,
@@ -82,8 +82,9 @@ class WechatMaterial(WechatBaseForUser):
                                "title": title,
                                "introduction": introduction
                            })
-
+        print(response.text)
         response = json.loads(response.content.decode('utf-8'))
+
         media_id = response['media_id']
         url = response.get("url","")
 
