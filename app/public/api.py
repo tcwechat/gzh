@@ -7,6 +7,9 @@ from lib.core.decorator.response import Core_connector
 from lib.utils.exceptions import PubErrorCustom
 from project.settings import IMAGE_PATH
 
+from lib.utils.wechat.material import WechatMaterial
+from app.public.models import Meterial
+
 class PublicAPIView(viewsets.ViewSet):
 
     @list_route(methods=['POST','OPTIONS'])
@@ -27,3 +30,22 @@ class PublicAPIView(viewsets.ViewSet):
 
         else:
             raise PubErrorCustom("文件上传失败!")
+
+    @list_route(methods=['POST', 'OPTIONS'])
+    @Core_connector()
+    def wechat_file(self, request, *args, **kwargs):
+
+        media_id,url = WechatMaterial().create_forever(
+            meterialObj=request.FILES.get('filename'),
+            type=request.data.get("type",""),
+            title=request.data.get("title",""),
+            introduction=request.data.get("introduction","")
+        )
+        print(media_id,url)
+        Meterial.objects.create(** dict(
+            type = request.data.get("type",""),
+            title = request.data.get("title",""),
+            introduction=request.data.get("introduction", ""),
+            media_id = media_id,
+            url = url
+        ))

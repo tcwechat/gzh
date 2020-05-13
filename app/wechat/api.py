@@ -13,7 +13,7 @@ from lib.utils.wechat.base import WechatBaseForUser
 from lib.utils.wechat.qrcode import WechatQrcode
 from lib.utils.db import RedisTicketHandler
 
-from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeModel
+from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeModel,AccQrcodeList
 from lib.utils.exceptions import PubErrorCustom
 
 from app.wechat.serialiers import AccSerializer,AccTagModelSerializer
@@ -185,6 +185,16 @@ class WeChatAPIView(viewsets.ViewSet):
                 send_type=request.data_format.get('send_type'),
                 tags=json.dumps(request.data_format.get('tags')),
             ))
+
+            aql_objs=[]
+            for item in request.data_format.get('contents'):
+                aql_objs.append(AccQrcodeList.objects.create(**dict(
+                    type=item.get("item"),
+                    picurl=item.get("picurl",""),
+                    url=item.get("url",""),
+                    title=item.get("title", ""),
+                    description=item.get("description", "")
+                )))
 
             if obj.type == '0':
                 obj.url = WechatQrcode(accid=obj.accid).qrcode_create(obj.id)
