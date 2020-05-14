@@ -12,14 +12,14 @@ class WechatRequestValid(WechatBase):
             raise Exception("checkSignatrue Error!")
 
     def run(self,timestamp,nonce,signature):
-        print("时间戳{}-随机数{}-签名{}".format(timestamp,nonce,signature))
+        # print("时间戳{}-随机数{}-签名{}".format(timestamp,nonce,signature))
         self.checkSignatrue(timestamp,nonce,signature)
 
 
 class WechatMsgValid(WechatBase):
 
     def checkSignatrue(self,timestamp,nonce,signature,encrypt):
-        print("时间戳{}-随机数{}-签名{}-内容{}".format(timestamp,nonce,signature,encrypt))
+        # print("时间戳{}-随机数{}-签名{}-内容{}".format(timestamp,nonce,signature,encrypt))
         sortlist = [self.token, timestamp, nonce,encrypt]
         newsignature = self.sha1(sortlist)
         if newsignature != signature:

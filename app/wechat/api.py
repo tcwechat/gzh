@@ -38,12 +38,14 @@ class WeChatAPIView(viewsets.ViewSet):
             request.query_params['msg_signature']
         )
 
-        print("拆解信息:{}".format(xml_content))
+        # print("拆解信息:{}".format(xml_content))
 
         InfoType = ET.fromstring(xml_content).find("InfoType").text
 
         if InfoType == 'component_verify_ticket':
             RedisTicketHandler().set(ET.fromstring(xml_content).find("ComponentVerifyTicket").text)
+
+            print("验证票据获取成功!")
         else:
             print("类型有误: {}".format(InfoType))
             raise PubErrorCustom("类型有误!")
