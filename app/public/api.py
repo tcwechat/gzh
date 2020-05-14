@@ -35,21 +35,37 @@ class PublicAPIView(viewsets.ViewSet):
     @Core_connector(isTransaction=True)
     def meterial(self, request, *args, **kwargs):
 
-        media_id, url = WechatMaterial(accid=request.data_format.get("accid", "")).create_forever(
-            meterialObj=request.FILES.get('filename'),
-            type=request.data_format.get("type", ""),
-            title=request.data_format.get("title", ""),
-            introduction=request.data_format.get("introduction", "")
-        )
-        print(media_id, url)
-        Meterial.objects.create(**dict(
-            type=request.data_format.get("type", ""),
-            title=request.data_format.get("title", ""),
-            introduction=request.data_format.get("introduction", ""),
-            media_id=media_id,
-            url=url
-        ))
-        return {"data": {"media_id": media_id, "url": url}}
+        file_obj = request.FILES.get('filename')
+        if file_obj:
+
+            new_file = "{}_{}".format(uuid.uuid4().hex, file_obj.name)
+
+            file_path = os.path.join(IMAGE_PATH, new_file)
+            with open(file_path, 'wb+') as f:
+                for chunk in file_obj.chunks():
+                    f.write(chunk)
+
+            fileUrl = "{}/static/images/{}".format(ServerUrl, new_file)
+
+            media_id, url = WechatMaterial(accid=request.data_format.get("accid", "")).create_forever(
+                meterialObj=file_obj,
+                type=request.data_format.get("type", ""),
+                title=request.data_format.get("title", ""),
+                introduction=request.data_format.get("introduction", "")
+            )
+
+            Meterial.objects.create(**dict(
+                type=request.data_format.get("type", ""),
+                title=request.data_format.get("title", ""),
+                introduction=request.data_format.get("introduction", ""),
+                media_id=media_id,
+                url=url,
+                local_url = fileUrl
+            ))
+            return {"data": {"path":fileUrl}}
+
+        else:
+            raise PubErrorCustom("文件上传失败!")
 
     @list_route(methods=['GET'])
     @Core_connector(isReturn=True)
