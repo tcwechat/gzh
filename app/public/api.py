@@ -61,6 +61,7 @@ class PublicAPIView(viewsets.ViewSet):
             Meterial.objects.create(**dict(
                 type=request.data_format.get("type", ""),
                 title=request.data_format.get("title", ""),
+                accid=request.data_format.get("accid",0),
                 introduction=request.data_format.get("introduction", ""),
                 media_id=media_id,
                 url=url,
