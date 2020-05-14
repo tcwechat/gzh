@@ -12,6 +12,8 @@ class Meterial(models.Model):
     type = models.CharField(max_length=1, verbose_name="类型,1-图文,2-图片,4-音频,5-视频,6-缩略图")
     media_id = models.CharField(max_length=60,verbose_name="微信媒体库ID")
 
+    accid = models.BigIntegerField()
+
     local_url = models.CharField(max_length=255,verbose_name="本地地址")
 
     url = models.CharField(max_length=255,verbose_name="图片url 仅图片")
