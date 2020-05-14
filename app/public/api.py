@@ -80,7 +80,7 @@ class PublicAPIView(viewsets.ViewSet):
 
         count = mQuery.count()
 
-        return {"data":MeterialSerializer(mQuery[request.page_start,request.page_end],many=True).data,"count":count}
+        return {"data":MeterialSerializer(mQuery[request.page_start:request.page_end],many=True).data,"count":count}
 
 
     @list_route(methods=['DELETE'])
