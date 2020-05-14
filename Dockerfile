@@ -12,7 +12,7 @@ RUN apk add --no-cache tzdata build-base libffi-dev openssl-dev python-dev py-pi
 RUN pip install --upgrade pip \
     && pip install -r requirements.txt \
     && mkdir -p /project/server/logs \
-    && mkdir -p /project/server/media \
+    && mkdir -p /project/server/static/images \
     && mkdir -p /var/logs/uwsgi/ \
     && mkdir -p /var/logs/sso \
     && echo "" > /var/logs/uwsgi/run.log \

@@ -41,14 +41,16 @@ class PublicAPIView(viewsets.ViewSet):
             new_file = "{}_{}".format(uuid.uuid4().hex, file_obj.name)
 
             file_path = os.path.join(IMAGE_PATH, new_file)
+
+            file_strem = file_obj.read()
+
             with open(file_path, 'wb+') as f:
-                for chunk in file_obj.chunks():
-                    f.write(chunk)
+                f.write(file_strem)
 
             fileUrl = "{}/static/images/{}".format(ServerUrl, new_file)
 
             media_id, url = WechatMaterial(accid=request.data_format.get("accid", "")).create_forever(
-                meterialObj=file_obj,
+                meterialObj={"file":file_strem,"filename":new_file},
                 type=request.data_format.get("type", ""),
                 title=request.data_format.get("title", ""),
                 introduction=request.data_format.get("introduction", "")
