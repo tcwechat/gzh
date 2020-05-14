@@ -5,7 +5,7 @@ from rest_framework.decorators import list_route
 from project.config_include.common import ServerUrl
 from lib.core.decorator.response import Core_connector
 from lib.utils.exceptions import PubErrorCustom
-from project.settings import IMAGE_PATH
+from project.settings import IMAGE_PATH,BASE_DIR
 
 from lib.utils.wechat.material import WechatMaterial
 from app.public.models import Meterial
@@ -80,3 +80,20 @@ class PublicAPIView(viewsets.ViewSet):
 
 
         return {"data":MeterialSerializer(mQuery,many=True).data}
+
+
+    @list_route(methods=['DELETE'])
+    @Core_connector(isTransaction=True)
+    def meterial_delete(self, request, *args, **kwargs):
+
+        try:
+            obj = Meterial.objects.get(media_id=request.data_format.get("media_id",0))
+        except Meterial.DoesNotExist:
+            raise PubErrorCustom("此素材不存在!")
+
+        WechatMaterial(accid=obj.accid).delete_forever(obj.media_id)
+
+        os.remove(os.path.join( BASE_DIR , obj.local_url ))
+        obj.delete()
+
+        return None

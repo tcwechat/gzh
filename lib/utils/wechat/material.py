@@ -95,6 +95,18 @@ class WechatMaterial(WechatBaseForUser):
         return media_id,url
 
 
+    def delete_forever(self,media_id):
+
+        response = request(method="POST",
+                           url="https://api.weixin.qq.com/cgi-bin/material/del_material?access_token={}".format(
+                               self.auth_accesstoken),
+                           json={
+                                "media_id":media_id
+                           })
+        response = json.loads(response.content.decode('utf-8'))
+        if str(response['errcode']) != '0':
+            raise PubErrorCustom(response['errmsg'])
+
     def get_forever(self,id):
 
 
