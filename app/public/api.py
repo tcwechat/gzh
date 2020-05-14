@@ -93,6 +93,7 @@ class PublicAPIView(viewsets.ViewSet):
 
         WechatMaterial(accid=obj.accid).delete_forever(obj.media_id)
 
+        print(os.path.join( BASE_DIR , obj.local_url ))
         os.remove(os.path.join( BASE_DIR , obj.local_url ))
         obj.delete()
 
