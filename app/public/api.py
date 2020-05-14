@@ -47,6 +47,7 @@ class PublicAPIView(viewsets.ViewSet):
             with open(file_path, 'wb+') as f:
                 f.write(file_strem)
 
+            saveFileUrl = "/static/images/{}".format(new_file)
             fileUrl = "{}/static/images/{}".format(ServerUrl, new_file)
 
             media_id, url = WechatMaterial(accid=request.data_format.get("accid", "")).create_forever(
@@ -62,7 +63,7 @@ class PublicAPIView(viewsets.ViewSet):
                 introduction=request.data_format.get("introduction", ""),
                 media_id=media_id,
                 url=url,
-                local_url = fileUrl
+                local_url = saveFileUrl
             ))
             return {"data": {"path":fileUrl}}
 
