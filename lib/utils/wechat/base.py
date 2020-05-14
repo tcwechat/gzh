@@ -80,6 +80,8 @@ class WechatBase(object):
             print(response.text)
             response = json.loads(response.content.decode('utf-8'))
             t.set(response['authorizer_access_token'], response['expires_in'])
+            self.acc.authorizer_refresh_token = response['authorizer_refresh_token']
+            self.acc.save()
             return response['authorizer_access_token']
         else:
             return res
