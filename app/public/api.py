@@ -73,13 +73,14 @@ class PublicAPIView(viewsets.ViewSet):
             raise PubErrorCustom("文件上传失败!")
 
     @list_route(methods=['GET'])
-    @Core_connector()
+    @Core_connector(isPagination=True)
     def meterial_get(self, request, *args, **kwargs):
 
         mQuery = Meterial.objects.filter(accid=request.query_params_format.get("accid",0)).order_by('-createtime')
 
+        count = mQuery.count()
 
-        return {"data":MeterialSerializer(mQuery,many=True).data}
+        return {"data":MeterialSerializer(mQuery[request.page_start,request.page_end],many=True).data,"count":count}
 
 
     @list_route(methods=['DELETE'])
