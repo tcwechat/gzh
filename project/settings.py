@@ -19,6 +19,8 @@ sys.path.insert(0, BASE_DIR)
 sys.path.insert(0, os.path.join(BASE_DIR, 'app'))
 sys.path.insert(0, os.path.join(BASE_DIR, 'lib'))
 
+print(BASE_DIR)
+
 STATIC_PATH = os.path.join( BASE_DIR , 'static' )
 IMAGE_PATH = os.path.join( STATIC_PATH , 'images' )
 
