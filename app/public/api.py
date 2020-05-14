@@ -9,6 +9,7 @@ from project.settings import IMAGE_PATH
 
 from lib.utils.wechat.material import WechatMaterial
 from app.public.models import Meterial
+from app.public.serialiers import MeterialSerializer
 
 class PublicAPIView(viewsets.ViewSet):
 
@@ -71,7 +72,10 @@ class PublicAPIView(viewsets.ViewSet):
             raise PubErrorCustom("文件上传失败!")
 
     @list_route(methods=['GET'])
-    @Core_connector(isReturn=True)
+    @Core_connector()
     def meterial_get(self, request, *args, **kwargs):
 
-        return WechatMaterial(accid=request.query_params_format.get("accid", "")).get_forever(request.query_params_format.get("id", 0))
+        mQuery = Meterial.objects.filter(accid=request.query_params_format.get("accid",0)).order_by('-createtime')
+
+
+        return {"data":MeterialSerializer(mQuery,many=True).data}
