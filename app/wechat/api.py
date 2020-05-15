@@ -126,7 +126,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
 
     @list_route(methods=['GET'])
-    @Core_connector(isTicket=True)
+    @Core_connector()
     def getPreAuthUrl(self,request):
 
         """
