@@ -143,12 +143,27 @@ class AccQrcodeList(models.Model):
     qrid = models.BigIntegerField(verbose_name="二维码ID")
     type = models.CharField(max_length=1,verbose_name="类型,1-图文,2-图片,3-文字,4-音频,5-视频")
 
+    media_id = models.CharField(max_length=60,verbose_name="媒体ID/图文推送内容ID",default="")
+
+    class Meta:
+        verbose_name = '渠道二维码推送内容'
+        verbose_name_plural = verbose_name
+        db_table = 'accqrcodelist'
+
+class AccQrcodeImageTextList(models.Model):
+    """
+    渠道二维码图文推送内容
+    """
+
+    id = models.BigAutoField(primary_key=True)
+    qr_listid = models.BigIntegerField(verbose_name="二维码推送内容ID")
+
     picurl = models.CharField(max_length=255,verbose_name="资源链接")
     url = models.CharField(max_length=255,verbose_name="点击图文跳转的链接")
     title = models.CharField(max_length=255,verbose_name="标题")
     description = models.TextField(verbose_name="描述,文字消息时,用此处值")
 
     class Meta:
-        verbose_name = '渠道二维码推送内容'
+        verbose_name = '渠道二维码图文推送内容'
         verbose_name_plural = verbose_name
-        db_table = 'accqrcodelist'
+        db_table = 'accqrcodeimagetextlist'

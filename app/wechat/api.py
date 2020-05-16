@@ -13,7 +13,7 @@ from lib.utils.wechat.base import WechatBaseForUser
 from lib.utils.wechat.qrcode import WechatQrcode
 from lib.utils.db import RedisTicketHandler
 
-from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeModel,AccQrcodeList
+from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeModel,AccQrcodeList,AccQrcodeImageTextList
 from lib.utils.exceptions import PubErrorCustom
 
 from app.wechat.serialiers import AccSerializer,AccTagModelSerializer
@@ -188,15 +188,23 @@ class WeChatAPIView(viewsets.ViewSet):
                 tags=json.dumps(request.data_format.get('tags')),
             ))
 
-            aql_objs=[]
             for item in request.data_format.get('contents'):
-                aql_objs.append(AccQrcodeList.objects.create(**dict(
+                aqlObj = AccQrcodeList.objects.create(**dict(
                     type=item.get("item"),
-                    picurl=item.get("picurl",""),
-                    url=item.get("url",""),
-                    title=item.get("title", ""),
-                    description=item.get("description", "")
-                )))
+                    qrid = obj.id,
+                    media_id= item.get("media_id",""),
+
+                ))
+
+                if item.get("type") == '1':
+                    for cItem in item.get("contents"):
+                        AccQrcodeImageTextList.objects.create(**dict(
+                            qr_listid=aqlObj.id,
+                            picurl=cItem.get("picurl",""),
+                            url=cItem.get("url",""),
+                            title=cItem.get("title", ""),
+                            description=cItem.get("description", "")
+                        ))
 
             if obj.type == '0':
                 obj.url = WechatQrcode(accid=obj.accid).qrcode_create(obj.id)
