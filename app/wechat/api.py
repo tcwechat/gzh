@@ -185,6 +185,7 @@ class WeChatAPIView(viewsets.ViewSet):
             send_type=request.data_format.get('send_type'),
             tags=json.dumps(request.data_format.get('tags')),
         ))
+        obj.listids = json.loads(obj.listids)
 
         for item in request.data_format.get('contents'):
             aqlObj = AccQrcodeList.objects.create(**dict(
@@ -193,16 +194,23 @@ class WeChatAPIView(viewsets.ViewSet):
                 media_id=item.get("media_id", ""),
 
             ))
+            obj.listids.append(aqlObj.id)
 
             if item.get("type") == '1':
+                aqlObj.iamgetextids = json.loads(aqlObj.iamgetextids)
                 for cItem in item.get("contents"):
-                    AccQrcodeImageTextList.objects.create(**dict(
+                    aqitlObj = AccQrcodeImageTextList.objects.create(**dict(
                         qr_listid=aqlObj.id,
                         picurl=cItem.get("picurl", ""),
                         url=cItem.get("url", ""),
                         title=cItem.get("title", ""),
                         description=cItem.get("description", "")
                     ))
+                    aqlObj.iamgetextids.append(aqitlObj.id)
+                aqlObj.iamgetextids = json.dumps(aqlObj.iamgetextids)
+                aqlObj.save()
+
+        obj.listids = json.dumps(obj.listids)
 
         if obj.type == '0':
             obj.url = WechatQrcode(accid=obj.accid).qrcode_create(obj.id)
