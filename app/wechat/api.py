@@ -16,7 +16,7 @@ from lib.utils.db import RedisTicketHandler
 from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeModel,AccQrcodeList,AccQrcodeImageTextList
 from lib.utils.exceptions import PubErrorCustom
 
-from app.wechat.serialiers import AccSerializer,AccTagModelSerializer
+from app.wechat.serialiers import AccSerializer,AccTagModelSerializer,AccQrcodeModelSerializer
 
 class WeChatAPIView(viewsets.ViewSet):
 
@@ -173,46 +173,56 @@ class WeChatAPIView(viewsets.ViewSet):
 
         return None
 
-    @list_route(methods=['POST','GET','PUT','DELETE'])
+    @list_route(methods=['POST'])
     @Core_connector(isTransaction=True)
     def AccQrcode(self,request,*args,**kwargs):
 
-        if request.method == 'POST':
+        obj = AccQrcodeModel.objects.create(**dict(
+            name=request.data_format.get('name'),
+            accid=request.data_format.get('accid'),
+            type=request.data_format.get('type'),
+            qr_type=request.data_format.get('qr_type'),
+            send_type=request.data_format.get('send_type'),
+            tags=json.dumps(request.data_format.get('tags')),
+        ))
 
-            obj = AccQrcodeModel.objects.create(**dict(
-                name = request.data_format.get('name'),
-                accid = request.data_format.get('accid'),
-                type=request.data_format.get('type'),
-                qr_type=request.data_format.get('qr_type'),
-                send_type=request.data_format.get('send_type'),
-                tags=json.dumps(request.data_format.get('tags')),
+        for item in request.data_format.get('contents'):
+            aqlObj = AccQrcodeList.objects.create(**dict(
+                type=item.get("item"),
+                qrid=obj.id,
+                media_id=item.get("media_id", ""),
+
             ))
 
-            for item in request.data_format.get('contents'):
-                aqlObj = AccQrcodeList.objects.create(**dict(
-                    type=item.get("item"),
-                    qrid = obj.id,
-                    media_id= item.get("media_id",""),
+            if item.get("type") == '1':
+                for cItem in item.get("contents"):
+                    AccQrcodeImageTextList.objects.create(**dict(
+                        qr_listid=aqlObj.id,
+                        picurl=cItem.get("picurl", ""),
+                        url=cItem.get("url", ""),
+                        title=cItem.get("title", ""),
+                        description=cItem.get("description", "")
+                    ))
 
-                ))
+        if obj.type == '0':
+            obj.url = WechatQrcode(accid=obj.accid).qrcode_create(obj.id)
+        else:
+            obj.url = WechatQrcode(accid=obj.accid).qrcode_create_forever(obj.id)
 
-                if item.get("type") == '1':
-                    for cItem in item.get("contents"):
-                        AccQrcodeImageTextList.objects.create(**dict(
-                            qr_listid=aqlObj.id,
-                            picurl=cItem.get("picurl",""),
-                            url=cItem.get("url",""),
-                            title=cItem.get("title", ""),
-                            description=cItem.get("description", "")
-                        ))
+        obj.save()
 
-            if obj.type == '0':
-                obj.url = WechatQrcode(accid=obj.accid).qrcode_create(obj.id)
-            else:
-                obj.url = WechatQrcode(accid=obj.accid).qrcode_create_forever(obj.id)
-
-            obj.save()
         return None
+
+    @list_route(methods=['GET'])
+    @Core_connector(isTransaction=True)
+    def AccQrcode_get(self, request, *args, **kwargs):
+
+
+        query = AccQrcodeModel.objects.filter(accid=request.query_params_format.get("accid",0)).order_by('-createtime')
+
+        count = query.count()
+
+        return {"data":AccQrcodeModelSerializer(query[request.page_start:request.page_end],many=True).data,"count":count}
 
 
     @detail_route(methods=['POST'])

@@ -143,6 +143,8 @@ class AccQrcodeList(models.Model):
     qrid = models.BigIntegerField(verbose_name="二维码ID")
     type = models.CharField(max_length=1,verbose_name="类型,1-图文,2-图片,3-文字,4-音频,5-视频")
 
+    iamgetextids = models.CharField(max_length=1024,default="",verbose_name="图文列表ID")
+
     media_id = models.CharField(max_length=60,verbose_name="媒体ID/图文推送内容ID",default="")
 
     class Meta:
@@ -167,3 +169,4 @@ class AccQrcodeImageTextList(models.Model):
         verbose_name = '渠道二维码图文推送内容'
         verbose_name_plural = verbose_name
         db_table = 'accqrcodeimagetextlist'
+
