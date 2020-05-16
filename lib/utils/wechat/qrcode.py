@@ -27,7 +27,7 @@ class WechatQrcode(WechatBaseForUser):
                            json={
                                "expire_seconds": 2592000,
                                "action_name":"QR_STR_SCENE",
-                               "action_info": {"scene": {"scene_id": id}}
+                               "action_info": {"scene": {"scene_str": str(id)}}
                            })
         print(response.text)
         response = json.loads(response.content.decode('utf-8'))
@@ -43,7 +43,7 @@ class WechatQrcode(WechatBaseForUser):
                                self.auth_accesstoken),
                            json={
                                "action_name":"QR_LIMIT_STR_SCENE",
-                               "action_info": {"scene": {"scene_id": id}}
+                               "action_info": {"scene": {"scene_str": str(id)}}
                            })
         print(response.text)
         response = json.loads(response.content.decode('utf-8'))
