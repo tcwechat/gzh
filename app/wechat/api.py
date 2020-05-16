@@ -221,7 +221,7 @@ class WeChatAPIView(viewsets.ViewSet):
         return None
 
     @list_route(methods=['GET'])
-    @Core_connector(isTransaction=True)
+    @Core_connector(isTransaction=True,isPagination=True)
     def AccQrcode_get(self, request, *args, **kwargs):
 
 
