@@ -11,7 +11,7 @@ class AccSerializer(serializers.Serializer):
     head_img = serializers.CharField()
     createtime = serializers.IntegerField()
 
-class AccQrcodeModelSerializer(serializers.Serializer):
+class AccQrcodeModelSerializer(serializers.ModelSerializer):
 
     tags = serializers.SerializerMethodField()
     lists = serializers.SerializerMethodField()
@@ -25,7 +25,7 @@ class AccQrcodeModelSerializer(serializers.Serializer):
 
     class Meta:
         model = AccQrcode
-        fields = ('name','accid','tot_count','new_count','follow_count','type','endtime','qr_type','send_type','url',)
+        fields = ('name','accid','tot_count','new_count','follow_count','type','endtime','qr_type','send_type','url','tags','lists',)
 
 class AccQrcodeListModelSerializer(serializers.ModelSerializer):
 
