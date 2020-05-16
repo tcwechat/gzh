@@ -189,10 +189,9 @@ class WeChatAPIView(viewsets.ViewSet):
 
         for item in request.data_format.get('contents'):
             aqlObj = AccQrcodeList.objects.create(**dict(
-                type=item.get("item"),
+                type=item.get("type"),
                 qrid=obj.id,
                 media_id=item.get("media_id", ""),
-
             ))
             obj.listids.append(aqlObj.id)
 
