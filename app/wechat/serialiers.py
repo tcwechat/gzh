@@ -17,7 +17,7 @@ class AccQrcodeModelSerializer(serializers.Serializer):
     lists = serializers.SerializerMethodField()
 
     def get_tags(self,obj):
-        return AccTagModelSerializer(AccTag.objects.filter(id__in=json.loads(obj.tags).order_by('-createtime')),many=True).data
+        return AccTagModelSerializer(AccTag.objects.filter(id__in=json.loads(obj.tags)).order_by('-createtime'),many=True).data
 
     def get_lists(self,obj):
         return AccQrcodeListModelSerializer(AccQrcodeList.objects.filter(id__in=json.loads(obj.listids)),many=True).data
