@@ -76,7 +76,7 @@ class PublicAPIView(viewsets.ViewSet):
     @Core_connector(isPagination=True)
     def meterial_get(self, request, *args, **kwargs):
 
-        mQuery = Meterial.objects.filter(accid=request.query_params_format.get("accid",0)).order_by('-createtime')
+        mQuery = Meterial.objects.filter(accid=request.query_params_format.get("accid",0),type=request.query_params_format.get("type",None)).order_by('-createtime')
 
         count = mQuery.count()
 
