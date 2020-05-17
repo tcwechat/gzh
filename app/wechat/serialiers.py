@@ -23,7 +23,7 @@ class AccQrcodeModelSerializer(serializers.ModelSerializer):
 
     def get_acc(self,obj):
         try:
-            return AccSerializer(Acc.objects.get(id=obj.accid), many=False).data
+            return AccSerializer(Acc.objects.get(accid=obj.accid), many=False).data
         except AccQrcode.DoesNotExist:
             return {}
 
