@@ -8,7 +8,7 @@ MIDDLEWARE_CLASSES_CUSTOM = [
     # 'debug_toolbar.middleware.DebugToolbarMiddleware'
 ]
 
-ServerUrl = os.environ.get('SERVERURL', 'http://localhost:9006')
+ServerUrl = os.environ.get('SERVERURL1', 'http://localhost:9006')
 
 # 自定义APP
 INSTALLED_APPS_CUSTOM = [
