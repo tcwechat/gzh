@@ -192,6 +192,7 @@ class WeChatAPIView(viewsets.ViewSet):
                 type=item.get("type"),
                 qrid=obj.id,
                 media_id=item.get("media_id", ""),
+                content=item.get("content", ""),
                 sort=c+1
             ))
             obj.listids.append(aqlObj.id)
@@ -263,12 +264,14 @@ class WeChatAPIView(viewsets.ViewSet):
                 aqlObj.type = item.get("type")
                 aqlObj.qrid=obj.id,
                 aqlObj.media_id=item.get("media_id", "")
+                aqlObj.content = item.get("content", "")
                 aqlObj.sort = c+1
             else:
                 aqlObj = AccQrcodeList.objects.create(**dict(
                     type=item.get("type"),
                     qrid=obj.id,
                     media_id=item.get("media_id", ""),
+                    content=item.get("content", ""),
                     sort = c+1
                 ))
 

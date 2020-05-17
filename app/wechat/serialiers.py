@@ -36,7 +36,7 @@ class AccQrcodeModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AccQrcode
-        fields = ('id','name','accid','tot_count','createtime','acc','new_count','follow_count','type','endtime','qr_type','send_type','url','tags','lists',)
+        fields = ('id','name','accid','tot_count','createtime','content','acc','new_count','follow_count','type','endtime','qr_type','send_type','url','tags','lists',)
 
 class AccQrcodeListModelSerializer(serializers.ModelSerializer):
 
