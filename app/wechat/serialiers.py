@@ -20,7 +20,7 @@ class AccQrcodeModelSerializer(serializers.ModelSerializer):
         return AccTagModelSerializer(AccTag.objects.filter(id__in=json.loads(obj.tags)).order_by('-createtime'),many=True).data
 
     def get_lists(self,obj):
-        return AccQrcodeListModelSerializer(AccQrcodeList.objects.filter(id__in=json.loads(obj.listids)),many=True).data
+        return AccQrcodeListModelSerializer(AccQrcodeList.objects.filter(id__in=json.loads(obj.listids)).order_by('sort'),many=True).data
 
 
     class Meta:
@@ -32,7 +32,7 @@ class AccQrcodeListModelSerializer(serializers.ModelSerializer):
     imagetextlist=serializers.SerializerMethodField()
 
     def get_imagetextlist(self,obj):
-        return AccQrcodeImageTextListModelSerializer(AccQrcodeImageTextList.objects.filter(id__in=json.loads(obj.iamgetextids)),
+        return AccQrcodeImageTextListModelSerializer(AccQrcodeImageTextList.objects.filter(id__in=json.loads(obj.iamgetextids)).order_by('sort'),
                                             many=True).data
 
     class Meta:
