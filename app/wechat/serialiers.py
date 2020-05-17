@@ -22,9 +22,8 @@ class AccQrcodeModelSerializer(serializers.ModelSerializer):
         return UtilTime().timestamp_to_string(obj.createtime,format_v="%Y-%m-%d")
 
     def get_acc(self,obj):
-        print(obj.accid,obj.id)
         try:
-            return AccSerializer(AccQrcode.objects.get(id=obj.accid), many=False).data
+            return AccSerializer(Acc.objects.get(id=obj.accid), many=False).data
         except AccQrcode.DoesNotExist:
             return {}
 
