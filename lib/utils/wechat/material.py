@@ -83,8 +83,8 @@ class WechatMaterial(WechatBaseForUser):
                            json={
                                 "type":type
                            } if type !='video' else {
-                               "title":title,
-                               "introduction":introduction
+                               "title":title if title else "title",
+                               "introduction":introduction if introduction else "introduction"
                            })
         print(response.text)
         response = json.loads(response.content.decode('utf-8'))
