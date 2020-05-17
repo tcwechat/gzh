@@ -147,6 +147,8 @@ class AccQrcodeList(models.Model):
 
     media_id = models.CharField(max_length=60,verbose_name="媒体ID/图文推送内容ID",default="")
 
+    sort = models.IntegerField(default=0)
+
     class Meta:
         verbose_name = '渠道二维码推送内容'
         verbose_name_plural = verbose_name
@@ -164,6 +166,8 @@ class AccQrcodeImageTextList(models.Model):
     url = models.CharField(max_length=255,verbose_name="点击图文跳转的链接")
     title = models.CharField(max_length=255,verbose_name="标题")
     description = models.TextField(verbose_name="描述,文字消息时,用此处值")
+
+    sort = models.IntegerField(default=0)
 
     class Meta:
         verbose_name = '渠道二维码图文推送内容'

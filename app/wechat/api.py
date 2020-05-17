@@ -187,23 +187,25 @@ class WeChatAPIView(viewsets.ViewSet):
         ))
         obj.listids = json.loads(obj.listids)
 
-        for item in request.data_format.get('lists'):
+        for c,item in enumerate(request.data_format.get('lists')):
             aqlObj = AccQrcodeList.objects.create(**dict(
                 type=item.get("type"),
                 qrid=obj.id,
                 media_id=item.get("media_id", ""),
+                sort=c+1
             ))
             obj.listids.append(aqlObj.id)
 
             if item.get("type") == '1':
                 aqlObj.iamgetextids = json.loads(aqlObj.iamgetextids)
-                for cItem in item.get("imagetextlist"):
+                for j,cItem in enumerate(item.get("imagetextlist")):
                     aqitlObj = AccQrcodeImageTextList.objects.create(**dict(
                         qr_listid=aqlObj.id,
                         picurl=cItem.get("picurl", ""),
                         url=cItem.get("url", ""),
                         title=cItem.get("title", ""),
-                        description=cItem.get("description", "")
+                        description=cItem.get("description", ""),
+                        sort=j+1
                     ))
                     aqlObj.iamgetextids.append(aqitlObj.id)
                 aqlObj.iamgetextids = json.dumps(aqlObj.iamgetextids)
@@ -230,6 +232,90 @@ class WeChatAPIView(viewsets.ViewSet):
         count = query.count()
 
         return {"data":AccQrcodeModelSerializer(query[request.page_start:request.page_end],many=True).data,"count":count}
+
+
+    @list_route(methods=['PUT'])
+    @Core_connector(isTransaction=True)
+    def AccQrcode_upd(self,request,*args,**kwargs):
+
+        try:
+            obj = AccQrcodeModel.objects.get(id=request.data_format.get("id"))
+        except AccQrcodeModel.DoesNotExist:
+            raise PubErrorCustom("无此二维码!")
+
+
+        type = obj.type
+
+        obj.name = request.data_format.get('name')
+        obj.accid = request.data_format.get('accid')
+        obj.type = request.data_format.get('type')
+        obj.qr_type = request.data_format.get('qr_type')
+        obj.send_type = request.data_format.get('send_type')
+        obj.tags = json.dumps(request.data_format.get('tags'))
+        obj.listids = []
+
+        for c,item in enumerate(request.data_format.get('lists')):
+            if item.get("id",None):
+                try:
+                    aqlObj = AccQrcodeList.objects.get(id=item.get("id",None))
+                except AccQrcodeList.DoesNotExist:
+                    raise PubErrorCustom("无此内容明细!")
+                aqlObj.type = item.get("type")
+                aqlObj.qrid=obj.id,
+                aqlObj.media_id=item.get("media_id", "")
+                aqlObj.sort = c+1
+            else:
+                aqlObj = AccQrcodeList.objects.create(**dict(
+                    type=item.get("type"),
+                    qrid=obj.id,
+                    media_id=item.get("media_id", ""),
+                    sort = c+1
+                ))
+
+            obj.listids.append(aqlObj.id)
+
+            if item.get("type") == '1':
+                aqlObj.iamgetextids = []
+                for j,cItem in enumerate(item.get("imagetextlist")):
+
+                    if cItem.get("id",None):
+                        try:
+                            aqitlObj = AccQrcodeImageTextList.objects.get(id=cItem.get("id",None))
+                        except AccQrcodeImageTextList.DoesNotExist:
+                            raise PubErrorCustom("无此图文明细!")
+
+                        aqitlObj.qr_listid = aqlObj.id
+                        aqitlObj.picurl = cItem.get("picurl", "")
+                        aqitlObj.url = cItem.get("url", "")
+                        aqitlObj.title = cItem.get("title", "")
+                        aqitlObj.description = cItem.get("description", "")
+                        aqitlObj.sort = j + 1
+                        aqitlObj.save()
+                    else:
+                        aqitlObj = AccQrcodeImageTextList.objects.create(**dict(
+                            qr_listid=aqlObj.id,
+                            picurl=cItem.get("picurl", ""),
+                            url=cItem.get("url", ""),
+                            title=cItem.get("title", ""),
+                            description=cItem.get("description", ""),
+                            sort = j+1
+                        ))
+                    aqlObj.iamgetextids.append(aqitlObj.id)
+                aqlObj.iamgetextids = json.dumps(aqlObj.iamgetextids)
+
+            aqlObj.save()
+
+        obj.listids = json.dumps(obj.listids)
+
+        if type != request.data_format.get('type'):
+            if obj.type == '0':
+                obj.url = WechatQrcode(accid=obj.accid).qrcode_create(obj.id)
+            else:
+                obj.url = WechatQrcode(accid=obj.accid).qrcode_create_forever(obj.id)
+
+        obj.save()
+
+        return None
 
 
     @detail_route(methods=['POST'])
