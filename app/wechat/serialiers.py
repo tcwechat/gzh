@@ -22,7 +22,10 @@ class AccQrcodeModelSerializer(serializers.ModelSerializer):
         return UtilTime().timestamp_to_string(obj.createtime,format_v="%Y-%m-%d")
 
     def get_acc(self,obj):
-        return AccSerializer(AccQrcode.objects.get(id=obj.accid),many=False).data
+        try:
+            return AccSerializer(AccQrcode.objects.get(id=obj.accid), many=False).data
+        except AccQrcode.DoesNotExist:
+            return {}
 
     def get_tags(self,obj):
         return AccTagModelSerializer(AccTag.objects.filter(id__in=json.loads(obj.tags)).order_by('-createtime'),many=True).data
