@@ -67,7 +67,7 @@ class PublicAPIView(viewsets.ViewSet):
                 url=url,
                 local_url = saveFileUrl
             ))
-            return {"data": {"path":fileUrl}}
+            return {"data": {"path":fileUrl,"media_id":media_id}}
 
         else:
             raise PubErrorCustom("文件上传失败!")
