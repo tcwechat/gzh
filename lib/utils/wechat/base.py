@@ -96,14 +96,19 @@ class WechatBase(object):
 
     def request_handler(self,**kwargs):
 
-        logger.info("请求: method->{}\nurl->{}\njson->{}\ndata->{}\n")
+        logger.info("请求微信服务器: \nmethod->{}\nurl->{}\njson->{}\ndata->{}\n".format(
+            kwargs.get("method"),
+            kwargs.get("url"),
+            kwargs.get("json"),
+            data=kwargs.get("data")
+        ))
 
         response = request(method=kwargs.get("method"),
                            url=kwargs.get("url"),
                            json=kwargs.get("json"),
                            files=kwargs.get("files"),
                            data=kwargs.get("data"))
-        logger.info("返回:{}".format(response.text))
+        logger.info("微信服务器返回:{}".format(response.text))
         response = json.loads(response.content.decode('utf-8'))
 
         if 'errcode' in response:
