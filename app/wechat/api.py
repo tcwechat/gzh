@@ -14,6 +14,7 @@ from lib.utils.wechat.qrcode import WechatQrcode
 from lib.utils.db import RedisTicketHandler
 
 from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeModel,AccQrcodeList,AccQrcodeImageTextList
+from app.public.models import Meterial
 from lib.utils.exceptions import PubErrorCustom
 
 from app.wechat.serialiers import AccSerializer,AccTagModelSerializer,AccQrcodeModelSerializer
@@ -200,9 +201,15 @@ class WeChatAPIView(viewsets.ViewSet):
             if item.get("type") == '1':
                 aqlObj.iamgetextids = json.loads(aqlObj.iamgetextids)
                 for j,cItem in enumerate(item.get("imagetextlist")):
+                    try:
+                        mObj = Meterial.objects.get(media_id=cItem.get("media_id", ""))
+                    except Meterial.DoesNotExist:
+                        raise PubErrorCustom("无此媒体数据{}".format(cItem.get("media_id", "")))
+
                     aqitlObj = AccQrcodeImageTextList.objects.create(**dict(
                         qr_listid=aqlObj.id,
-                        picurl=cItem.get("picurl", ""),
+                        picurl=mObj.url,
+                        media_id=mObj.media_id,
                         url=cItem.get("url", ""),
                         title=cItem.get("title", ""),
                         description=cItem.get("description", ""),
@@ -281,6 +288,11 @@ class WeChatAPIView(viewsets.ViewSet):
                 aqlObj.iamgetextids = []
                 for j,cItem in enumerate(item.get("imagetextlist")):
 
+                    try:
+                        mObj = Meterial.objects.get(media_id=cItem.get("media_id", ""))
+                    except Meterial.DoesNotExist:
+                        raise PubErrorCustom("无此媒体数据{}".format(cItem.get("media_id", "")))
+
                     if cItem.get("id",None):
                         try:
                             aqitlObj = AccQrcodeImageTextList.objects.get(id=cItem.get("id",None))
@@ -288,7 +300,8 @@ class WeChatAPIView(viewsets.ViewSet):
                             raise PubErrorCustom("无此图文明细!")
 
                         aqitlObj.qr_listid = aqlObj.id
-                        aqitlObj.picurl = cItem.get("picurl", "")
+                        aqitlObj.picurl = mObj.url
+                        aqitlObj.media_id = mObj.media_id
                         aqitlObj.url = cItem.get("url", "")
                         aqitlObj.title = cItem.get("title", "")
                         aqitlObj.description = cItem.get("description", "")
@@ -297,7 +310,8 @@ class WeChatAPIView(viewsets.ViewSet):
                     else:
                         aqitlObj = AccQrcodeImageTextList.objects.create(**dict(
                             qr_listid=aqlObj.id,
-                            picurl=cItem.get("picurl", ""),
+                            picurl=mObj.url,
+                            media_id=mObj.media_id,
                             url=cItem.get("url", ""),
                             title=cItem.get("title", ""),
                             description=cItem.get("description", ""),

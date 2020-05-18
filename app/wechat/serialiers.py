@@ -3,6 +3,8 @@ import json
 from rest_framework import serializers
 from app.wechat.models import Acc,AccTag,AccQrcode,AccQrcodeList,AccQrcodeImageTextList
 from lib.utils.mytime import UtilTime
+from app.public.models import Meterial
+from app.public.serialiers import MeterialSerializer
 
 class AccSerializer(serializers.Serializer):
 
@@ -51,6 +53,15 @@ class AccQrcodeListModelSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class AccQrcodeImageTextListModelSerializer(serializers.ModelSerializer):
+
+    media = serializers.SerializerMethodField()
+
+    def get_media(self,obj):
+
+        try:
+            return MeterialSerializer(Meterial.objects.get(media_id=obj.media_id), many=False).data
+        except Meterial.DoesNotExist:
+            return {}
 
     class Meta:
         model = AccQrcodeImageTextList

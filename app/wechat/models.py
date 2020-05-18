@@ -164,6 +164,7 @@ class AccQrcodeImageTextList(models.Model):
     qr_listid = models.BigIntegerField(verbose_name="二维码推送内容ID")
 
     picurl = models.CharField(max_length=255,verbose_name="资源链接")
+    media_id = models.CharField(max_length=60, verbose_name="媒体ID/资源链接", default="")
     url = models.CharField(max_length=255,verbose_name="点击图文跳转的链接")
     title = models.CharField(max_length=255,verbose_name="标题")
     description = models.TextField(verbose_name="描述,文字消息时,用此处值")
