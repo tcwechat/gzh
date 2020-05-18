@@ -287,7 +287,7 @@ class WeChatAPIView(viewsets.ViewSet):
                 except AccQrcodeList.DoesNotExist:
                     raise PubErrorCustom("无此内容明细!")
                 aqlObj.type = item.get("type")
-                aqlObj.qrid=obj.id,
+                aqlObj.qrid=obj.id
                 aqlObj.media_id=item.get("media_id", "")
                 aqlObj.content = item.get("content", "")
                 aqlObj.sort = c+1
@@ -338,8 +338,6 @@ class WeChatAPIView(viewsets.ViewSet):
                     aqlObj.iamgetextids.append(aqitlObj.id)
                 aqlObj.iamgetextids = json.dumps(aqlObj.iamgetextids)
 
-            print(aqlObj.iamgetextids)
-            print(type(aqlObj.iamgetextids))
             aqlObj.save()
 
         obj.listids = json.dumps(obj.listids)
