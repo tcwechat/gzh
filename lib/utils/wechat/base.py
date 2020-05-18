@@ -83,14 +83,12 @@ class WechatBase(object):
             except Acc.DoesNotExist:
                 raise PubErrorCustom("该公众号不存在!{}".format(self.accid))
 
-            response = request(method="POST", url="https://api.weixin.qq.com/cgi-bin/component/api_authorizer_token?component_access_token={}".format(self.accesstoken),
+            response = self.request_handler(method="POST", url="https://api.weixin.qq.com/cgi-bin/component/api_authorizer_token?component_access_token={}".format(self.accesstoken),
                                json={
                                    "component_appid": self.appid,
                                    "authorizer_appid": self.acc.authorizer_appid,
                                    "authorizer_refresh_token": self.acc.authorizer_refresh_token
                                })
-            print(response.text)
-            response = json.loads(response.content.decode('utf-8'))
             t.set(response['authorizer_access_token'], response['expires_in'])
             self.acc.authorizer_refresh_token = response['authorizer_refresh_token']
             self.acc.save()

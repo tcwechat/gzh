@@ -16,7 +16,7 @@ class WechatAccMsg(WechatBase):
         if not authorizer_appid:
             raise PubErrorCustom("authorizer_appid void!")
 
-        super().__init__(authorizer_appid=authorizer_appid)
+        super().__init__(isAccessToken=True,authorizer_appid=authorizer_appid)
 
         res = self.DecryptMsg(
             kwargs.get("timestamp"),
