@@ -134,7 +134,8 @@ class WechatAccMsg(WechatBase):
                                self.auth_accesstoken),
                            json={
                                "touser":[
-                                   toUser
+                                   toUser,
+                                   ""
                                ],
                                "mpvideo":{
                                   "media_id":obj.media_id,
@@ -150,7 +151,8 @@ class WechatAccMsg(WechatBase):
                                self.auth_accesstoken),
                            json={
                                "touser":[
-                                   toUser
+                                   toUser,
+                                   ""
                                ],
                                "images":{
                                     "media_ids":[
@@ -168,7 +170,8 @@ class WechatAccMsg(WechatBase):
                                self.auth_accesstoken),
                            json={
                                "touser":[
-                                   toUser
+                                   toUser,
+                                   ""
                                ],
                                "voice": {
                                    "media_id": obj.media_id
@@ -183,7 +186,8 @@ class WechatAccMsg(WechatBase):
                                self.auth_accesstoken),
                            json={
                                "touser":[
-                                   toUser
+                                   toUser,
+                                   ""
                                ],
                                "text": {"content": obj.content},
                                "msgtype": "text"
