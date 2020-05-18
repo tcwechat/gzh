@@ -120,7 +120,8 @@ class WeChatAPIView(viewsets.ViewSet):
             timestamp=request.query_params['timestamp'],
             nonce=request.query_params['nonce'],
             signature=request.query_params['msg_signature'],
-            xmlc=request.body.decode('utf-8')
+            xmlc=request.body.decode('utf-8'),
+            authorizer_appid=pk
         ).eventHandler()
 
         return HttpResponse("success")

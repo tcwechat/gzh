@@ -45,6 +45,12 @@ class WechatBase(object):
 
             self.auth_accesstoken = self.getAuthAccessToken()
 
+
+        if kwargs.get("authorizer_appid",None):
+
+            self.authorizer_appid = kwargs.get("authorizer_appid",None)
+            self.auth_accesstoken = self.getAuthAccessToken()
+
     def getAccessToken(self):
         t = RedisAccessTokenHandler()
 
@@ -69,7 +75,11 @@ class WechatBase(object):
         if not res:
 
             try:
-                self.acc = Acc.objects.get(accid=self.accid)
+                if hasattr('self','acc'):
+                    self.acc = Acc.objects.get(accid=self.accid)
+                else:
+                    self.acc = Acc.objects.get(authorizer_appid=self.authorizer_appid)
+
             except Acc.DoesNotExist:
                 raise PubErrorCustom("该公众号不存在!{}".format(self.accid))
 

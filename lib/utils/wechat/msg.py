@@ -11,7 +11,12 @@ from app.public.models import Meterial
 class WechatAccMsg(WechatBase):
 
     def __init__(self,**kwargs):
-        super().__init__()
+
+        authorizer_appid = kwargs.get("authorizer_appid",None)
+        if not authorizer_appid:
+            raise PubErrorCustom("authorizer_appid void!")
+
+        super().__init__(authorizer_appid=authorizer_appid)
 
         res = self.DecryptMsg(
             kwargs.get("timestamp"),
