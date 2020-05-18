@@ -5,6 +5,8 @@ from lib.utils.db import RedisAccessTokenHandler,RedisTicketHandler,RedisPreAuth
 from requests import request
 from app.wechat.models import Acc
 from lib.utils.exceptions import PubErrorCustom
+from lib.utils.wechat.error import error_dict
+from lib.utils.log import logger
 
 class FormatException(Exception):
     pass
@@ -92,6 +94,23 @@ class WechatBase(object):
         sha.update("".join(sortlist).encode("utf8"))
         return sha.hexdigest()
 
+    def request_handler(self,**kwargs):
+
+        logger.info("请求: method->{}\nurl->{}\njson->{}\ndata->{}\n")
+
+        response = request(method=kwargs.get("method"),
+                           url=kwargs.get("url"),
+                           json=kwargs.get("json"),
+                           files=kwargs.get("files"),
+                           data=kwargs.get("data"))
+        logger.info("返回:{}".format(response.text))
+        response = json.loads(response.content.decode('utf-8'))
+
+        if 'errcode' in response:
+            raise PubErrorCustom(error_dict.get(str(response['errcode']),response['errmsg']))
+
+        return response
+
     def check_appid(self,appid):
 
         return appid == self.appid
@@ -110,13 +129,11 @@ class WechatBaseForUser(WechatBase):
 
         res = t.get()
         if not res:
-            response = request(method="POST",
+            response = self.request_handler(method="POST",
                                url="https://api.weixin.qq.com/cgi-bin/component/api_create_preauthcode?component_access_token={}".format(self.accesstoken),
                                json={
                                    "component_appid": self.appid
                                })
-            print(response.text)
-            response = json.loads(response.content.decode('utf-8'))
             t.set(response['pre_auth_code'], response['expires_in'])
             return response['pre_auth_code']
         else:
@@ -128,28 +145,24 @@ class WechatBaseForUser(WechatBase):
 
     def get_auth_by_authcode(self,authorization_code):
 
-        response = request(method="POST",
+        response = self.request_handler(method="POST",
                            url="https://api.weixin.qq.com/cgi-bin/component/api_query_auth?component_access_token={}".format(
                                self.accesstoken),
                            json={
                                "component_appid": self.appid,
                                "authorization_code":authorization_code
                            })
-        print(response.text)
-        response = json.loads(response.content.decode('utf-8'))
         return response['authorization_info']
 
     def get_authorizer_info(self,authorization_info):
 
-        response = request(method="POST",
+        response = self.request_handler(method="POST",
                            url="https://api.weixin.qq.com/cgi-bin/component/api_get_authorizer_info?component_access_token={}".format(
                                self.accesstoken),
                            json={
                                "component_appid": self.appid,
                                "authorizer_appid":authorization_info['authorizer_appid']
                            })
-        print(response.text)
-        response = json.loads(response.content.decode('utf-8'))
         return response['authorizer_info']
 
     def refrech_auth_access_token(self,accid,value,expire):

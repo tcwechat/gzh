@@ -76,7 +76,7 @@ class WechatMaterial(WechatBaseForUser):
 
 
 
-        response = request(method="POST",
+        response = self.request_handler(method="POST",
                            url="https://api.weixin.qq.com/cgi-bin/material/add_material?access_token={}&type={}".format(
                                self.auth_accesstoken,type),
                            files={"media":(meterialObj['filename'],meterialObj['file'])},
@@ -86,8 +86,6 @@ class WechatMaterial(WechatBaseForUser):
                                    "introduction": introduction if introduction else "introduction"
                                })
                            })
-        print(response.text)
-        response = json.loads(response.content.decode('utf-8'))
 
         media_id = response['media_id']
         url = response.get("url","")
@@ -97,36 +95,32 @@ class WechatMaterial(WechatBaseForUser):
 
     def delete_forever(self,media_id):
 
-        response = request(method="POST",
+        self.request_handler(method="POST",
                            url="https://api.weixin.qq.com/cgi-bin/material/del_material?access_token={}".format(
                                self.auth_accesstoken),
                            json={
                                 "media_id":media_id
                            })
-        response = json.loads(response.content.decode('utf-8'))
-        if str(response['errcode']) != '0':
-            raise PubErrorCustom(response['errmsg'])
 
-    def get_forever(self,id):
-
-
-        try:
-            obj = Meterial.objects.get(id=id)
-        except Meterial.DoesNotExist:
-            raise PubErrorCustom("不存在此素材!")
-
-
-        obj.type = self.type_change(obj.type)
-
-        response = request(method="POST",
-                           url="https://api.weixin.qq.com/cgi-bin/material/get_material?access_token={}".format(
-                               self.auth_accesstoken),
-                           json={
-                                "media_id":obj.media_id
-                           })
-
-        if obj.type == 'video':
-            response = json.loads(response.content.decode('utf-8'))
-            return {"data":response}
-        else:
-            return HttpResponse(response,"content_type='image/png'")
+    # def get_forever(self,id):
+    #
+    #
+    #     try:
+    #         obj = Meterial.objects.get(id=id)
+    #     except Meterial.DoesNotExist:
+    #         raise PubErrorCustom("不存在此素材!")
+    #
+    #
+    #     obj.type = self.type_change(obj.type)
+    #
+    #     response = self.request_handler(method="POST",
+    #                        url="https://api.weixin.qq.com/cgi-bin/material/get_material?access_token={}".format(
+    #                            self.auth_accesstoken),
+    #                        json={
+    #                             "media_id":obj.media_id
+    #                        })
+    #
+    #     if obj.type == 'video':
+    #         return {"data":response}
+    #     else:
+    #         return HttpResponse(response,"content_type='image/png'")
