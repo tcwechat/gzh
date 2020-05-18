@@ -100,7 +100,7 @@ class WechatBase(object):
             kwargs.get("method"),
             kwargs.get("url"),
             kwargs.get("json"),
-            data=kwargs.get("data")
+            kwargs.get("data")
         ))
 
         response = request(method=kwargs.get("method"),
