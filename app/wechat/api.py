@@ -338,6 +338,7 @@ class WeChatAPIView(viewsets.ViewSet):
                     aqlObj.iamgetextids.append(aqitlObj.id)
                 aqlObj.iamgetextids = json.dumps(aqlObj.iamgetextids)
 
+            print(aqitlObj.iamgetextids)
             aqlObj.save()
 
         obj.listids = json.dumps(obj.listids)
