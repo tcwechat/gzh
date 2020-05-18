@@ -56,13 +56,11 @@ class WechatBase(object):
 
         res = t.get()
         if not res:
-            response  = request(method="POST",url="https://api.weixin.qq.com/cgi-bin/component/api_component_token",json={
+            response  = self.request_handler(method="POST",url="https://api.weixin.qq.com/cgi-bin/component/api_component_token",json={
                 "component_appid": self.appid,
                 "component_appsecret": self.secret,
                 "component_verify_ticket":  RedisTicketHandler().get()
             })
-            print(response.text)
-            response = json.loads(response.content.decode('utf-8'))
             t.set(response['component_access_token'],response['expires_in'])
             return response['component_access_token']
         else:
