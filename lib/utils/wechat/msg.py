@@ -79,7 +79,7 @@ class WechatAccMsg(WechatBase):
                     })
 
                 #推送消息
-                self.msgHandler(aqc_obj)
+                self.msgHandler(aqc_obj,alu_obj.openid)
 
             else:
                 raise PubErrorCustom("事件未定义{}".format(self.xml_data))
