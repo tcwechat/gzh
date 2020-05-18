@@ -45,9 +45,6 @@ class PublicAPIView(viewsets.ViewSet):
 
             file_strem = file_obj.read()
 
-            with open(file_path, 'wb+') as f:
-                f.write(file_strem)
-
             saveFileUrl = "/static/images/{}".format(new_file)
             fileUrl = "{}/static/images/{}".format(ServerUrl, new_file)
 
@@ -57,6 +54,9 @@ class PublicAPIView(viewsets.ViewSet):
                 title=request.data_format.get("title", ""),
                 introduction=request.data_format.get("introduction", "")
             )
+
+            with open(file_path, 'wb+') as f:
+                f.write(file_strem)
 
             Meterial.objects.create(**dict(
                 type=request.data_format.get("type", ""),
