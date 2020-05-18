@@ -80,17 +80,11 @@ class WechatMaterial(WechatBaseForUser):
                            url="https://api.weixin.qq.com/cgi-bin/material/add_material?access_token={}&type={}".format(
                                self.auth_accesstoken,type),
                            files={"media":(meterialObj['filename'],meterialObj['file'])},
-                           json={} if type !='video' else {
-                               "description":{
-                                   "title": title if title else "title",
-                                   "introduction": introduction if introduction else "introduction"
-                               }
-                           },
                            data={} if type !='video' else {
-                               "description":{
+                               "description":json.dumps({
                                    "title": title if title else "title",
                                    "introduction": introduction if introduction else "introduction"
-                               }
+                               })
                            })
         print(response.text)
         response = json.loads(response.content.decode('utf-8'))
