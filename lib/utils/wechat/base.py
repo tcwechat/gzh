@@ -75,7 +75,7 @@ class WechatBase(object):
         if not res:
 
             try:
-                if hasattr('self','acc'):
+                if hasattr(self,'acc'):
                     self.acc = Acc.objects.get(accid=self.accid)
                 else:
                     self.acc = Acc.objects.get(authorizer_appid=self.authorizer_appid)
