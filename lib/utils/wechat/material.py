@@ -81,8 +81,10 @@ class WechatMaterial(WechatBaseForUser):
                                self.auth_accesstoken,type),
                            files={"media":(meterialObj['filename'],meterialObj['file'])},
                            json={} if type !='video' else {
-                               "title":title if title else "title",
-                               "introduction":introduction if introduction else "introduction"
+                               "description":{
+                                   "title": title if title else "title",
+                                   "introduction": introduction if introduction else "introduction"
+                               }
                            })
         print(response.text)
         response = json.loads(response.content.decode('utf-8'))
