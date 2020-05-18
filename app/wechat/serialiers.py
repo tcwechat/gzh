@@ -19,9 +19,16 @@ class AccQrcodeModelSerializer(serializers.ModelSerializer):
     lists = serializers.SerializerMethodField()
     acc = serializers.SerializerMethodField()
     createtime = serializers.SerializerMethodField()
+    endtime = serializers.SerializerMethodField()
 
     def get_createtime(self,obj):
         return UtilTime().timestamp_to_string(obj.createtime,format_v="%Y-%m-%d")
+
+    def get_endtime(self,obj):
+        if obj.endtime:
+            return UtilTime().timestamp_to_string(obj.endtime, format_v="%Y-%m-%d")
+        else:
+            return ""
 
     def get_acc(self,obj):
         try:
