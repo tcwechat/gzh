@@ -188,6 +188,8 @@ class WeChatAPIView(viewsets.ViewSet):
         ))
         obj.listids = json.loads(obj.listids)
 
+        wQClass= WechatQrcode(accid=obj.accid)
+
         for c,item in enumerate(request.data_format.get('lists')):
             aqlObj = AccQrcodeList.objects.create(**dict(
                 type=item.get("type"),
@@ -199,8 +201,13 @@ class WeChatAPIView(viewsets.ViewSet):
             obj.listids.append(aqlObj.id)
 
             if item.get("type") == '1':
+
+                articles = []
+
                 aqlObj.iamgetextids = json.loads(aqlObj.iamgetextids)
+
                 for j,cItem in enumerate(item.get("imagetextlist")):
+
                     try:
                         mObj = Meterial.objects.get(media_id=cItem.get("media_id", ""))
                     except Meterial.DoesNotExist:
@@ -216,15 +223,25 @@ class WeChatAPIView(viewsets.ViewSet):
                         sort=j+1
                     ))
                     aqlObj.iamgetextids.append(aqitlObj.id)
+
+                    articles.append(dict(
+                        title = aqitlObj.title,
+                        thumb_media_id = aqitlObj.media_id,
+                        show_cover_pic = "1",
+                        content=aqitlObj.description,
+                        content_source_url=aqitlObj.url
+                    ))
+                # media_id = wQClass.image_text_create(articles)
+
                 aqlObj.iamgetextids = json.dumps(aqlObj.iamgetextids)
                 aqlObj.save()
 
         obj.listids = json.dumps(obj.listids)
 
         if obj.type == '0':
-            obj.url = WechatQrcode(accid=obj.accid).qrcode_create(obj.id)
+            obj.url = wQClass.qrcode_create(obj.id)
         else:
-            obj.url = WechatQrcode(accid=obj.accid).qrcode_create_forever(obj.id)
+            obj.url = wQClass.qrcode_create_forever(obj.id)
 
         obj.save()
 
