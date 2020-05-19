@@ -4,6 +4,7 @@ from rest_framework import serializers
 from app.wechat.models import Acc,AccTag,AccQrcode,AccQrcodeList,AccQrcodeImageTextList
 from lib.utils.mytime import UtilTime
 from app.public.models import Meterial
+from project.config_include.common import ServerUrl
 from app.public.serialiers import MeterialSerializer
 
 class AccSerializer(serializers.Serializer):
@@ -56,7 +57,7 @@ class AccQrcodeListModelSerializer(serializers.ModelSerializer):
     def get_local_url(self,obj):
 
         if obj.media_id:
-            return Meterial.objects.get(media_id=obj.media_id).local_url
+            return "{}{}".format(ServerUrl,Meterial.objects.get(media_id=obj.media_id).local_url)
         else:
             return ""
 
