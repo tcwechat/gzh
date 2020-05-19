@@ -142,7 +142,7 @@ class WechatAccMsg(WechatBase):
             })
         if len(articles):
             self.request_handler(method="POST",
-                               url="https://api.weixin.qq.com/cgi-bin/message/mass/send?access_token={}".format(
+                               url="https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token={}".format(
                                    self.auth_accesstoken),
                                 json={
                                     "touser":toUser,
@@ -157,7 +157,7 @@ class WechatAccMsg(WechatBase):
         mObj = Meterial.objects.get(media_id=obj.media_id)
 
         self.request_handler(method="POST",
-                           url="https://api.weixin.qq.com/cgi-bin/message/mass/send?access_token={}".format(
+                           url="https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token={}".format(
                                self.auth_accesstoken),
                             json={
                                 "touser":toUser,
@@ -172,7 +172,7 @@ class WechatAccMsg(WechatBase):
 
     def imgSend(self,obj,toUser):
         self.request_handler(method="POST",
-                           url="https://api.weixin.qq.com/cgi-bin/message/mass/send?access_token={}".format(
+                           url="https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token={}".format(
                                self.auth_accesstoken),
                            json={
                                 "touser":toUser,
@@ -185,7 +185,7 @@ class WechatAccMsg(WechatBase):
 
     def voiceSend(self,obj,toUser):
         self.request_handler(method="POST",
-                           url="https://api.weixin.qq.com/cgi-bin/message/mass/send?access_token={}".format(
+                           url="https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token={}".format(
                                self.auth_accesstoken),
                            json={
                                     "touser":toUser,
