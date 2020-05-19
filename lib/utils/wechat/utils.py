@@ -1,7 +1,8 @@
 
 from cryptokit import AESCrypto
-import struct,base64,socket,random,string
+import struct,base64,socket,random,string,json
 from lib.utils.wechat import ierror
+
 
 class PKCS7Encoder():
     """提供基于PKCS7算法的加解密接口"""
@@ -92,3 +93,4 @@ class Prpcrypt(object):
         rule = string.ascii_letters + string.digits
         str = random.sample(rule, 16)
         return "".join(str).encode()
+

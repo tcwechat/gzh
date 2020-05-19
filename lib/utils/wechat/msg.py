@@ -4,11 +4,11 @@ from lib.utils.wechat.base import WechatBase
 from lib.utils.wechat.WXBizMsgCrypt import WXBizMsgCrypt
 from lib.utils.exceptions import PubErrorCustom
 import xmltodict
+from lib.utils.wechat.user import WechatAccUser
 from app.wechat.models import AccQrcode,AccLinkUser,AccQrcodeList,AccQrcodeImageTextList
 from app.public.models import Meterial
 
-
-class WechatAccMsg(WechatBase):
+class WeChatAccEvent(WechatBase):
 
     def __init__(self,**kwargs):
 
@@ -83,8 +83,13 @@ class WechatAccMsg(WechatBase):
                         "tags" : aqc_obj.tags
                     })
 
+                res = WechatAccUser(auth_accesstoken=self.auth_accesstoken).get_info(alu_obj.openid)
+
                 #推送消息
-                self.msgHandler(aqc_obj,alu_obj.openid)
+                self.msgHandler(aqc_obj,{
+                    "openid":alu_obj.openid,
+                    "nickname":res['nickname']
+                })
 
             else:
                 raise PubErrorCustom("事件未定义{}".format(self.xml_data))
@@ -93,9 +98,12 @@ class WechatAccMsg(WechatBase):
             raise PubErrorCustom("消息类型错误!{}".format(self.xml_data['MsgType']))
 
 
-    def msgHandler(self,aqc_obj,toUser):
+    def msgHandler(self,aqc_obj,user):
 
         if aqc_obj.qr_type == '0':
+
+            wamClass = WechatAccMsg(auth_accesstoken=self.auth_accesstoken)
+
             if aqc_obj.send_type == '0':
                 """
                 随机推送一条消息
@@ -103,34 +111,40 @@ class WechatAccMsg(WechatBase):
                 id = random.choice(json.loads(aqc_obj.listids))
                 item = AccQrcodeList.objects.filter(id=id)
                 if item.type == '5':
-                    self.videoSend(item, toUser)
+                    wamClass.videoSend(item, user)
                 elif item.type == '2':
-                    self.imgSend(item, toUser)
+                    wamClass.imgSend(item, user)
                 elif item.type == '3':
-                    self.textSend(item, toUser)
+                    wamClass.textSend(item, user)
                 elif item.type == '4':
-                    self.voiceSend(item,toUser)
+                    wamClass.voiceSend(item,user)
                 elif item.type == '1':
-                    self.newsSend(item,toUser)
+                    wamClass.newsSend(item,user)
             else:
                 """
                 推送全部消息
                 """
                 for item in AccQrcodeList.objects.filter(id__in=json.loads(aqc_obj.listids)).order_by('sort'):
                     if item.type=='5':
-                        self.videoSend(item,toUser)
+                        wamClass.videoSend(item,user)
                     elif item.type=='2':
-                        self.imgSend(item,toUser)
+                        wamClass.imgSend(item,user)
                     elif item.type=='3':
-                        self.textSend(item,toUser)
+                        wamClass.textSend(item,user)
                     elif item.type=='4':
-                        self.voiceSend(item,toUser)
+                        wamClass.voiceSend(item,user)
                     elif item.type == '1':
-                        self.newsSend(item, toUser)
+                        wamClass.newsSend(item, user)
                 pass
 
+class WechatAccMsg(WechatBase):
 
-    def newsSend(self,obj,toUser):
+    def __init__(self,**kwargs):
+
+        super().__init__()
+        self.url = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token={}".format(kwargs.get("auth_accesstoken"))
+
+    def newsSend(self,obj,user):
 
         articles=[]
         for item in AccQrcodeImageTextList.objects.filter(id__in=json.loads(obj.iamgetextids)).order_by('sort'):
@@ -140,72 +154,73 @@ class WechatAccMsg(WechatBase):
                 "url":item.url,
                 "picurl":item.picurl
             })
-        if len(articles):
-            self.request_handler(method="POST",
-                               url="https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token={}".format(
-                                   self.auth_accesstoken),
-                                json={
-                                    "touser":toUser,
-                                    "msgtype":"news",
-                                    "news": {
-                                        "articles": articles
-                                    }
-                                })
 
-    def videoSend(self,obj,toUser):
+        if len(articles):
+            self.request_handler(
+                method="POST",
+                url=self.url,
+                json={
+                    "touser":user['openid'],
+                    "msgtype":"news",
+                    "news": {
+                        "articles": articles
+                    }
+                })
+
+    def videoSend(self,obj,user):
 
         mObj = Meterial.objects.get(media_id=obj.media_id)
 
-        self.request_handler(method="POST",
-                           url="https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token={}".format(
-                               self.auth_accesstoken),
-                            json={
-                                "touser":toUser,
-                                "msgtype":"video",
-                                "video":
-                                {
-                                  "media_id":obj.media_id,
-                                  "title":mObj.title,
-                                  "description":mObj.introduction
-                                }
-                            })
+        self.request_handler(
+            method="POST",
+            url=self.url,
+            json={
+                "touser": user['openid'],
+                "msgtype":"video",
+                "video":
+                {
+                  "media_id":obj.media_id,
+                  "title":mObj.title,
+                  "description":mObj.introduction
+                }
+            })
 
-    def imgSend(self,obj,toUser):
-        self.request_handler(method="POST",
-                           url="https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token={}".format(
-                               self.auth_accesstoken),
-                           json={
-                                "touser":toUser,
-                                "msgtype":"image",
-                                "image":
-                                {
-                                  "media_id":obj.media_id
-                                }
-                            })
+    def imgSend(self,obj,user):
+        self.request_handler(
+            method="POST",
+            url=self.url,
+            json={
+                "touser": user['openid'],
+                "msgtype":"image",
+                "image":
+                {
+                  "media_id":obj.media_id
+                }
+            })
 
-    def voiceSend(self,obj,toUser):
-        self.request_handler(method="POST",
-                           url="https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token={}".format(
-                               self.auth_accesstoken),
-                           json={
-                                    "touser":toUser,
-                                    "msgtype":"voice",
-                                    "voice":
-                                    {
-                                      "media_id":obj.media_id
-                                    }
-                                })
+    def voiceSend(self,obj,user):
+        self.request_handler(
+            method="POST",
+            url=self.url,
+            json={
+                "touser": user['openid'],
+                "msgtype":"voice",
+                "voice":
+                {
+                  "media_id":obj.media_id
+                }
+            })
 
 
-    def textSend(self,obj,toUser):
-        self.request_handler(method="POST",
-                           url="https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token={}".format(
-                               self.auth_accesstoken),
-                           json={
-                                    "touser":toUser,
-                                    "msgtype":"text",
-                                    "text":
-                                    {
-                                         "content":obj.content
-                                    }
-                                })
+    def textSend(self,obj,user):
+        self.request_handler(
+            method="POST",
+            url=self.url,
+            json={
+                "touser": user['openid'],
+                "msgtype":"text",
+                "text":
+                {
+                     "content":"""<a href="http://www.qq.com">点击跳小程序</a>dfdsdsfd"""
+                }
+            })

@@ -8,7 +8,7 @@ from rest_framework.decorators import list_route,detail_route
 from django.shortcuts import HttpResponse
 
 from lib.utils.wechat.ticket import WechatMsgValid
-from lib.utils.wechat.msg import WechatAccMsg
+from lib.utils.wechat.msg import WeChatAccEvent
 from lib.utils.wechat.base import WechatBaseForUser
 from lib.utils.wechat.qrcode import WechatQrcode
 from lib.utils.db import RedisTicketHandler
@@ -116,7 +116,7 @@ class WeChatAPIView(viewsets.ViewSet):
         # print(cH.run())
         # print(request.body.decode('utf-8'))
 
-        WechatAccMsg(
+        WeChatAccEvent(
             timestamp=request.query_params['timestamp'],
             nonce=request.query_params['nonce'],
             signature=request.query_params['msg_signature'],
@@ -190,6 +190,7 @@ class WeChatAPIView(viewsets.ViewSet):
         obj.listids = json.loads(obj.listids)
 
         wQClass= WechatQrcode(accid=obj.accid)
+        # waUClass = WechatAccUser(auth_accesstoken=wQClass.auth_accesstoken).get_info()
 
         for c,item in enumerate(request.data_format.get('lists')):
             aqlObj = AccQrcodeList.objects.create(**dict(

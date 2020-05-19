@@ -45,7 +45,6 @@ class WechatBase(object):
 
             self.auth_accesstoken = self.getAuthAccessToken()
 
-
         if kwargs.get("authorizer_appid",None):
 
             self.authorizer_appid = kwargs.get("authorizer_appid",None)
