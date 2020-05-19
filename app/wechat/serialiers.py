@@ -71,14 +71,14 @@ class AccQrcodeListModelSerializer(serializers.ModelSerializer):
 
 class AccQrcodeImageTextListModelSerializer(serializers.ModelSerializer):
 
-    media = serializers.SerializerMethodField()
+    local_url = serializers.SerializerMethodField()
 
-    def get_media(self,obj):
+    def get_local_url(self,obj):
 
-        try:
-            return MeterialSerializer(Meterial.objects.get(media_id=obj.media_id), many=False).data
-        except Meterial.DoesNotExist:
-            return {}
+        if obj.media_id:
+            return "{}{}".format(ServerUrl,Meterial.objects.get(media_id=obj.media_id).local_url)
+        else:
+            return ""
 
     class Meta:
         model = AccQrcodeImageTextList
