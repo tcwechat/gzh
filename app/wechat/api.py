@@ -116,7 +116,7 @@ class WeChatAPIView(viewsets.ViewSet):
         # print(cH.run())
         # print(request.body.decode('utf-8'))
 
-        WeChatAccEvent(
+        res = WeChatAccEvent(
             timestamp=request.query_params['timestamp'],
             nonce=request.query_params['nonce'],
             signature=request.query_params['msg_signature'],
@@ -124,7 +124,7 @@ class WeChatAPIView(viewsets.ViewSet):
             authorizer_appid=pk
         ).eventHandler()
 
-        return HttpResponse("success")
+        return HttpResponse(res)
 
 
     @list_route(methods=['GET'])

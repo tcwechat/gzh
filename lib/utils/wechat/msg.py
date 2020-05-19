@@ -7,6 +7,8 @@ import xmltodict
 from lib.utils.wechat.user import WechatAccUser
 from app.wechat.models import AccQrcode,AccLinkUser,AccQrcodeList,AccQrcodeImageTextList
 from app.public.models import Meterial
+from lib.utils.mytime import UtilTime
+from lib.utils.log import logger
 
 class WeChatAccEvent(WechatBase):
 
@@ -29,12 +31,16 @@ class WeChatAccEvent(WechatBase):
 
         self.xml_data = xmltodict.parse(res[1])['xml']
 
+
+        self.rContent= None
+
     def DecryptMsg(self,timestamp,nonce,signature,xmlc):
 
         return WXBizMsgCrypt(self.token,self.key,self.appid).DecryptMsg(xmlc,signature,timestamp,nonce)
 
-    def EncryptMsg(self):
-        pass
+    def EncryptMsg(self,msg):
+
+        return WXBizMsgCrypt(self.token,self.key,self.appid).EncryptMsg(msg)
 
     def eventHandler(self):
 
@@ -86,7 +92,7 @@ class WeChatAccEvent(WechatBase):
                 res = WechatAccUser(auth_accesstoken=self.auth_accesstoken).get_info(alu_obj.openid)
 
                 #推送消息
-                self.msgHandler(aqc_obj,{
+                return self.msgHandler(aqc_obj,{
                     "openid":alu_obj.openid,
                     "nickname":res['nickname']
                 })
@@ -124,7 +130,7 @@ class WeChatAccEvent(WechatBase):
                 """
                 推送全部消息
                 """
-                for item in AccQrcodeList.objects.filter(id__in=json.loads(aqc_obj.listids)).order_by('sort'):
+                for j,item in enumerate(AccQrcodeList.objects.filter(id__in=json.loads(aqc_obj.listids)).order_by('sort')):
                     if item.type=='5':
                         wamClass.videoSend(item,user)
                     elif item.type=='2':
@@ -134,8 +140,53 @@ class WeChatAccEvent(WechatBase):
                     elif item.type=='4':
                         wamClass.voiceSend(item,user)
                     elif item.type == '1':
-                        wamClass.newsSend(item, user)
-                pass
+                        if j==0:
+                            self.rContent = self.newsHandler(item,user)
+                        else:
+                            wamClass.newsSend(item, user)
+
+        return self.rContent  if self.rContent else  "success"
+
+
+    def newsHandler(self,obj,user):
+
+        count = 0
+        content=""
+        for j,item in enumerate(AccQrcodeImageTextList.objects.filter(id__in=json.loads(obj.iamgetextids)).order_by('sort')):
+            count+=1
+            content+="<item>"
+            content+="<Title><![CDATA[{}]]></Title>".format(item.title.replace("<粉丝昵称>",user['nickname']))
+            content+="<Description><![CDATA[{}]]></Description>".format(item.description)
+            content+="<PicUrl><![CDATA[{}]]></PicUrl>".format(item.picurl)
+            content+="<Url><![CDATA[{}]]></Url>".format(item.url)
+            content+="</item>"
+
+
+        c = """
+            <xml>
+              <ToUserName><![CDATA[{}]]></ToUserName>
+              <FromUserName><![CDATA[{}]]></FromUserName>
+              <CreateTime>{}</CreateTime>
+              <MsgType><![CDATA[news]]></MsgType>
+              <ArticleCount>{}</ArticleCount>
+              <Articles>
+                {}
+              </Articles>
+            </xml>
+        """.format(
+            user['openid'],
+            self.acc.user_name,
+            UtilTime().timestamp,
+            count,
+            content
+        )
+
+        res = self.EncryptMsg(c)
+        if res[0] != 0:
+            raise PubErrorCustom("加密错误!{}".format(res[0]))
+        logger.info(res)
+
+        return res[1]
 
 class WechatAccMsg(WechatBase):
 
@@ -154,6 +205,7 @@ class WechatAccMsg(WechatBase):
                 "url":item.url,
                 "picurl":item.picurl
             })
+            break
 
         if len(articles):
             self.request_handler(

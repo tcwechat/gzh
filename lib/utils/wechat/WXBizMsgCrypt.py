@@ -211,7 +211,7 @@ class WXBizMsgCrypt(object):
         self.token = sToken
         self.appid = sAppId.encode()
 
-    def EncryptMsg(self, sReplyMsg, sNonce, timestamp=None):
+    def EncryptMsg(self, sReplyMsg, sNonce=None, timestamp=None):
         #将公众号回复用户的消息加密打包
         #@param sReplyMsg: 企业号待回复用户的消息，xml格式的字符串
         #@param sTimeStamp: 时间戳，可以自己生成，也可以用URL参数的timestamp,如为None则自动用当前时间
@@ -222,6 +222,8 @@ class WXBizMsgCrypt(object):
         ret, encrypt = pc.encrypt(sReplyMsg, self.appid)
         if ret != 0:
             return ret, None
+        if sNonce is None:
+            sNonce = str(int(time.time()))
         if timestamp is None:
             timestamp = str(int(time.time()))
         # 生成安全签名
