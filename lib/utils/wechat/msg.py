@@ -182,13 +182,13 @@ class WechatAccMsg(WechatBase):
 
     def textSend(self,obj,toUser):
         self.request_handler(method="POST",
-                           url="https://api.weixin.qq.com/cgi-bin/message/mass/send?access_token={}".format(
+                           url="https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token={}".format(
                                self.auth_accesstoken),
                            json={
-                               "touser":[
-                                   toUser,
-                                   ""
-                               ],
-                               "text": {"content": obj.content},
-                               "msgtype": "text"
-                            })
+                                    "touser":toUser,
+                                    "msgtype":"text",
+                                    "text":
+                                    {
+                                         "content":obj.content
+                                    }
+                                })

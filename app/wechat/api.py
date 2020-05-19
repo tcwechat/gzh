@@ -203,7 +203,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
             if item.get("type") == '1':
 
-                articles = []
+                # articles = []
 
                 aqlObj.iamgetextids = json.loads(aqlObj.iamgetextids)
 
@@ -225,13 +225,13 @@ class WeChatAPIView(viewsets.ViewSet):
                     ))
                     aqlObj.iamgetextids.append(aqitlObj.id)
 
-                    articles.append(dict(
-                        title = aqitlObj.title,
-                        thumb_media_id = aqitlObj.media_id,
-                        show_cover_pic = "1",
-                        content=aqitlObj.description,
-                        content_source_url=aqitlObj.url
-                    ))
+                    # articles.append(dict(
+                    #     title = aqitlObj.title,
+                    #     thumb_media_id = aqitlObj.media_id,
+                    #     show_cover_pic = "1",
+                    #     content=aqitlObj.description,
+                    #     content_source_url=aqitlObj.url
+                    # ))
                 # media_id = wQClass.image_text_create(articles)
 
                 aqlObj.iamgetextids = json.dumps(aqlObj.iamgetextids)
