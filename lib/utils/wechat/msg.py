@@ -149,7 +149,7 @@ class WechatAccMsg(WechatBase):
         articles=[]
         for item in AccQrcodeImageTextList.objects.filter(id__in=json.loads(obj.iamgetextids)).order_by('sort'):
             articles.append({
-                "title":item.title.replace("<粉丝昵称/>",user['nickname']),
+                "title":item.title.replace("<粉丝昵称>",user['nickname']),
                 "description":item.description,
                 "url":item.url,
                 "picurl":item.picurl
@@ -219,7 +219,7 @@ class WechatAccMsg(WechatBase):
                 "msgtype":"text",
                 "text":
                 {
-                     "content":obj.content.replace("<粉丝昵称/>",user['nickname'])
+                     "content":obj.content.replace("<粉丝昵称>",user['nickname'])
                 }
             }
         data=json.dumps(data, ensure_ascii=False).encode('utf-8')
