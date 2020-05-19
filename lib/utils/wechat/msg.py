@@ -4,7 +4,7 @@ from lib.utils.wechat.base import WechatBase
 from lib.utils.wechat.WXBizMsgCrypt import WXBizMsgCrypt
 from lib.utils.exceptions import PubErrorCustom
 import xmltodict
-from app.wechat.models import AccQrcode,AccLinkUser,AccQrcodeList
+from app.wechat.models import AccQrcode,AccLinkUser,AccQrcodeList,AccQrcodeImageTextList
 from app.public.models import Meterial
 
 
@@ -125,6 +125,29 @@ class WechatAccMsg(WechatBase):
                         self.voiceSend(item.toUser)
                 pass
 
+
+    def newsSend(self,obj,toUser):
+
+        articles=[]
+        for item in AccQrcodeImageTextList.objects.filter(id__in=json.loads(obj.iamgetextids)).order_by('sort'):
+            articles.append({
+                "title":item.title,
+                "description":item.description,
+                "url":item.url,
+                "picurl":item.picurl
+            })
+        if len(articles):
+            self.request_handler(method="POST",
+                               url="https://api.weixin.qq.com/cgi-bin/message/mass/send?access_token={}".format(
+                                   self.auth_accesstoken),
+                                json={
+                                    "touser":toUser,
+                                    "msgtype":"news",
+                                    "news": {
+                                        "articles": articles
+                                    }
+                                })
+
     def videoSend(self,obj,toUser):
 
         mObj = Meterial.objects.get(media_id=obj.media_id)
@@ -132,17 +155,15 @@ class WechatAccMsg(WechatBase):
         self.request_handler(method="POST",
                            url="https://api.weixin.qq.com/cgi-bin/message/mass/send?access_token={}".format(
                                self.auth_accesstoken),
-                           json={
-                               "touser":[
-                                   toUser,
-                                   ""
-                               ],
-                               "mpvideo":{
+                            json={
+                                "touser":toUser,
+                                "msgtype":"video",
+                                "video":
+                                {
                                   "media_id":obj.media_id,
                                   "title":mObj.title,
                                   "description":mObj.introduction
-                               },
-                                "msgtype":"mpvideo"
+                                }
                             })
 
     def imgSend(self,obj,toUser):
@@ -150,18 +171,12 @@ class WechatAccMsg(WechatBase):
                            url="https://api.weixin.qq.com/cgi-bin/message/mass/send?access_token={}".format(
                                self.auth_accesstoken),
                            json={
-                               "touser":[
-                                   toUser,
-                                   ""
-                               ],
-                               "images":{
-                                    "media_ids":[
-                                        obj.media_id
-                                    ],
-                                   "need_open_comment": 1,
-                                   "only_fans_can_comment": 0
-                               },
-                                "msgtype":"image"
+                                "touser":toUser,
+                                "msgtype":"image",
+                                "image":
+                                {
+                                  "media_id":obj.media_id
+                                }
                             })
 
     def voiceSend(self,obj,toUser):
@@ -169,15 +184,13 @@ class WechatAccMsg(WechatBase):
                            url="https://api.weixin.qq.com/cgi-bin/message/mass/send?access_token={}".format(
                                self.auth_accesstoken),
                            json={
-                               "touser":[
-                                   toUser,
-                                   ""
-                               ],
-                               "voice": {
-                                   "media_id": obj.media_id
-                               },
-                               "msgtype": "voice"
-                            })
+                                    "touser":toUser,
+                                    "msgtype":"voice",
+                                    "voice":
+                                    {
+                                      "media_id":obj.media_id
+                                    }
+                                })
 
 
     def textSend(self,obj,toUser):
