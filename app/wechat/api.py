@@ -254,7 +254,13 @@ class WeChatAPIView(viewsets.ViewSet):
     def AccQrcode_get(self, request, *args, **kwargs):
 
 
-        query = AccQrcodeModel.objects.filter(accid=request.query_params_format.get("accid",0)).order_by('-createtime')
+        query = AccQrcodeModel.objects.filter(accid=request.query_params_format.get("accid",0))
+
+        if request.query_params_format.get("name",None):
+            query= query.filter(name__contains=request.query_params_format.get("name",None))
+
+
+        query = query.order_by('-createtime')
 
         count = query.count()
 
