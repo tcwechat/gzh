@@ -213,14 +213,17 @@ class WechatAccMsg(WechatBase):
 
 
     def textSend(self,obj,user):
-        self.request_handler(
-            method="POST",
-            url=self.url,
-            json={
+
+        data={
                 "touser": user['openid'],
                 "msgtype":"text",
                 "text":
                 {
-                     "content":"""<a href="http://www.qq.com">点击跳小程序</a>dfdsdsfd"""
+                     "content":"""<a href="http://www.qq.com">跳转</a>dfdsdsfd"""
                 }
-            })
+            }
+        data=json.dumps(data, ensure_ascii=False).encode('utf-8')
+        self.request_handler(
+            method="POST",
+            url=self.url,
+            data=data)
