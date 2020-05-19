@@ -124,7 +124,7 @@ class WeChatAPIView(viewsets.ViewSet):
             authorizer_appid=pk
         ).eventHandler()
 
-        return HttpResponse("")
+        return HttpResponse("success")
 
 
     @list_route(methods=['GET'])
