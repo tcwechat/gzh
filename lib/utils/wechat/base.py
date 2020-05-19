@@ -117,7 +117,7 @@ class WechatBase(object):
         logger.info("微信服务器返回:{}".format(response.text))
         response = json.loads(response.content.decode('utf-8'))
 
-        if 'errcode' in response:
+        if 'errcode' in response and str(response['errcode'])!='0':
             raise PubErrorCustom(error_dict.get(str(response['errcode']),response['errmsg']))
 
         return response
