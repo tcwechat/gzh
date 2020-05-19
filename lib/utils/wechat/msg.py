@@ -109,7 +109,9 @@ class WechatAccMsg(WechatBase):
                 elif item.type == '3':
                     self.textSend(item, toUser)
                 elif item.type == '4':
-                    self.voiceSend(item.toUser)
+                    self.voiceSend(item,toUser)
+                elif item.type == '1':
+                    self.newsSend(item,toUser)
             else:
                 """
                 推送全部消息
@@ -122,7 +124,9 @@ class WechatAccMsg(WechatBase):
                     elif item.type=='3':
                         self.textSend(item,toUser)
                     elif item.type=='4':
-                        self.voiceSend(item.toUser)
+                        self.voiceSend(item,toUser)
+                    elif item.type == '1':
+                        self.newsSend(item, toUser)
                 pass
 
 
