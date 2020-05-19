@@ -353,11 +353,9 @@ class WeChatAPIView(viewsets.ViewSet):
         return None
 
 
-    @detail_route(methods=['POST'])
+    @list_route(methods=['POST'])
     @Core_connector(isReturn=True)
     def test(self,request, *args, **kwargs):
-
-        pk= kwargs.get("pk")
 
         return HttpResponse("success")
 
