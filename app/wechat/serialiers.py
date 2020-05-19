@@ -55,7 +55,10 @@ class AccQrcodeListModelSerializer(serializers.ModelSerializer):
 
     def get_local_url(self,obj):
 
-        return Meterial.objects.get(media_id=obj.media_id).local_url
+        if obj.media_id:
+            return Meterial.objects.get(media_id=obj.media_id).local_url
+        else:
+            return ""
 
     def get_imagetextlist(self,obj):
         return AccQrcodeImageTextListModelSerializer(AccQrcodeImageTextList.objects.filter(id__in=json.loads(obj.iamgetextids)).order_by('sort'),
