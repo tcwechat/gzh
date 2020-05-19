@@ -202,7 +202,7 @@ class WeChatAPIView(viewsets.ViewSet):
             ))
             obj.listids.append(aqlObj.id)
 
-            if item.get("type") == '1':
+            if str(item.get("type")) == '1':
 
                 # articles = []
 
