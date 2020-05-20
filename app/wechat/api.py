@@ -11,6 +11,7 @@ from lib.utils.wechat.ticket import WechatMsgValid
 from lib.utils.wechat.msg import WeChatAccEvent
 from lib.utils.wechat.base import WechatBaseForUser
 from lib.utils.wechat.qrcode import WechatQrcode
+from lib.utils.wechat.user import WeChatAccTag
 from lib.utils.db import RedisTicketHandler
 
 from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeModel,AccQrcodeList,AccQrcodeImageTextList
@@ -150,26 +151,44 @@ class WeChatAPIView(viewsets.ViewSet):
         return {"data":AccSerializer(Acc.objects.filter(),many=True).data}
 
     @list_route(methods=['POST','GET','PUT','DELETE'])
-    @Core_connector(isTransaction=True)
+    @Core_connector(isTransaction=True,isPagination=True)
     def AccTag(self,request,*args,**kwargs):
 
         if request.method =='POST':
+
+            id = WeChatAccTag(accid=request.data_format.get("accid")).create(request.data_format.get("name"))
+
             obj = AccTagModel.objects.create(**dict(
+                id = id,
                 name = request.data_format.get("name"),
                 accid = request.data_format.get("accid")
             ))
             return {"data":{"id":obj.id}}
+
         elif request.method =='PUT':
             try:
                 obj = AccTagModel.objects.get(id=request.data_format.get("id"))
                 obj.name = request.data_format.get("name")
+
+                WeChatAccTag(accid=request.data_format.get("accid")).update(obj.id,obj.name)
+
                 obj.save()
             except AccTagModel.DoesNotExist:
                 raise PubErrorCustom("不存在此标签!")
+
         elif request.method == 'DELETE':
-            AccTagModel.objects.filter(id=request.data_format.get("id")).delete()
+            try:
+                obj = AccTagModel.objects.get(id=request.data_format.get("id"))
+                WeChatAccTag(accid=request.data_format.get("accid")).delete(id=obj.id)
+                obj.delete()
+            except AccTagModel.DoesNotExist:
+                raise PubErrorCustom("不存在此标签!")
+
         elif request.method == 'GET':
-            return { "data":AccTagModelSerializer(AccTagModel.objects.filter(accid=request.query_params_format.get("accid")),many=True).data}
+            query = AccTagModel.objects.filter(accid=request.query_params_format.get("accid"))
+            count = query.count()
+            return { "data":AccTagModelSerializer(query[request.page_start:request.page_end],many=True).data,"count":count }
+
         else:
             raise PubErrorCustom("拒绝访问!")
 

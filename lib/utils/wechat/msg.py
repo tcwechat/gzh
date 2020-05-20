@@ -161,7 +161,6 @@ class WeChatAccEvent(WechatBase):
             content+="<Url><![CDATA[{}]]></Url>".format(item.url)
             content+="</item>"
 
-
         c = """
             <xml>
               <ToUserName><![CDATA[{}]]></ToUserName>
