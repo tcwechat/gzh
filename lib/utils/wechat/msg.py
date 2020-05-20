@@ -115,7 +115,7 @@ class WeChatAccEvent(WechatBase):
                 随机推送一条消息
                 """
                 id = random.choice(json.loads(aqc_obj.listids))
-                item = AccQrcodeList.objects.filter(id=id)
+                item = AccQrcodeList.objects.filter(id=id)[0]
                 if item.type == '5':
                     wamClass.videoSend(item, user)
                 elif item.type == '2':
