@@ -31,38 +31,39 @@ def handler(accid,openids):
         if userinfo['subscribe'] == 0:
             continue
 
-        try:
-            accUserObj = AccLinkUser.objects.get(accid=accid,openid=openid)
-            accUserObj.tags = json.dumps(userinfo['tagid_list'])
-            accUserObj.nickname = userinfo['nickname']
-            accUserObj.sex = userinfo['sex']
-            accUserObj.city = userinfo['city']
-            accUserObj.province = userinfo['province']
-            accUserObj.country = userinfo['country']
-            accUserObj.headimgurl = userinfo['headimgurl']
-            accUserObj.subscribe_time = userinfo['subscribe_time']
-            accUserObj.subscribe_scene = userinfo['subscribe_scene']
-            accUserObj.umark='0'
-            accUserObj.save()
-
-        except AccLinkUser.DoesNotExist:
+        with transaction.atomic():
             try:
-                AccLinkUser.objects.create(**dict(
-                    accid=accid,
-                    openid = userinfo['openid'],
-                    tags=json.dumps(userinfo['tagid_list']),
-                    nickname = userinfo['nickname'],
-                    sex = userinfo['sex'],
-                    city = userinfo['city'],
-                    province = userinfo['province'],
-                    country = userinfo['country'],
-                    headimgurl = userinfo['headimgurl'],
-                    subscribe_time = userinfo['subscribe_time'],
-                    subscribe_scene = userinfo['subscribe_scene'],
-                    umark = '0'
-                ))
-            except Exception as e:
-                logger.error(str(e))
+                accUserObj = AccLinkUser.objects.get(accid=accid,openid=openid)
+                accUserObj.tags = json.dumps(userinfo['tagid_list'])
+                accUserObj.nickname = userinfo['nickname']
+                accUserObj.sex = userinfo['sex']
+                accUserObj.city = userinfo['city']
+                accUserObj.province = userinfo['province']
+                accUserObj.country = userinfo['country']
+                accUserObj.headimgurl = userinfo['headimgurl']
+                accUserObj.subscribe_time = userinfo['subscribe_time']
+                accUserObj.subscribe_scene = userinfo['subscribe_scene']
+                accUserObj.umark='0'
+                accUserObj.save()
+
+            except AccLinkUser.DoesNotExist:
+                try:
+                    AccLinkUser.objects.create(**dict(
+                        accid=accid,
+                        openid = userinfo['openid'],
+                        tags=json.dumps(userinfo['tagid_list']),
+                        nickname = userinfo['nickname'],
+                        sex = userinfo['sex'],
+                        city = userinfo['city'],
+                        province = userinfo['province'],
+                        country = userinfo['country'],
+                        headimgurl = userinfo['headimgurl'],
+                        subscribe_time = userinfo['subscribe_time'],
+                        subscribe_scene = userinfo['subscribe_scene'],
+                        umark = '0'
+                    ))
+                except Exception as e:
+                    logger.error(str(e))
 
 def sync(accid):
 
@@ -94,5 +95,4 @@ if __name__ == '__main__':
 
     accid = sys.argv[1]
 
-    with transaction.atomic():
-        sync(accid)
+    sync(accid)
