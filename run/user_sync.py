@@ -22,7 +22,11 @@ def handler(accid,openids):
 
     for openid in openids:
 
+        logger.info("处理[{}]中".format(openid))
+
         userinfo = WechatAccUser(accid=accid).get_info(openid)
+
+        logger.info("获取列表[{}]".format(userinfo))
 
         if userinfo['subscribe'] == 0:
             continue
@@ -67,12 +71,18 @@ def sync(accid):
 
     count = 0
     total = 0
+    next_openid=False
     while count ==0 or count < total:
-        res = WechatAccUser(accid=accid).get_user_list()
+
+        res = WechatAccUser(accid=accid).get_user_list(next_openid)
+        logger.info("获取列表[{}]".format(res))
         handler(accid, res['data']['openid'])
 
         count+=res['count']
         total = res['total']
+        next_openid=res['next_openid']
+
+        print(count,total)
 
     logger.info("[{}]处理完毕!".format(UtilTime().arrow_to_string()))
 
