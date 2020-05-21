@@ -251,7 +251,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
         runprogram = os.path.join(BASE_DIR,'run')
 
-        run="python {}/user_sync.py {} >> {}/logs/user_sync.log".format(runprogram,runprogram,request.data_format.get("accid",0))
+        run="python {}/user_sync.py {} >> {}/logs/user_sync.log".format(runprogram,request.data_format.get("accid",0),BASE_DIR)
         logger.info(run)
         os.system(run)
 
