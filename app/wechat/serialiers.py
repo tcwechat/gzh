@@ -14,6 +14,28 @@ class AccSerializer(serializers.Serializer):
     head_img = serializers.CharField()
     createtime = serializers.IntegerField()
 
+
+class AccLinkUserSerializer(serializers.Serializer):
+
+    openid = serializers.CharField()
+    accid = serializers.IntegerField()
+    nickname = serializers.CharField()
+    sex = serializers.CharField()
+    province = serializers.CharField()
+    country = serializers.CharField()
+    city = serializers.CharField()
+    tags = serializers.SerializerMethodField()
+    subscribe_time = serializers.SerializerMethodField()
+    subscribe_scene = serializers.CharField()
+    memo = serializers.CharField()
+
+    def get_tags(self,obj):
+        return AccTagModelSerializer(AccTag.objects.filter(id__in=json.loads(obj.tags)).order_by('-createtime'),many=True).data
+
+    def get_subscribe_time(self,obj):
+        return UtilTime().timestamp_to_string(obj.subscribe_time)
+
+
 class AccQrcodeModelSerializer(serializers.ModelSerializer):
 
     tags = serializers.SerializerMethodField()

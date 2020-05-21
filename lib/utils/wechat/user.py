@@ -18,6 +18,16 @@ class WechatAccUser(WechatBase):
                 openid
             ))
 
+    def get_user_list(self,next_openid=False):
+        return self.request_handler(
+                method="GET",
+                url="https://api.weixin.qq.com/cgi-bin/user/get?access_token={}&next_openid={}".format(
+                    self.auth_accesstoken,
+                    next_openid
+                ) if next_openid else "https://api.weixin.qq.com/cgi-bin/user/get?access_token={}".format(
+                    self.auth_accesstoken)
+            )
+
 class WeChatAccTag(WechatBase):
 
     def __init__(self,**kwargs):

@@ -24,6 +24,7 @@ class Acc(models.Model):
     business_info = models.CharField(max_length=255,verbose_name="用以了解功能的开通状况（0代表未开通，1代表已开通）",default="{}")
     qrcode_url = models.CharField(max_length=255,verbose_name="二维码图片的 URL，开发者最好自行也进行保存",default="")
 
+    synctime = models.BigIntegerField(default=0,verbose_name="上次同步粉丝列表时间")
 
     createtime=models.BigIntegerField(default=0)
 
@@ -50,6 +51,18 @@ class AccLinkUser(models.Model):
     openid = models.CharField(max_length=60,verbose_name="粉丝openid")
     tags = models.CharField(max_length=1024, verbose_name="标签集合", default="[]")
     createtime=models.BigIntegerField(default=0)
+
+    headimgurl= models.CharField(max_length=255,verbose_name="头像",default="")
+    nickname = models.CharField(max_length=60,verbose_name="昵称",default="")
+    sex = models.CharField(max_length=1,verbose_name="用户的性别，值为1时是男性，值为2时是女性，值为0时是未知",default="")
+    subscribe_time = models.BigIntegerField(default=0,verbose_name="关注时间")
+    city =models.CharField(max_length=60,verbose_name="城市",default="")
+    country = models.CharField(max_length=60,verbose_name="国家",default="")
+    province = models.CharField(max_length=60,verbose_name="省份",default="")
+    subscribe_scene = models.CharField(max_length=60,verbose_name="ADD_SCENE_SEARCH 公众号搜索，ADD_SCENE_ACCOUNT_MIGRATION 公众号迁移，ADD_SCENE_PROFILE_CARD 名片分享，ADD_SCENE_QR_CODE 扫描二维码，ADD_SCENE_PROFILE_LINK 图文页内名称点击，ADD_SCENE_PROFILE_ITEM 图文页右上角菜单，ADD_SCENE_PAID 支付后关注，ADD_SCENE_OTHERS 其他",default="")
+    memo = models.CharField(max_length=60,verbose_name="备注",default="")
+
+    umark = models.CharField(max_length=1,verbose_name="状态 0-正常,1-删除",default='0')
 
     def save(self, *args, **kwargs):
 

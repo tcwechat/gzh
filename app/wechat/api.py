@@ -1,5 +1,5 @@
 
-import json
+import json,os
 import xml.etree.cElementTree as ET
 
 from rest_framework import viewsets
@@ -7,18 +7,24 @@ from lib.core.decorator.response import Core_connector
 from rest_framework.decorators import list_route,detail_route
 from django.shortcuts import HttpResponse
 
+from django.db.models import Q
+
+from project.settings import BASE_DIR
+
 from lib.utils.wechat.ticket import WechatMsgValid
 from lib.utils.wechat.msg import WeChatAccEvent
 from lib.utils.wechat.base import WechatBaseForUser
 from lib.utils.wechat.qrcode import WechatQrcode
-from lib.utils.wechat.user import WeChatAccTag
+from lib.utils.wechat.user import WeChatAccTag,WechatAccUser
 from lib.utils.db import RedisTicketHandler
 
-from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeModel,AccQrcodeList,AccQrcodeImageTextList
+from lib.utils.mytime import UtilTime
+
+from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeModel,AccQrcodeList,AccQrcodeImageTextList,AccLinkUser
 from app.public.models import Meterial
 from lib.utils.exceptions import PubErrorCustom
 
-from app.wechat.serialiers import AccSerializer,AccTagModelSerializer,AccQrcodeModelSerializer
+from app.wechat.serialiers import AccSerializer,AccTagModelSerializer,AccQrcodeModelSerializer,AccLinkUserSerializer
 
 class WeChatAPIView(viewsets.ViewSet):
 
@@ -194,6 +200,59 @@ class WeChatAPIView(viewsets.ViewSet):
 
         return None
 
+    @list_route(methods=['GET'])
+    @Core_connector(isPagination=True)
+    def AccUser_get(self, request):
+
+        query = AccLinkUser.objects.filter(accid=request.query_params_format.get("accid",None),umark='0')
+
+        nickname = request.query_params_format.get("nickname",None)
+        sex = request.query_params_format.get("sex",None)
+        subscribe_start = request.query_params_format.get("subscribe_start",None)
+        subscribe_end = request.query_params_format.get("subscribe_end", None)
+        subscribe_scene = request.query_params_format.get("subscribe_scene", None)
+        province = request.query_params_format.get("province", None)
+        city = request.query_params_format.get("city", None)
+
+        if nickname:
+            query = query.filter(Q(nickname=nickname) | Q(memo=nickname))
+        if sex:
+            query = query.filter(sex=sex)
+        if subscribe_scene:
+            query = query.filter(subscribe_scene=subscribe_scene)
+        if province:
+            query = query.filter(province=province)
+        if city:
+            query = query.filter(city=city)
+
+        if subscribe_start:
+            ut = UtilTime()
+            if not subscribe_end:
+                subscribe_end = ut.arrow_to_timestamp()
+            subscribe_start = ut.string_to_timestamp(subscribe_start,format_v="YYYY-MM-DD HH:mm")
+
+            query = query.filter(subscribe_time__gte=subscribe_start,subscribe_time__lte=subscribe_end)
+
+        query.order_by('-subscribe_time')
+        count = query.count()
+
+        return {"data":AccLinkUserSerializer(query[request.page_start:request.page_end],many=True).data,"count":count}
+
+    @list_route(methods=['POST'])
+    @Core_connector(isTransaction=True)
+    def AccUser_sync(self, request):
+        """
+        同步粉丝
+        :param request:
+        :return:
+        """
+
+        runprogram = os.path.join(BASE_DIR,'run')
+        os.system("python {}/user_sync.py >> {}/logs/user_sync.log".format(runprogram,runprogram))
+
+        return None
+
+
     @list_route(methods=['POST'])
     @Core_connector(isTransaction=True)
     def AccQrcode(self,request,*args,**kwargs):
@@ -269,7 +328,7 @@ class WeChatAPIView(viewsets.ViewSet):
         return None
 
     @list_route(methods=['GET'])
-    @Core_connector(isTransaction=True,isPagination=True)
+    @Core_connector(isPagination=True)
     def AccQrcode_get(self, request, *args, **kwargs):
 
 
