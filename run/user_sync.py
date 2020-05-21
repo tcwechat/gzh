@@ -7,7 +7,7 @@ pathname = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, pathname)
 sys.path.insert(0,os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "education.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 
 django.setup()
 
