@@ -239,7 +239,7 @@ class WeChatAPIView(viewsets.ViewSet):
         return {"data":AccLinkUserSerializer(query[request.page_start:request.page_end],many=True).data,"count":count}
 
     @list_route(methods=['POST'])
-    @Core_connector(isTransaction=True)
+    @Core_connector()
     def AccUser_sync(self, request):
         """
         同步粉丝
@@ -248,7 +248,10 @@ class WeChatAPIView(viewsets.ViewSet):
         """
 
         runprogram = os.path.join(BASE_DIR,'run')
-        os.system("python {}/user_sync.py >> {}/logs/user_sync.log".format(runprogram,runprogram))
+
+        run="python {}/user_sync.py >> {}/logs/user_sync.log".format(runprogram,runprogram)
+        print(run)
+        os.system(run)
 
         return None
 
