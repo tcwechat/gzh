@@ -24,6 +24,8 @@ from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeMo
 from app.public.models import Meterial
 from lib.utils.exceptions import PubErrorCustom
 
+from lib.utils.log import logger
+
 from app.wechat.serialiers import AccSerializer,AccTagModelSerializer,AccQrcodeModelSerializer,AccLinkUserSerializer
 
 class WeChatAPIView(viewsets.ViewSet):
@@ -250,7 +252,7 @@ class WeChatAPIView(viewsets.ViewSet):
         runprogram = os.path.join(BASE_DIR,'run')
 
         run="python {}/user_sync.py >> {}/logs/user_sync.log".format(runprogram,runprogram)
-        print(run)
+        logger.info(run)
         os.system(run)
 
         return None
