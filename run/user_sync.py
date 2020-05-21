@@ -24,7 +24,7 @@ def handler(accid,openids):
 
         logger.info("处理[{}]中".format(openid))
 
-        userinfo = WechatAccUser(accid=accid).get_info(openid)
+        userinfo = WechatAccUser(accid=accid,isAccessToken=True).get_info(openid)
 
         logger.info("获取列表[{}]".format(userinfo))
 
@@ -75,7 +75,7 @@ def sync(accid):
     next_openid=False
     while count ==0 or count < total:
 
-        res = WechatAccUser(accid=accid).get_user_list(next_openid)
+        res = WechatAccUser(accid=accid,isAccessToken=True).get_user_list(next_openid)
         logger.info("获取列表[{}]".format(res))
         handler(accid, res['data']['openid'])
 
@@ -95,4 +95,7 @@ if __name__ == '__main__':
 
     accid = sys.argv[1]
 
-    sync(accid)
+    try:
+        sync(accid)
+    except Exception as e:
+        logger.error(str(e))
