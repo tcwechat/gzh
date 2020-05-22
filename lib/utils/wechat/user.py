@@ -62,3 +62,16 @@ class WeChatAccTag(WechatBase):
                 self.auth_accesstoken
             ),
             json={"tag":{"id":id}})
+
+
+    def batchtagging(self,openids,tagid):
+
+        self.request_handler(
+            method="POST",
+            url="https://api.weixin.qq.com/cgi-bin/tags/members/batchtagging?access_token={}".format(
+                self.auth_accesstoken
+            ),
+            json={
+                "tagid" : tagid,
+                "openid_list":openids
+            })

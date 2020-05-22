@@ -28,6 +28,7 @@ class AccLinkUserSerializer(serializers.Serializer):
     subscribe_time = serializers.SerializerMethodField()
     subscribe_scene = serializers.CharField()
     memo = serializers.CharField()
+    headimgurl = serializers.CharField()
 
     def get_tags(self,obj):
         return AccTagModelSerializer(AccTag.objects.filter(id__in=json.loads(obj.tags)).order_by('-createtime'),many=True).data

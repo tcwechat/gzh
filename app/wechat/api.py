@@ -231,7 +231,7 @@ class WeChatAPIView(viewsets.ViewSet):
             ut = UtilTime()
             if not subscribe_end:
                 subscribe_end = ut.arrow_to_timestamp()
-            subscribe_start = ut.string_to_timestamp(subscribe_start,format_v="YYYY-MM-DD HH:mm")
+            subscribe_start = ut.string_to_timestamp(subscribe_start)
 
             query = query.filter(subscribe_time__gte=subscribe_start,subscribe_time__lte=subscribe_end)
 
@@ -257,6 +257,96 @@ class WeChatAPIView(viewsets.ViewSet):
 
         return None
 
+    @list_route(methods=['POST'])
+    @Core_connector(isTransaction=True)
+    def AccUser_batchtagging(self, request):
+        """
+        一键标签
+        :param request:
+        :return:
+        """
+        query = AccLinkUser.objects.filter(accid=request.data_format.get("accid", None), umark='0')
+
+        nickname = request.data_format.get("nickname", None)
+        sex = request.data_format.get("sex", None)
+        subscribe_start = request.data_format.get("subscribe_start", None)
+        subscribe_end = request.data_format.get("subscribe_end", None)
+        subscribe_scene = request.data_format.get("subscribe_scene", None)
+        province = request.data_format.get("province", None)
+        city = request.data_format.get("city", None)
+
+        tagid = request.data_format.get("tagid", None)
+
+        if not tagid:
+            raise PubErrorCustom("tagid为空!")
+
+        if nickname:
+            query = query.filter(Q(nickname=nickname) | Q(memo=nickname))
+        if sex:
+            query = query.filter(sex=sex)
+        if subscribe_scene:
+            query = query.filter(subscribe_scene=subscribe_scene)
+        if province:
+            query = query.filter(province=province)
+        if city:
+            query = query.filter(city=city)
+
+        if subscribe_start:
+            ut = UtilTime()
+            if not subscribe_end:
+                subscribe_end = ut.arrow_to_timestamp()
+            subscribe_start = ut.string_to_timestamp(subscribe_start, format_v="YYYY-MM-DD HH:mm")
+
+            query = query.filter(subscribe_time__gte=subscribe_start, subscribe_time__lte=subscribe_end)
+
+        openids=[]
+        for item in query:
+            tags = json.loads(item.tags)
+            if int(tagid) not in tags:
+                tags.append(tagid)
+                item.save()
+            openids.append(int(tagid))
+
+        if len(openids):
+            WeChatAccTag(accid=request.data_format.get("accid", None)).batchtagging(openids,int(tagid))
+
+    @list_route(methods=['POST'])
+    @Core_connector(isTransaction=True)
+    def AccUser_batchtagging1(self, request):
+        """
+        打标签
+        :param request:
+        :return:
+        """
+
+        tagid = request.data_format.get("tagid", None)
+        openids = request.data_format.get("openids", [])
+
+        if not tagid:
+            raise PubErrorCustom("tagid为空!")
+
+        query = AccLinkUser.objects.filter(accid=request.data_format.get("accid", None), umark='0',openid__in=openids)
+
+        openids=[]
+        for item in query:
+            tags = json.loads(item.tags)
+            if int(tagid) not in tags:
+                tags.append(tagid)
+                item.save()
+            openids.append(int(tagid))
+
+        if len(openids):
+            WeChatAccTag(accid=request.data_format.get("accid", None)).batchtagging(openids, int(tagid))
+
+    @list_route(methods=['POST'])
+    @Core_connector(isTransaction=True)
+    def AccUser_upd(self, request):
+        try:
+            obj = AccLinkUser.objects.filter(accid=request.data_format.get("accid", None), umark='0',openid=request.data_format.get("openid", None))
+            obj.memo = request.data_format.get("memo", "")
+            obj.save()
+        except AccLinkUser.DoesNotExist:
+            raise PubErrorCustom("无此用户!")
 
     @list_route(methods=['POST'])
     @Core_connector(isTransaction=True)
