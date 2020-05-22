@@ -118,13 +118,6 @@ class WeChatAPIView(viewsets.ViewSet):
 
         pk= kwargs.get("pk")
 
-        # cH = WechatMsgValid()
-        #
-        # # if not cH.check_appid(pk):
-        # #     raise PubErrorCustom("非法请求!{}".format(pk))
-        # print(cH.run())
-        # print(request.body.decode('utf-8'))
-
         res = WeChatAccEvent(
             timestamp=request.query_params['timestamp'],
             nonce=request.query_params['nonce'],
@@ -215,6 +208,7 @@ class WeChatAPIView(viewsets.ViewSet):
         subscribe_scene = request.query_params_format.get("subscribe_scene", None)
         province = request.query_params_format.get("province", None)
         city = request.query_params_format.get("city", None)
+        tagid1 = request.query_params_format.get("tagid1",None)
 
         if nickname:
             query = query.filter(Q(nickname=nickname) | Q(memo=nickname))
@@ -226,6 +220,8 @@ class WeChatAPIView(viewsets.ViewSet):
             query = query.filter(province=province)
         if city:
             query = query.filter(city=city)
+        if tagid1:
+            query = query.filter(Q(tags__icontains=",{}".format(tagid1)) | Q(tags__icontains="{},".format(tagid1)))
 
         if subscribe_start:
             ut = UtilTime()
@@ -276,6 +272,7 @@ class WeChatAPIView(viewsets.ViewSet):
         city = request.data_format.get("city", None)
 
         tagid = request.data_format.get("tagid", None)
+        tagid1 = request.query_params_format.get("tagid1",None)
 
         if not tagid:
             raise PubErrorCustom("tagid为空!")
@@ -290,6 +287,8 @@ class WeChatAPIView(viewsets.ViewSet):
             query = query.filter(province=province)
         if city:
             query = query.filter(city=city)
+        if tagid1:
+            query = query.filter(Q(tags__icontains=",{}".format(tagid1)) | Q(tags__icontains="{},".format(tagid1)))
 
         if subscribe_start:
             ut = UtilTime()

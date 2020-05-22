@@ -4,7 +4,7 @@ from lib.utils.wechat.base import WechatBase
 from lib.utils.wechat.WXBizMsgCrypt import WXBizMsgCrypt
 from lib.utils.exceptions import PubErrorCustom
 import xmltodict
-from lib.utils.wechat.user import WechatAccUser
+from lib.utils.wechat.user import WechatAccUser,WeChatAccTag
 from app.wechat.models import AccQrcode,AccLinkUser,AccQrcodeList,AccQrcodeImageTextList
 from app.public.models import Meterial
 from lib.utils.mytime import UtilTime
@@ -78,23 +78,48 @@ class WeChatAccEvent(WechatBase):
                     aqc_obj.new_count +=1
                     aqc_obj.save()
 
+                """
+                先给此用户打标签
+                """
+                for item in json.loads(aqc_obj.tags):
+                    WeChatAccTag(auth_accesstoken=self.auth_accesstoken).batchtagging([self.xml_data['FromUserName']],item)
+
+                userinfo = WechatAccUser(auth_accesstoken=self.auth_accesstoken).get_info(self.xml_data['FromUserName'])
+
                 try:
                     alu_obj = AccLinkUser.objects.get(accid=aqc_obj.accid,openid=self.xml_data['FromUserName'])
-                    alu_obj.tags = json.dumps(list(set(json.loads(alu_obj.tags)).union(set(json.loads(aqc_obj.tags)))))
+                    # alu_obj.tags = json.dumps(list(set(json.loads(alu_obj.tags)).union(set(json.loads(aqc_obj.tags)))))
+                    alu_obj.tags = json.dumps(userinfo['tagid_list'])
+                    alu_obj.nickname = userinfo['nickname']
+                    alu_obj.sex = userinfo['sex']
+                    alu_obj.city = userinfo['city']
+                    alu_obj.province = userinfo['province']
+                    alu_obj.country = userinfo['country']
+                    alu_obj.headimgurl = userinfo['headimgurl']
+                    alu_obj.subscribe_time = userinfo['subscribe_time']
+                    alu_obj.subscribe_scene = userinfo['subscribe_scene']
+                    alu_obj.umark = '0'
                     alu_obj.save()
                 except AccLinkUser.DoesNotExist:
-                    alu_obj = AccLinkUser.objects.create(**{
-                        "accid" : aqc_obj.accid,
-                        "openid" : self.xml_data['FromUserName'],
-                        "tags" : aqc_obj.tags
-                    })
-
-                res = WechatAccUser(auth_accesstoken=self.auth_accesstoken).get_info(alu_obj.openid)
+                    alu_obj = AccLinkUser.objects.create(**dict(
+                        accid = aqc_obj.accid,
+                        openid = self.xml_data['FromUserName'],
+                        tags=json.dumps(userinfo['tagid_list']),
+                        nickname=userinfo['nickname'],
+                        sex=userinfo['sex'],
+                        city=userinfo['city'],
+                        province=userinfo['province'],
+                        country=userinfo['country'],
+                        headimgurl=userinfo['headimgurl'],
+                        subscribe_time=userinfo['subscribe_time'],
+                        subscribe_scene=userinfo['subscribe_scene'],
+                        umark='0'
+                    ))
 
                 #推送消息
                 return self.msgHandler(aqc_obj,{
                     "openid":alu_obj.openid,
-                    "nickname":res['nickname']
+                    "nickname":userinfo['nickname']
                 })
 
             else:
