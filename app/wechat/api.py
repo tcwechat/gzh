@@ -341,8 +341,14 @@ class WeChatAPIView(viewsets.ViewSet):
         tagid = request.data_format.get("tagid", None)
         openids = request.data_format.get("openids", [])
 
-        if not tagid:
-            raise PubErrorCustom("tagid为空!")
+        try:
+            atmObj = AccTagModel.objects.select_for_update().get(id=tagid)
+            atmObj.fans_count += len(openids)
+            atmObj.wechat_fans_count += len(openids)
+            atmObj.save()
+
+        except AccTagModel.DoesNotExist:
+            raise PubErrorCustom("无此标签!")
 
         query = AccLinkUser.objects.filter(accid=request.data_format.get("accid", None), umark='0',openid__in=openids)
 
