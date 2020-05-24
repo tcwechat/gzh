@@ -89,6 +89,8 @@ class WeChatAPIView(viewsets.ViewSet):
             accObj.nick_name = authorizer_info['nick_name']
             accObj.head_img = authorizer_info['head_img']
             accObj.user_name = authorizer_info['user_name']
+            accObj.service_type_info = json.dumps(authorizer_info['service_type_info'])
+            accObj.verify_type_info = json.dumps(authorizer_info['verify_type_info'])
             accObj.principal_name = authorizer_info['principal_name']
             accObj.alias = authorizer_info['alias']
             accObj.qrcode_url = authorizer_info['qrcode_url']
@@ -99,8 +101,8 @@ class WeChatAPIView(viewsets.ViewSet):
                 authorizer_refresh_token = authorization_info['authorizer_refresh_token'],
                 nick_name = authorizer_info['nick_name'],
                 head_img = authorizer_info['head_img'],
-                # service_type_info=json.dumps(authorizer_info['service_type_info']),
-                # verify_type_info=json.dumps(authorizer_info['verify_type_info']),
+                service_type_info=json.dumps(authorizer_info['service_type_info']),
+                verify_type_info=json.dumps(authorizer_info['verify_type_info']),
                 user_name=authorizer_info['user_name'],
                 principal_name=authorizer_info['principal_name'],
                 alias=authorizer_info['alias'],
@@ -321,7 +323,7 @@ class WeChatAPIView(viewsets.ViewSet):
             if int(tagid) not in tags:
                 tags.append(tagid)
                 item.save()
-            openids.append(int(tagid))
+            openids.append(item.openid)
 
         if len(openids):
             WeChatAccTag(accid=request.data_format.get("accid", None)).batchtagging(openids,int(tagid))
@@ -349,7 +351,7 @@ class WeChatAPIView(viewsets.ViewSet):
             if int(tagid) not in tags:
                 tags.append(tagid)
                 item.save()
-            openids.append(int(tagid))
+            openids.append(item.openid)
 
         if len(openids):
             WeChatAccTag(accid=request.data_format.get("accid", None)).batchtagging(openids, int(tagid))
