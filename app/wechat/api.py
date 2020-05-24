@@ -341,25 +341,27 @@ class WeChatAPIView(viewsets.ViewSet):
         tagid = request.data_format.get("tagid", None)
         openids = request.data_format.get("openids", [])
 
-        try:
-            atmObj = AccTagModel.objects.select_for_update().get(id=tagid)
-            atmObj.fans_count += len(openids)
-            atmObj.wechat_fans_count += len(openids)
-            atmObj.save()
-
-        except AccTagModel.DoesNotExist:
-            raise PubErrorCustom("无此标签!")
-
         query = AccLinkUser.objects.filter(accid=request.data_format.get("accid", None), umark='0',openid__in=openids)
 
         openids=[]
+        valid_count = 0
         for item in query:
             tags = json.loads(item.tags)
             if int(tagid) not in tags:
                 tags.append(tagid)
                 item.tags=json.dumps(tags)
                 item.save()
+                valid_count+=1
             openids.append(item.openid)
+
+        if valid_count:
+            try:
+                atmObj = AccTagModel.objects.select_for_update().get(id=tagid)
+                atmObj.fans_count += valid_count
+                atmObj.wechat_fans_count += valid_count
+                atmObj.save()
+            except AccTagModel.DoesNotExist:
+                raise PubErrorCustom("无此标签!")
 
         if len(openids):
             WeChatAccTag(accid=request.data_format.get("accid", None)).batchtagging(openids, int(tagid))
