@@ -553,7 +553,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
         return render(request, 'goindex.html', {
             'data': {
-                "url": "http://www.baidu.com"
+                "url": ServerUrl
             }
         })
 
