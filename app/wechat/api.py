@@ -186,7 +186,7 @@ class WeChatAPIView(viewsets.ViewSet):
                 raise PubErrorCustom("不存在此标签!")
 
         elif request.method == 'GET':
-            query = AccTagModel.objects.filter(accid=request.query_params_format.get("accid"))
+            query = AccTagModel.objects.filter(accid=request.query_params_format.get("accid"),umark='0')
             count = query.count()
             return { "data":AccTagModelSerializer(query[request.page_start:request.page_end],many=True).data,"count":count }
 

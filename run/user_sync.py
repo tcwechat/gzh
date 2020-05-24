@@ -85,7 +85,7 @@ def sync(accid):
 
         print(count,total)
 
-    logger.info("[{}]处理完毕!".format(UtilTime().arrow_to_string()))
+    logger.info("公众号[{}]粉丝同步[{}]处理完毕!".format(accid,UtilTime().arrow_to_string()))
 
 if __name__ == '__main__':
 

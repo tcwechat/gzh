@@ -92,6 +92,8 @@ class AccTag(models.Model):
 
     createtime = models.BigIntegerField(default=0)
 
+    umark = models.CharField(max_length=1, verbose_name="状态 0-正常,1-删除", default='0')
+
     def save(self, *args, **kwargs):
 
         ut =  UtilTime()

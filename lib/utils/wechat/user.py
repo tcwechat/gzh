@@ -75,3 +75,11 @@ class WeChatAccTag(WechatBase):
                 "tagid" : tagid,
                 "openid_list":openids
             })
+
+    def get_tag_list(self):
+
+        return self.request_handler(
+            method="POST",
+            url="https://api.weixin.qq.com/cgi-bin/tags/get?access_token={}".format(
+                self.auth_accesstoken
+            ))
