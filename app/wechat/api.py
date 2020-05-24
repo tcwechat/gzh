@@ -322,7 +322,7 @@ class WeChatAPIView(viewsets.ViewSet):
             tags = json.loads(item.tags)
             if int(tagid) not in tags:
                 tags.append(tagid)
-                item.tags=json.dumps(item.tags)
+                item.tags=json.dumps(tags)
                 item.save()
             openids.append(item.openid)
 
@@ -351,7 +351,7 @@ class WeChatAPIView(viewsets.ViewSet):
             tags = json.loads(item.tags)
             if int(tagid) not in tags:
                 tags.append(tagid)
-                item.tags=json.dumps(item.tags)
+                item.tags=json.dumps(tags)
                 item.save()
             openids.append(item.openid)
 
