@@ -19,7 +19,7 @@ class AccSerializer(serializers.Serializer):
     verify_type = serializers.SerializerMethodField()
 
     def get_service_type(self,obj):
-        return str(json.loads(obj.service_type_info).get("id",None))
+        return str(json.loads(obj.service_type_info).get("id","3"))
 
     def get_verify_type(self,obj):
         res = str(json.loads(obj.verify_type_info).get("id",None))
