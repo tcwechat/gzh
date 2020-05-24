@@ -195,6 +195,23 @@ class WeChatAPIView(viewsets.ViewSet):
 
         return None
 
+    @list_route(methods=['POST'])
+    @Core_connector()
+    def AccTag_sync(self, request):
+        """
+        同步标签
+        :param request:
+        :return:
+        """
+
+        runprogram = os.path.join(BASE_DIR,'run')
+
+        run="nohup python {}/tag_sync.py {} 1>>{}/logs/tag_sync.log 2>&1 &".format(runprogram,request.data_format.get("accid",0),BASE_DIR)
+        logger.info(run)
+        os.system(run)
+
+        return None
+
     @list_route(methods=['GET'])
     @Core_connector(isPagination=True)
     def AccUser_get(self, request):
