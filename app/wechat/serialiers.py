@@ -15,7 +15,16 @@ class AccSerializer(serializers.Serializer):
     createtime = serializers.IntegerField()
     fans_count = serializers.SerializerMethodField()
     active_fans_count = serializers.SerializerMethodField()
+    service_type = serializers.SerializerMethodField()
+    verify_type = serializers.SerializerMethodField()
 
+    def get_service_type(self,obj):
+        return str(json.loads(obj.service_type_info).get("id",None))
+
+    def get_verify_type(self,obj):
+        res = str(json.loads(obj.verify_type_info).get("id",None))
+
+        return '0' if res and res!='-1' else '1'
 
     def get_active_fans_count(self,obj):
 
