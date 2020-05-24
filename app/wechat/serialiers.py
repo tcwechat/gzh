@@ -1,7 +1,7 @@
 
 import json
 from rest_framework import serializers
-from app.wechat.models import Acc,AccTag,AccQrcode,AccQrcodeList,AccQrcodeImageTextList
+from app.wechat.models import Acc,AccTag,AccQrcode,AccQrcodeList,AccQrcodeImageTextList,AccLinkUser
 from lib.utils.mytime import UtilTime
 from app.public.models import Meterial
 from project.config_include.common import ServerUrl
@@ -13,6 +13,17 @@ class AccSerializer(serializers.Serializer):
     nick_name = serializers.CharField()
     head_img = serializers.CharField()
     createtime = serializers.IntegerField()
+    fans_count = serializers.SerializerMethodField()
+    active_fans_count = serializers.SerializerMethodField()
+
+
+    def get_active_fans_count(self,obj):
+
+        return 0
+
+    def get_fans_count(self,obj):
+
+        return AccLinkUser.objects.filter(accid=obj.accid,umark='0').count()
 
 
 class AccLinkUserSerializer(serializers.Serializer):

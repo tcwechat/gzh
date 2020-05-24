@@ -155,6 +155,12 @@ class WeChatAPIView(viewsets.ViewSet):
         """
         return {"data":AccSerializer(Acc.objects.filter(),many=True).data}
 
+    @list_route(methods=['POST'])
+    @Core_connector(isTicket=True)
+    def Acc_delete(self,request):
+
+        Acc.objects.filter(accid=request.data_format.get("accid",None)).delete()
+
     @list_route(methods=['POST','GET','PUT','DELETE'])
     @Core_connector(isTransaction=True,isPagination=True)
     def AccTag(self,request,*args,**kwargs):
