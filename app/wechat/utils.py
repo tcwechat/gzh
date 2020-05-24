@@ -1,6 +1,11 @@
 
-import hashlib
+import hashlib,json
 from project.config_include.params import TX_WECHAT_TOKEN
+
+from lib.utils.wechat.user import WeChatAccTag
+
+from app.wechat.models import AccTag
+from lib.utils.exceptions import PubErrorCustom
 
 
 def requestValid(params):
@@ -19,6 +24,30 @@ def requestValid(params):
     else:
         return True
 
+def tag_batchtagging(query,tagid,accid):
+
+    openids = []
+    valid_count = 0
+    for item in query:
+        tags = json.loads(item.tags)
+        if tagid not in tags:
+            tags.append(tagid)
+            item.tags = json.dumps(tags).replace(" ", "")
+            item.save()
+            valid_count += 1
+        openids.append(item.openid)
+
+    if valid_count:
+        try:
+            atmObj = AccTag.objects.select_for_update().get(id=tagid)
+            atmObj.fans_count += valid_count
+            atmObj.wechat_fans_count += valid_count
+            atmObj.save()
+        except AccTag.DoesNotExist:
+            raise PubErrorCustom("无此标签!")
+
+    if len(openids):
+        WeChatAccTag(accid=accid).batchtagging(openids, int(tagid))
 
 
 # class CustomHash(object):

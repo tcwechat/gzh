@@ -18,6 +18,8 @@ from lib.utils.wechat.qrcode import WechatQrcode
 from lib.utils.wechat.user import WeChatAccTag,WechatAccUser
 from lib.utils.db import RedisTicketHandler
 
+from app.wechat.utils import tag_batchtagging
+
 from lib.utils.mytime import UtilTime
 
 from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeModel,AccQrcodeList,AccQrcodeImageTextList,AccLinkUser
@@ -352,30 +354,35 @@ class WeChatAPIView(viewsets.ViewSet):
         tagid = request.data_format.get("tagid", None)
         openids = request.data_format.get("openids", [])
 
+        if not tagid:
+            raise PubErrorCustom("tagid is void!")
+
         query = AccLinkUser.objects.filter(accid=request.data_format.get("accid", None), umark='0',openid__in=openids)
 
-        openids=[]
-        valid_count = 0
-        for item in query:
-            tags = json.loads(item.tags)
-            if int(tagid) not in tags:
-                tags.append(tagid)
-                item.tags=json.dumps(tags).replace(" ","")
-                item.save()
-                valid_count+=1
-            openids.append(item.openid)
+        tag_batchtagging(accid=request.data_format.get("accid", None),query=query,tagid=int(tagid))
 
-        if valid_count:
-            try:
-                atmObj = AccTagModel.objects.select_for_update().get(id=tagid)
-                atmObj.fans_count += valid_count
-                atmObj.wechat_fans_count += valid_count
-                atmObj.save()
-            except AccTagModel.DoesNotExist:
-                raise PubErrorCustom("无此标签!")
-
-        if len(openids):
-            WeChatAccTag(accid=request.data_format.get("accid", None)).batchtagging(openids, int(tagid))
+        # openids=[]
+        # valid_count = 0
+        # for item in query:
+        #     tags = json.loads(item.tags)
+        #     if int(tagid) not in tags:
+        #         tags.append(tagid)
+        #         item.tags=json.dumps(tags).replace(" ","")
+        #         item.save()
+        #         valid_count+=1
+        #     openids.append(item.openid)
+        #
+        # if valid_count:
+        #     try:
+        #         atmObj = AccTagModel.objects.select_for_update().get(id=tagid)
+        #         atmObj.fans_count += valid_count
+        #         atmObj.wechat_fans_count += valid_count
+        #         atmObj.save()
+        #     except AccTagModel.DoesNotExist:
+        #         raise PubErrorCustom("无此标签!")
+        #
+        # if len(openids):
+        #     WeChatAccTag(accid=request.data_format.get("accid", None)).batchtagging(openids, int(tagid))
 
     @list_route(methods=['POST'])
     @Core_connector(isTransaction=True)
