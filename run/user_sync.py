@@ -34,7 +34,7 @@ def handler(accid,openids):
         with transaction.atomic():
             try:
                 accUserObj = AccLinkUser.objects.get(accid=accid,openid=openid)
-                accUserObj.tags = json.dumps(userinfo['tagid_list'])
+                accUserObj.tags = json.dumps(userinfo['tagid_list']).replace(" ","")
                 accUserObj.nickname = userinfo['nickname']
                 accUserObj.sex = userinfo['sex']
                 accUserObj.city = userinfo['city']
@@ -51,7 +51,7 @@ def handler(accid,openids):
                     AccLinkUser.objects.create(**dict(
                         accid=accid,
                         openid = userinfo['openid'],
-                        tags=json.dumps(userinfo['tagid_list']),
+                        tags=json.dumps(userinfo['tagid_list']).replace(" ",""),
                         nickname = userinfo['nickname'],
                         sex = userinfo['sex'],
                         city = userinfo['city'],

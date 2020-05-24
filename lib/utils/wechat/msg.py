@@ -89,7 +89,7 @@ class WeChatAccEvent(WechatBase):
                 try:
                     alu_obj = AccLinkUser.objects.get(accid=aqc_obj.accid,openid=self.xml_data['FromUserName'])
                     # alu_obj.tags = json.dumps(list(set(json.loads(alu_obj.tags)).union(set(json.loads(aqc_obj.tags)))))
-                    alu_obj.tags = json.dumps(userinfo['tagid_list'])
+                    alu_obj.tags = json.dumps(userinfo['tagid_list']).replace(" ","")
                     alu_obj.nickname = userinfo['nickname']
                     alu_obj.sex = userinfo['sex']
                     alu_obj.city = userinfo['city']
@@ -104,7 +104,7 @@ class WeChatAccEvent(WechatBase):
                     alu_obj = AccLinkUser.objects.create(**dict(
                         accid = aqc_obj.accid,
                         openid = self.xml_data['FromUserName'],
-                        tags=json.dumps(userinfo['tagid_list']),
+                        tags=json.dumps(userinfo['tagid_list']).replace(" ",""),
                         nickname=userinfo['nickname'],
                         sex=userinfo['sex'],
                         city=userinfo['city'],

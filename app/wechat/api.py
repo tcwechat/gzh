@@ -318,13 +318,24 @@ class WeChatAPIView(viewsets.ViewSet):
             query = query.filter(subscribe_time__gte=subscribe_start, subscribe_time__lte=subscribe_end)
 
         openids=[]
+        valid_count = 0
         for item in query:
             tags = json.loads(item.tags)
             if int(tagid) not in tags:
                 tags.append(tagid)
-                item.tags=json.dumps(tags)
+                item.tags=json.dumps(tags).replace(" ","")
                 item.save()
+                valid_count += 1
             openids.append(item.openid)
+
+        if valid_count:
+            try:
+                atmObj = AccTagModel.objects.select_for_update().get(id=tagid)
+                atmObj.fans_count += valid_count
+                atmObj.wechat_fans_count += valid_count
+                atmObj.save()
+            except AccTagModel.DoesNotExist:
+                raise PubErrorCustom("无此标签!")
 
         if len(openids):
             WeChatAccTag(accid=request.data_format.get("accid", None)).batchtagging(openids,int(tagid))
@@ -349,7 +360,7 @@ class WeChatAPIView(viewsets.ViewSet):
             tags = json.loads(item.tags)
             if int(tagid) not in tags:
                 tags.append(tagid)
-                item.tags=json.dumps(tags)
+                item.tags=json.dumps(tags).replace(" ","")
                 item.save()
                 valid_count+=1
             openids.append(item.openid)
