@@ -341,7 +341,7 @@ class WeChatAPIView(viewsets.ViewSet):
     @Core_connector(isTransaction=True)
     def AccUser_upd(self, request):
         try:
-            obj = AccLinkUser.objects.filter(accid=request.data_format.get("accid", None), umark='0',openid=request.data_format.get("openid", None))
+            obj = AccLinkUser.objects.get(accid=request.data_format.get("accid", None), umark='0',openid=request.data_format.get("openid", None))
             obj.memo = request.data_format.get("memo", "")
             obj.save()
         except AccLinkUser.DoesNotExist:
