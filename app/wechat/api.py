@@ -8,8 +8,8 @@ from rest_framework.decorators import list_route,detail_route
 from django.shortcuts import HttpResponse
 
 from django.db.models import Q
-
-from project.settings import BASE_DIR
+from django.shortcuts import render
+from project.settings import BASE_DIR,ServerUrl
 
 from lib.utils.wechat.ticket import WechatMsgValid
 from lib.utils.wechat.msg import WeChatAccEvent
@@ -114,7 +114,11 @@ class WeChatAPIView(viewsets.ViewSet):
 
         t.refrech_auth_access_token(accObj.accid,authorization_info['authorizer_access_token'],authorization_info['expires_in'])
 
-        return HttpResponse("success")
+        return render(request, 'goindex.html', {
+            'data': {
+                "url": ServerUrl
+            }
+        })
 
     @detail_route(methods=['POST'])
     @Core_connector(isReturn=True,isRVliad=True,isTransaction=True)
@@ -143,6 +147,8 @@ class WeChatAPIView(viewsets.ViewSet):
         :return:
         """
         return {"data":WechatBaseForUser(isAccessToken=True).get_auth_url()}
+
+
 
     @list_route(methods=['GET'])
     @Core_connector(isTicket=True)
@@ -541,11 +547,15 @@ class WeChatAPIView(viewsets.ViewSet):
         return None
 
 
-    @list_route(methods=['POST'])
+    @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)
     def test(self,request, *args, **kwargs):
 
-        return HttpResponse("success")
+        return render(request, 'goindex.html', {
+            'data': {
+                "url": "http://www.baidu.com"
+            }
+        })
 
 
     # @list_route(methods=['GET'])
