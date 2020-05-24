@@ -151,7 +151,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
 
     @list_route(methods=['GET'])
-    @Core_connector(isTicket=True)
+    @Core_connector(isTicket=True,isPagination=True)
     def getAcc(self,request):
 
         """
@@ -159,7 +159,9 @@ class WeChatAPIView(viewsets.ViewSet):
         :param request:
         :return:
         """
-        return {"data":AccSerializer(Acc.objects.filter(),many=True).data}
+        query = Acc.objects.filter()
+        count = query.count()
+        return {"data":AccSerializer(query[request.page_start: request.page_end],many=True).data,"count":count}
 
     @list_route(methods=['POST'])
     @Core_connector(isTicket=True)
