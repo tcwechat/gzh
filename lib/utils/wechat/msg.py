@@ -231,17 +231,19 @@ class WechatAccMsg(WechatBase):
             })
             break
 
-        if len(articles):
-            self.request_handler(
-                method="POST",
-                url=self.url,
-                json={
+        data = json.dumps({
                     "touser":user['openid'],
                     "msgtype":"news",
                     "news": {
                         "articles": articles
                     }
-                })
+                }, ensure_ascii=False).encode('utf-8')
+
+        if len(articles):
+            self.request_handler(
+                method="POST",
+                url=self.url,
+                data=data)
 
     def videoSend(self,obj,user):
 
