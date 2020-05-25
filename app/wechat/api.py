@@ -266,7 +266,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
             query = query.filter(subscribe_time__gte=subscribe_start,subscribe_time__lte=subscribe_end)
 
-        query.order_by('-subscribe_time')
+        query = query.order_by('-subscribe_time')
         count = query.count()
 
         return {"data":AccLinkUserSerializer(query[request.page_start:request.page_end],many=True).data,"count":count}
