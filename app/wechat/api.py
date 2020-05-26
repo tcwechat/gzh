@@ -609,7 +609,7 @@ class WeChatAPIView(viewsets.ViewSet):
     @list_route(methods=['PUT'])
     @Core_connector(isTransaction=True)
     def AccFollow_flag_setting(self, request, *args, **kwargs):
-        AccFollow.objects.filter(accid=request.data_format.get("accid")).update(follow_setting=request.data_format.get("follow_setting"))
+        Acc.objects.filter(accid=request.data_format.get("accid")).update(follow_setting=request.data_format.get("follow_setting"))
         return None
 
     @list_route(methods=['GET','POST'])
