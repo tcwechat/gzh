@@ -18,17 +18,18 @@ from lib.utils.wechat.qrcode import WechatQrcode
 from lib.utils.wechat.user import WeChatAccTag,WechatAccUser
 from lib.utils.db import RedisTicketHandler
 
-from app.wechat.utils import tag_batchtagging
+from app.wechat.utils import tag_batchtagging,customMsgListAdd,customMsgListUpd
 
 from lib.utils.mytime import UtilTime
 
-from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeModel,AccQrcodeList,AccQrcodeImageTextList,AccLinkUser
+from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeModel,AccQrcodeList,AccQrcodeImageTextList,AccLinkUser,\
+                                    AccFollow
 from app.public.models import Meterial
 from lib.utils.exceptions import PubErrorCustom
 
 from lib.utils.log import logger
 
-from app.wechat.serialiers import AccSerializer,AccTagModelSerializer,AccQrcodeModelSerializer,AccLinkUserSerializer
+from app.wechat.serialiers import AccSerializer,AccTagModelSerializer,AccQrcodeModelSerializer,AccLinkUserSerializer,AccFollowModelSerializer
 
 class WeChatAPIView(viewsets.ViewSet):
 
@@ -147,7 +148,6 @@ class WeChatAPIView(viewsets.ViewSet):
         :return:
         """
         return {"data":WechatBaseForUser(isAccessToken=True).get_auth_url()}
-
 
 
     @list_route(methods=['GET'])
@@ -548,6 +548,69 @@ class WeChatAPIView(viewsets.ViewSet):
 
         return None
 
+    @list_route(methods=['POST'])
+    @Core_connector(isTransaction=True)
+    def AccFollow_add(self,request,*args,**kwargs):
+
+        obj = AccFollow.objects.create(**dict(
+            accid=request.data_format.get('accid'),
+            send_type=request.data_format.get('send_type'),
+            send_limit=request.data_format.get('send_limit'),
+        ))
+        obj.listids = json.loads(obj.listids)
+
+        customMsgListAdd(obj,request.data_format.get('lists'))
+
+        obj.listids = json.dumps(obj.listids)
+
+        obj.save()
+
+        return None
+
+    @list_route(methods=['PUT'])
+    @Core_connector(isTransaction=True)
+    def AccFollow_upd(self,request):
+
+        try:
+            obj = AccFollow.objects.get(accid=request.data_format.get("accid"))
+        except AccFollow.DoesNotExist:
+            raise PubErrorCustom("无此信息!")
+
+        obj.accid = request.data_format.get('accid')
+        obj.send_type = request.data_format.get('send_type')
+        obj.send_limit = request.data_format.get('send_limit')
+        obj.listids = []
+
+        customMsgListUpd(obj,request.data_format.get('lists'))
+
+        obj.listids = json.dumps(obj.listids)
+        obj.save()
+
+        return None
+
+    @list_route(methods=['DELETE'])
+    @Core_connector(isTransaction=True)
+    def AccFollow_del(self,request):
+        AccFollow.objects.filter(accid=request.data_format.get("accid")).delete()
+        return None
+
+    @list_route(methods=['GET'])
+    @Core_connector(isPagination=True)
+    def AccFollow_get(self, request, *args, **kwargs):
+
+
+        query = AccFollow.objects.filter(accid=request.query_params_format.get("accid",0))
+
+        query = query.order_by('-createtime')
+        count = query.count()
+
+        return {"data":AccFollowModelSerializer(query[request.page_start:request.page_end],many=True).data,"count":count}
+
+    @list_route(methods=['PUT'])
+    @Core_connector(isTransaction=True)
+    def AccFollow_flag_setting(self, request, *args, **kwargs):
+        AccFollow.objects.filter(accid=request.data_format.get("accid")).update(follow_setting=request.data_format.get("follow_setting"))
+        return None
 
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)

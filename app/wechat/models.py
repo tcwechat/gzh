@@ -26,6 +26,8 @@ class Acc(models.Model):
 
     synctime = models.BigIntegerField(default=0,verbose_name="上次同步粉丝列表时间")
 
+    follow_setting = models.CharField(max_length=1,verbose_name="关注设置标志:'0'-设置,'1'-未设置",default='1')
+
     createtime=models.BigIntegerField(default=0)
 
     def save(self, *args, **kwargs):
@@ -147,6 +149,31 @@ class AccQrcode(models.Model):
         verbose_name = '渠道二维码'
         verbose_name_plural = verbose_name
         db_table = 'accqrcode'
+
+
+class AccFollow(models.Model):
+    """
+    关注回复
+    """
+
+    id = models.BigAutoField(primary_key=True)
+    accid = models.BigIntegerField(verbose_name="公众号ID")
+    send_type = models.CharField(max_length=1,verbose_name="推送方式:0-全部推送,1-按顺序推送,2-随机推送一条",default="0")
+    send_limit = models.IntegerField(default=0,verbose_name="按顺序推送  每条间隔的时间,单位小时")
+    listids = models.CharField(max_length=1024,verbose_name="推送内容id集合",default='[]')
+    createtime = models.BigIntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+
+        ut =  UtilTime()
+        if not self.createtime:
+            self.createtime = ut.timestamp
+        return super(AccFollow, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = '关注回复'
+        verbose_name_plural = verbose_name
+        db_table = 'accfollow'
 
 
 class AccQrcodeList(models.Model):
