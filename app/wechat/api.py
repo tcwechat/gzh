@@ -26,6 +26,7 @@ from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeMo
                                     AccFollow
 from app.public.models import Meterial
 from lib.utils.exceptions import PubErrorCustom
+from lib.utils.task.follow import Follow
 
 from lib.utils.log import logger
 
@@ -132,7 +133,8 @@ class WeChatAPIView(viewsets.ViewSet):
             nonce=request.query_params['nonce'],
             signature=request.query_params['msg_signature'],
             xmlc=request.body.decode('utf-8'),
-            authorizer_appid=pk
+            authorizer_appid=pk,
+            isDecryptMsg=True
         ).eventHandler()
 
         return HttpResponse(res)
@@ -612,15 +614,33 @@ class WeChatAPIView(viewsets.ViewSet):
         Acc.objects.filter(accid=request.data_format.get("accid")).update(follow_setting=request.data_format.get("follow_setting"))
         return None
 
+    @list_route(methods=['POST'])
+    @Core_connector(isTransaction=True)
+    def AccFollow_Send(self, request, *args, **kwargs):
+
+        Follow().sendmsg(
+            listid = request.data_format.get("listid",0),
+            nickname = request.data_format.get("nickname",""),
+            openid = request.data_format.get("openid",""),
+            accid = request.data_format.get("accid",0)
+        )
+        return None
+
+
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)
     def test(self,request, *args, **kwargs):
 
-        return render(request, 'goindex.html', {
-            'data': {
-                "url": ServerUrl
-            }
-        })
+        Follow().sendtask(
+            {
+                "sendlimit": 1,
+                "listids": [1,2],
+            },
+            nickname="nickname",
+            openid="openid",
+            accid=2
+        )
+        return HttpResponse("ok")
 
 
     # @list_route(methods=['GET'])

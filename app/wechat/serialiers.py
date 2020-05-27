@@ -60,7 +60,6 @@ class AccFollowModelSerializer(serializers.ModelSerializer):
 
     lists = serializers.SerializerMethodField()
     acc = serializers.SerializerMethodField()
-    createtime = serializers.SerializerMethodField()
 
     def get_acc(self,obj):
         try:

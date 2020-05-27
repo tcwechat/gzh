@@ -5,34 +5,37 @@ from lib.utils.wechat.WXBizMsgCrypt import WXBizMsgCrypt
 from lib.utils.exceptions import PubErrorCustom
 import xmltodict
 from lib.utils.wechat.user import WechatAccUser,WeChatAccTag
-from app.wechat.models import AccQrcode,AccLinkUser,AccQrcodeList,AccQrcodeImageTextList
+from app.wechat.models import AccQrcode,AccLinkUser,AccQrcodeList,AccQrcodeImageTextList,AccFollow
 from app.public.models import Meterial
 from lib.utils.mytime import UtilTime
 from lib.utils.log import logger
+from lib.utils.task.follow import Follow
 
 class WeChatAccEvent(WechatBase):
 
     def __init__(self,**kwargs):
 
         authorizer_appid = kwargs.get("authorizer_appid",None)
-        if not authorizer_appid:
-            raise PubErrorCustom("authorizer_appid void!")
+        # if not authorizer_appid:
+        #     raise PubErrorCustom("authorizer_appid void!")
 
         super().__init__(isAccessToken=True,authorizer_appid=authorizer_appid)
 
-        res = self.DecryptMsg(
-            kwargs.get("timestamp"),
-            kwargs.get("nonce"),
-            kwargs.get("signature"),
-            kwargs.get("xmlc")
-        )
-        if res[0] != 0:
-            raise PubErrorCustom("解密错误!{}".format(res[0]))
+        if kwargs.get("isDecryptMsg",None):
+            res = self.DecryptMsg(
+                kwargs.get("timestamp"),
+                kwargs.get("nonce"),
+                kwargs.get("signature"),
+                kwargs.get("xmlc")
+            )
+            if res[0] != 0:
+                raise PubErrorCustom("解密错误!{}".format(res[0]))
 
-        self.xml_data = xmltodict.parse(res[1])['xml']
-
+            self.xml_data = xmltodict.parse(res[1])['xml']
 
         self.rContent= None
+
+        # self.isSend = kwargs.get("isSend",None)
 
     def DecryptMsg(self,timestamp,nonce,signature,xmlc):
 
@@ -41,6 +44,42 @@ class WeChatAccEvent(WechatBase):
     def EncryptMsg(self,msg):
 
         return WXBizMsgCrypt(self.token,self.key,self.appid).EncryptMsg(msg)
+
+    def linkUser(self):
+
+        userinfo = WechatAccUser(auth_accesstoken=self.auth_accesstoken).get_info(self.xml_data['FromUserName'])
+
+        try:
+            alu_obj = AccLinkUser.objects.get(accid=self.acc.accid, openid=self.xml_data['FromUserName'])
+            # alu_obj.tags = json.dumps(list(set(json.loads(alu_obj.tags)).union(set(json.loads(aqc_obj.tags)))))
+            alu_obj.tags = json.dumps(userinfo['tagid_list']).replace(" ", "")
+            alu_obj.nickname = userinfo['nickname']
+            alu_obj.sex = userinfo['sex']
+            alu_obj.city = userinfo['city']
+            alu_obj.province = userinfo['province']
+            alu_obj.country = userinfo['country']
+            alu_obj.headimgurl = userinfo['headimgurl']
+            alu_obj.subscribe_time = userinfo['subscribe_time']
+            alu_obj.subscribe_scene = userinfo['subscribe_scene']
+            alu_obj.umark = '0'
+            alu_obj.save()
+        except AccLinkUser.DoesNotExist:
+            AccLinkUser.objects.create(**dict(
+                accid=self.acc.accid,
+                openid=self.xml_data['FromUserName'],
+                tags=json.dumps(userinfo['tagid_list']).replace(" ", ""),
+                nickname=userinfo['nickname'],
+                sex=userinfo['sex'],
+                city=userinfo['city'],
+                province=userinfo['province'],
+                country=userinfo['country'],
+                headimgurl=userinfo['headimgurl'],
+                subscribe_time=userinfo['subscribe_time'],
+                subscribe_scene=userinfo['subscribe_scene'],
+                umark='0'
+            ))
+
+        return userinfo
 
     def eventHandler(self):
 
@@ -59,7 +98,8 @@ class WeChatAccEvent(WechatBase):
                     try:
                         aqc_obj = AccQrcode.objects.select_for_update().get(id=self.xml_data['EventKey'])
                     except AccQrcode.DoesNotExist:
-                        raise PubErrorCustom("未找到此渠道二维码{}".format(self.xml_data))
+                        logger.info("未找到此渠道二维码{}".format(self.xml_data))
+                        return "success"
 
                     aqc_obj.tot_count += 1
                     aqc_obj.follow_count += 1
@@ -72,7 +112,8 @@ class WeChatAccEvent(WechatBase):
                     try:
                         aqc_obj = AccQrcode.objects.select_for_update().get(id=self.xml_data['EventKey'].split("qrscene_")[1])
                     except AccQrcode.DoesNotExist:
-                        raise PubErrorCustom("未找到此渠道二维码{}".format(self.xml_data))
+                        logger.info("未找到此渠道二维码{}".format(self.xml_data))
+                        return "success"
 
                     aqc_obj.tot_count +=1
                     aqc_obj.new_count +=1
@@ -84,63 +125,112 @@ class WeChatAccEvent(WechatBase):
                 for item in json.loads(aqc_obj.tags):
                     WeChatAccTag(auth_accesstoken=self.auth_accesstoken).batchtagging([self.xml_data['FromUserName']],item)
 
-                userinfo = WechatAccUser(auth_accesstoken=self.auth_accesstoken).get_info(self.xml_data['FromUserName'])
-
-                try:
-                    alu_obj = AccLinkUser.objects.get(accid=aqc_obj.accid,openid=self.xml_data['FromUserName'])
-                    # alu_obj.tags = json.dumps(list(set(json.loads(alu_obj.tags)).union(set(json.loads(aqc_obj.tags)))))
-                    alu_obj.tags = json.dumps(userinfo['tagid_list']).replace(" ","")
-                    alu_obj.nickname = userinfo['nickname']
-                    alu_obj.sex = userinfo['sex']
-                    alu_obj.city = userinfo['city']
-                    alu_obj.province = userinfo['province']
-                    alu_obj.country = userinfo['country']
-                    alu_obj.headimgurl = userinfo['headimgurl']
-                    alu_obj.subscribe_time = userinfo['subscribe_time']
-                    alu_obj.subscribe_scene = userinfo['subscribe_scene']
-                    alu_obj.umark = '0'
-                    alu_obj.save()
-                except AccLinkUser.DoesNotExist:
-                    alu_obj = AccLinkUser.objects.create(**dict(
-                        accid = aqc_obj.accid,
-                        openid = self.xml_data['FromUserName'],
-                        tags=json.dumps(userinfo['tagid_list']).replace(" ",""),
-                        nickname=userinfo['nickname'],
-                        sex=userinfo['sex'],
-                        city=userinfo['city'],
-                        province=userinfo['province'],
-                        country=userinfo['country'],
-                        headimgurl=userinfo['headimgurl'],
-                        subscribe_time=userinfo['subscribe_time'],
-                        subscribe_scene=userinfo['subscribe_scene'],
-                        umark='0'
-                    ))
+                userinfo = self.linkUser()
 
                 #推送消息
-                return self.msgHandler(aqc_obj,{
-                    "openid":alu_obj.openid,
-                    "nickname":userinfo['nickname']
-                })
+                if aqc_obj.qr_type == '0':
+                    return self.msgHandler(
+                        send_type=aqc_obj.send_type,
+                        listids=aqc_obj.listids,
+                        user={
+                            "openid":userinfo['openid'],
+                            "nickname":userinfo['nickname']
+                        }
+                    )
+                else:
+                    return "success"
 
+            elif self.xml_data['Event'] == 'subscribe':
+                if self.acc.follow_setting !='0':
+                    return "success"
+                else:
+                    try:
+                        obj = AccFollow.objects.get(accid=self.acc.accid)
+                    except AccFollow.DoesNotExist:
+                        logger.error("公众号{}无设置{}".format(self.acc.accid,self.xml_data))
+                        return "success"
+
+                    if obj.send_type == '0':
+                        send_type = '1'
+                    elif obj.send_type == '1':
+                        send_type = '2'
+                    elif obj.send_type == '2':
+                        send_type = '0'
+                    else :
+                        logger.error("公众号{}推送标志有误!".format(self.acc.accid))
+
+                    userinfo = self.linkUser()
+
+                    return self.msgHandler(
+                        send_type=send_type,
+                        listids=obj.listids,
+                        user={
+                            "openid":userinfo['openid'],
+                            "nickname":userinfo['nickname']
+                        }
+                    )
             else:
-                raise PubErrorCustom("事件未定义{}".format(self.xml_data))
-
+                logger.error("事件未定义{}".format(self.xml_data))
+                return "success"
         else:
-            raise PubErrorCustom("消息类型错误!{}".format(self.xml_data['MsgType']))
+            logger.error("消息类型错误!{}".format(self.xml_data['MsgType']))
+            return "success"
 
 
-    def msgHandler(self,aqc_obj,user):
+    def msgHandler(self,**kwargs):
 
-        if aqc_obj.qr_type == '0':
+        send_type = kwargs.get("send_type",None)
+        listids = kwargs.get("listids",None)
+        user = kwargs.get("user",None)
+        isSend = kwargs.get("isSend",None)
+        sendlimit = kwargs.get("sendlimit",None)
 
-            wamClass = WechatAccMsg(auth_accesstoken=self.auth_accesstoken)
+        """
+            send_type:
+            0-随机推送一条
+            1-全部推送
+            2-按顺序推送
+        """
+        wamClass = WechatAccMsg(auth_accesstoken=self.auth_accesstoken)
 
-            if aqc_obj.send_type == '0':
-                """
-                随机推送一条消息
-                """
-                id = random.choice(json.loads(aqc_obj.listids))
-                item = AccQrcodeList.objects.filter(id=id)[0]
+        if send_type == '0':
+            """
+            随机推送一条消息
+            """
+            id = random.choice(json.loads(listids))
+            item = AccQrcodeList.objects.filter(id=id)[0]
+            if item.type == '5':
+                wamClass.videoSend(item, user)
+            elif item.type == '2':
+                wamClass.imgSend(item, user)
+            elif item.type == '3':
+                wamClass.textSend(item, user)
+            elif item.type == '4':
+                wamClass.voiceSend(item,user)
+            elif item.type == '1':
+                wamClass.newsSend(item,user)
+        elif send_type == '1':
+            """
+            推送全部消息
+            """
+            for j,item in enumerate(AccQrcodeList.objects.filter(id__in=json.loads(listids)).order_by('sort')):
+                if item.type=='5':
+                    wamClass.videoSend(item,user)
+                elif item.type=='2':
+                    wamClass.imgSend(item,user)
+                elif item.type=='3':
+                    wamClass.textSend(item,user)
+                elif item.type=='4':
+                    wamClass.voiceSend(item,user)
+                elif item.type == '1':
+                    if j==0:
+                        self.rContent = self.newsHandler(item,user)
+                    else:
+                        wamClass.newsSend(item, user)
+        elif send_type == '2':
+
+            if isSend:
+                item = AccQrcodeList.objects.filter(id=listids[0])
                 if item.type == '5':
                     wamClass.videoSend(item, user)
                 elif item.type == '2':
@@ -148,27 +238,22 @@ class WeChatAccEvent(WechatBase):
                 elif item.type == '3':
                     wamClass.textSend(item, user)
                 elif item.type == '4':
-                    wamClass.voiceSend(item,user)
+                    wamClass.voiceSend(item, user)
                 elif item.type == '1':
-                    wamClass.newsSend(item,user)
+                    wamClass.newsSend(item, user)
             else:
-                """
-                推送全部消息
-                """
-                for j,item in enumerate(AccQrcodeList.objects.filter(id__in=json.loads(aqc_obj.listids)).order_by('sort')):
-                    if item.type=='5':
-                        wamClass.videoSend(item,user)
-                    elif item.type=='2':
-                        wamClass.imgSend(item,user)
-                    elif item.type=='3':
-                        wamClass.textSend(item,user)
-                    elif item.type=='4':
-                        wamClass.voiceSend(item,user)
-                    elif item.type == '1':
-                        if j==0:
-                            self.rContent = self.newsHandler(item,user)
-                        else:
-                            wamClass.newsSend(item, user)
+                try:
+                    Follow().sendtask(
+                        {
+                            "sendlimit":sendlimit,
+                            "listids":listids,
+                        },
+                        nickname=user['nickname'],
+                        openid=user['openid'],
+                        accid=self.acc.accid
+                    )
+                except Exception as e:
+                    logger.info(str(e))
 
         return self.rContent  if self.rContent else  "success"
 
