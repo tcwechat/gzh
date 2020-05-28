@@ -28,7 +28,7 @@ class AccSerializer(serializers.Serializer):
 
     def get_active_fans_count(self):
 
-        return AccLinkUser.objects.filter(umark='0',last_active_time__gte=UtilTime().today.shift(hours=-48)).count()
+        return AccLinkUser.objects.filter(umark='0',last_active_time__gte=UtilTime().today.shift(hours=-48).timestamp).count()
 
     def get_fans_count(self,obj):
 
