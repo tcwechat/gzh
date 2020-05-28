@@ -93,6 +93,19 @@ class AccReplyModelSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class AccFollowModelSerializer1(serializers.ModelSerializer):
+
+    class Meta:
+        model = AccFollow
+        fields = '__all__'
+
+class AccReplyModelSerializer1(serializers.ModelSerializer):
+
+    class Meta:
+        model = AccReply
+        fields = '__all__'
+
+
 class AccQrcodeModelSerializer(serializers.ModelSerializer):
 
     tags = serializers.SerializerMethodField()

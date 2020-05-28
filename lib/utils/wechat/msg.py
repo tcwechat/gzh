@@ -5,11 +5,13 @@ from lib.utils.wechat.WXBizMsgCrypt import WXBizMsgCrypt
 from lib.utils.exceptions import PubErrorCustom
 import xmltodict
 from lib.utils.wechat.user import WechatAccUser,WeChatAccTag
-from app.wechat.models import AccQrcode,AccLinkUser,AccQrcodeList,AccQrcodeImageTextList,AccFollow
+from app.wechat.models import AccQrcode,AccLinkUser,AccQrcodeList,AccQrcodeImageTextList,AccFollow,AccReply
+from app.wechat.serialiers import AccFollowModelSerializer1,AccReplyModelSerializer1
 from app.public.models import Meterial
 from lib.utils.mytime import UtilTime
 from lib.utils.log import logger
 from lib.utils.task.follow import Follow
+from lib.utils.task.reply import Reply
 
 class WeChatAccEvent(WechatBase):
 
@@ -84,6 +86,33 @@ class WeChatAccEvent(WechatBase):
             ))
 
         return userinfo
+
+    def Reply(self,**kwargs):
+        """
+        type
+            0-关注公众号
+            1-发送消息给公众号
+            2-点击菜单
+        """
+        type = kwargs.get("type")
+        userinfo = kwargs.get("userinfo")
+
+        try:
+            obj = AccReply.objects.get(accid=self.acc.accid)
+            if (type == '0' and obj.trigger[0] == '0') or \
+                (type == '1' and obj.trigger[1] == '0') or \
+                 (type == '2' and obj.trigger[2] == '0'):
+
+                Reply().sendtask(
+                    obj=AccReplyModelSerializer1(obj,many=False).data,
+                    nickname=userinfo['nickname'],
+                    openid=userinfo['openid'],
+                    accid=self.acc.accid
+                )
+        except AccReply.DoesNotExist:
+            pass
+
+
 
     def eventHandler(self):
 
@@ -167,6 +196,7 @@ class WeChatAccEvent(WechatBase):
 
                     return self.msgHandler(
                         send_type=send_type,
+                        obj=AccFollowModelSerializer1(obj,many=False).data,
                         listids=obj.listids,
                         user={
                             "openid":userinfo['openid'],
@@ -206,7 +236,9 @@ class WeChatAccEvent(WechatBase):
         listids = kwargs.get("listids",None)
         user = kwargs.get("user",None)
         isSend = kwargs.get("isSend",None)
-        sendlimit = kwargs.get("sendlimit",None)
+        obj = kwargs.get("obj",None)
+        runS = kwargs.get("runS",None)
+        count = kwargs.get("count",8)
 
         """
             send_type:
@@ -236,7 +268,7 @@ class WeChatAccEvent(WechatBase):
             """
             推送全部消息
             """
-            for j,item in enumerate(AccQrcodeList.objects.filter(id__in=json.loads(listids)).order_by('sort')):
+            for j,item in enumerate(AccQrcodeList.objects.filter(id__in=json.loads(listids)).order_by('sort')[:count]):
                 if item.type=='5':
                     wamClass.videoSend(item,user)
                 elif item.type=='2':
@@ -246,10 +278,13 @@ class WeChatAccEvent(WechatBase):
                 elif item.type=='4':
                     wamClass.voiceSend(item,user)
                 elif item.type == '1':
-                    if j==0:
-                        self.rContent = self.newsHandler(item,user)
-                    else:
+                    if runS:
                         wamClass.newsSend(item, user)
+                    else:
+                        if j==0:
+                            self.rContent = self.newsHandler(item,user)
+                        else:
+                            wamClass.newsSend(item, user)
         elif send_type == '2':
 
             if isSend:
@@ -267,10 +302,7 @@ class WeChatAccEvent(WechatBase):
             else:
                 try:
                     Follow().sendtask(
-                        {
-                            "sendlimit":sendlimit,
-                            "listids":listids,
-                        },
+                        obj,
                         nickname=user['nickname'],
                         openid=user['openid'],
                         accid=self.acc.accid
@@ -279,7 +311,6 @@ class WeChatAccEvent(WechatBase):
                     logger.info(str(e))
 
         return self.rContent  if self.rContent else  "success"
-
 
     def newsHandler(self,obj,user):
 

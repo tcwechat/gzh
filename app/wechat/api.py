@@ -23,10 +23,11 @@ from app.wechat.utils import tag_batchtagging,customMsgListAdd,customMsgListUpd
 from lib.utils.mytime import UtilTime
 
 from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeModel,AccQrcodeList,AccQrcodeImageTextList,AccLinkUser,\
-                                    AccFollow,AccReply
+                                    AccFollow,AccReply,AccSend
 from app.public.models import Meterial
 from lib.utils.exceptions import PubErrorCustom
 from lib.utils.task.follow import Follow
+from lib.utils.task.reply import Reply
 
 from lib.utils.log import logger
 
@@ -140,7 +141,6 @@ class WeChatAPIView(viewsets.ViewSet):
 
         return HttpResponse(res)
 
-
     @list_route(methods=['GET'])
     @Core_connector()
     def getPreAuthUrl(self,request):
@@ -151,7 +151,6 @@ class WeChatAPIView(viewsets.ViewSet):
         :return:
         """
         return {"data":WechatBaseForUser(isAccessToken=True).get_auth_url()}
-
 
     @list_route(methods=['GET'])
     @Core_connector(isTicket=True,isPagination=True)
@@ -698,6 +697,40 @@ class WeChatAPIView(viewsets.ViewSet):
         count = query.count()
 
         return {"data":AccReplyModelSerializer(query[request.page_start:request.page_end],many=True).data,"count":count}
+
+    @list_route(methods=['POST'])
+    @Core_connector(isTransaction=True)
+    def AccReply_Send(self, request, *args, **kwargs):
+
+        # ut = UtilTime()
+        obj = request.data_format.get("obj",{})
+
+        try:
+            alObj = AccLinkUser.objects.get(accid=request.data_format.get("accid",0),openid=request.data_format.get("openid",""))
+        except AccLinkUser.DoesNotExist:
+            raise PubErrorCustom("无此用户!{}".format(obj))
+
+        if alObj.last_active_time > obj['createtime']:
+            raise PubErrorCustom("已互动,不推送消息!{}".format(obj))
+
+        ut = UtilTime()
+        today = ut.arrow_to_string(format_v="YYYY-MM-DD")
+        ok_count = AccSend.objects.filter(
+                createtime__gte=today,
+                createtime__lte=today,
+                send_type='2',accid=alObj.openid,openid=alObj.openid).count()
+        if ok_count >= obj['send_place']:
+            raise PubErrorCustom("推送条数超限!{}".format(obj))
+
+        Reply().sendmsg(
+            count=obj['send_place'] - ok_count,
+            listids = request.data_format.get("listids",0),
+            send_type=request.data_format.get("send_type",""),
+            nickname = request.data_format.get("nickname",""),
+            openid = request.data_format.get("openid",""),
+            accid = request.data_format.get("accid",0)
+        )
+        return None
 
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)
