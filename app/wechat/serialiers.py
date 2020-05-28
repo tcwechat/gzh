@@ -99,6 +99,13 @@ class AccFollowModelSerializer1(serializers.ModelSerializer):
         model = AccFollow
         fields = '__all__'
 
+class AccSendSerializer1(serializers.Serializer):
+
+    nick_name = serializers.CharField()
+    date = serializers.CharField()
+    send_count = serializers.IntegerField()
+    reply_count = serializers.IntegerField()
+
 class AccReplyModelSerializer1(serializers.ModelSerializer):
 
     class Meta:

@@ -232,11 +232,18 @@ class AccSend(models.Model):
                                  """,default="0")
     cid = models.BigIntegerField(default=0,verbose_name="推送内容表ID")
     openid = models.CharField(max_length=60,verbose_name="openid",default="")
+    date = models.CharField(max_length=10,verbose_name="日期",default="")
     createtime = models.BigIntegerField(default=0)
+
+    send_count = None
+    reply_count = None
+    nick_name = None
 
     def save(self, *args, **kwargs):
 
         ut =  UtilTime()
+        if not self.date:
+            self.date = ut.arrow_to_string(format_v="YYYY-MM-DD")
         if not self.createtime:
             self.createtime = ut.timestamp
         return super(AccSend, self).save(*args, **kwargs)

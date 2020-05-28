@@ -32,7 +32,7 @@ from lib.utils.task.reply import Reply
 from lib.utils.log import logger
 
 from app.wechat.serialiers import AccSerializer,AccTagModelSerializer,AccQrcodeModelSerializer,AccLinkUserSerializer,\
-    AccFollowModelSerializer,AccReplyModelSerializer
+    AccFollowModelSerializer,AccReplyModelSerializer,AccSendSerializer1
 
 class WeChatAPIView(viewsets.ViewSet):
 
@@ -722,6 +722,13 @@ class WeChatAPIView(viewsets.ViewSet):
         if ok_count >= obj['send_place']:
             raise PubErrorCustom("推送条数超限!{}".format(obj))
 
+        AccSend.objects.create(**dict(
+            accid=alObj.accid,
+            send_type="2",
+            cid=obj['id'],
+            openid=alObj.openid
+        ))
+
         Reply().sendmsg(
             count=obj['send_place'] - ok_count,
             listids = request.data_format.get("listids",0),
@@ -731,6 +738,32 @@ class WeChatAPIView(viewsets.ViewSet):
             accid = request.data_format.get("accid",0)
         )
         return None
+
+    @list_route(methods=['GET'])
+    @Core_connector(isPagination=True)
+    def AccReplyList_get(self, request, *args, **kwargs):
+
+        query_format=str()
+        query_params=list()
+
+        if request.query_params_format.get("nick_name"):
+            query_format = query_format + " and t2.nick_name =%s"
+            query_params.append(request.query_params_format.get("nick_name"))
+
+        if request.query_params_format.get("start") and request.query_params_format.get("end"):
+            query_format = query_format + " and t1.date >=%s and t1.date<=%s"
+            query_params.append(request.query_params_format.get("start"))
+            query_params.append(request.query_params_format.get("end"))
+
+        query = AccSend.objects.raw("""
+            SELECT t1.date,t2.nick_name,count(*) as send_count,count(distinct(t1.openid)) as reply_count FROM accsend as t1 
+                INNER JOIN acc as t2 ON t1.accid=t2.accid and t1.send_type='2'
+                WHERE 1=1 %s GROUP BY t1.date,t2.nick_name ORDER BY t1.date DESC
+        """% (query_format), query_params)
+
+        count = query.count()
+
+        return {"data": AccSendSerializer1(query[request.page_start:request.page_end], many=True).data, "count": count}
 
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)
