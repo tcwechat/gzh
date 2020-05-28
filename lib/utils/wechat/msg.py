@@ -49,6 +49,7 @@ class WeChatAccEvent(WechatBase):
 
         userinfo = WechatAccUser(auth_accesstoken=self.auth_accesstoken).get_info(self.xml_data['FromUserName'])
 
+        ut = UtilTime()
         try:
             alu_obj = AccLinkUser.objects.get(accid=self.acc.accid, openid=self.xml_data['FromUserName'])
             # alu_obj.tags = json.dumps(list(set(json.loads(alu_obj.tags)).union(set(json.loads(aqc_obj.tags)))))
@@ -62,7 +63,9 @@ class WeChatAccEvent(WechatBase):
             alu_obj.subscribe_time = userinfo['subscribe_time']
             alu_obj.subscribe_scene = userinfo['subscribe_scene']
             alu_obj.umark = '0'
+            alu_obj.last_active_time = ut.timestamp
             alu_obj.save()
+
         except AccLinkUser.DoesNotExist:
             AccLinkUser.objects.create(**dict(
                 accid=self.acc.accid,
@@ -76,6 +79,7 @@ class WeChatAccEvent(WechatBase):
                 headimgurl=userinfo['headimgurl'],
                 subscribe_time=userinfo['subscribe_time'],
                 subscribe_scene=userinfo['subscribe_scene'],
+                last_active_time=ut.timestamp,
                 umark='0'
             ))
 

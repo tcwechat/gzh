@@ -66,6 +66,13 @@ class AccLinkUser(models.Model):
 
     umark = models.CharField(max_length=1,verbose_name="状态 0-正常,1-删除",default='0')
 
+    last_active_time = models.BigIntegerField(default=0,
+                                              verbose_name="""
+                                              上次活跃时间
+                                              (包括粉丝发送消息给公众号、 点击自定义菜单、关注公众号、
+                                               扫描二维码、 支付成功、用户维权等，阅读公众号文章不算互动） 的粉丝数。
+                                              """)
+
     def save(self, *args, **kwargs):
 
         if not self.createtime:
