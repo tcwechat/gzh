@@ -23,14 +23,15 @@ from app.wechat.utils import tag_batchtagging,customMsgListAdd,customMsgListUpd
 from lib.utils.mytime import UtilTime
 
 from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeModel,AccQrcodeList,AccQrcodeImageTextList,AccLinkUser,\
-                                    AccFollow
+                                    AccFollow,AccReply
 from app.public.models import Meterial
 from lib.utils.exceptions import PubErrorCustom
 from lib.utils.task.follow import Follow
 
 from lib.utils.log import logger
 
-from app.wechat.serialiers import AccSerializer,AccTagModelSerializer,AccQrcodeModelSerializer,AccLinkUserSerializer,AccFollowModelSerializer
+from app.wechat.serialiers import AccSerializer,AccTagModelSerializer,AccQrcodeModelSerializer,AccLinkUserSerializer,\
+    AccFollowModelSerializer,AccReplyModelSerializer
 
 class WeChatAPIView(viewsets.ViewSet):
 
@@ -626,6 +627,77 @@ class WeChatAPIView(viewsets.ViewSet):
         )
         return None
 
+    @list_route(methods=['POST'])
+    @Core_connector(isTransaction=True)
+    def AccReply_add(self, request, *args, **kwargs):
+
+        obj = AccReply.objects.create(**dict(
+            accid=request.data_format.get('accid'),
+            nosend_limit=request.data_format.get("nosend_limit"),
+            trigger=request.data_format.get("trigger"),
+            quiet=request.data_format.get("quiet"),
+            send_place=request.data_format.get("send_place"),
+            send_type=request.data_format.get('send_type'),
+            send_limit=request.data_format.get('send_limit'),
+        ))
+        obj.listids = json.loads(obj.listids)
+
+        customMsgListAdd(obj, request.data_format.get('lists'))
+
+        obj.listids = json.dumps(obj.listids)
+
+        obj.save()
+
+        return None
+
+    @list_route(methods=['PUT'])
+    @Core_connector(isTransaction=True)
+    def AcReply_upd(self,request):
+
+        try:
+            obj = AccReply.objects.get(accid=request.data_format.get("accid"))
+        except AccFollow.DoesNotExist:
+            raise PubErrorCustom("无此信息!")
+
+        obj.accid = request.data_format.get('accid')
+        obj.nosend_limit = request.data_format.get("nosend_limit")
+        obj.trigger = request.data_format.get("trigger")
+        obj.quiet = request.data_format.get("quiet")
+        obj.send_place = request.data_format.get("send_place")
+        obj.send_type = request.data_format.get('send_type')
+        obj.send_limit = request.data_format.get('send_limit')
+        obj.listids = []
+
+        customMsgListUpd(obj,request.data_format.get('lists'))
+
+        obj.listids = json.dumps(obj.listids)
+        obj.save()
+
+        return None
+
+    @list_route(methods=['DELETE'])
+    @Core_connector(isTransaction=True)
+    def AccReply_del(self,request):
+        AccReply.objects.filter(accid=request.data_format.get("accid")).delete()
+        return None
+
+    @list_route(methods=['PUT'])
+    @Core_connector(isTransaction=True)
+    def AccReply_flag_setting(self, request, *args, **kwargs):
+        Acc.objects.filter(accid=request.data_format.get("accid")).update(reply_setting=request.data_format.get("reply_setting"))
+        return None
+
+    @list_route(methods=['GET'])
+    @Core_connector(isPagination=True)
+    def AccReply_get(self, request, *args, **kwargs):
+
+
+        query = AccReply.objects.filter(accid=request.query_params_format.get("accid",0))
+
+        query = query.order_by('-createtime')
+        count = query.count()
+
+        return {"data":AccReplyModelSerializer(query[request.page_start:request.page_end],many=True).data,"count":count}
 
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)

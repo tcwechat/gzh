@@ -173,13 +173,32 @@ class WeChatAccEvent(WechatBase):
                             "nickname":userinfo['nickname']
                         }
                     )
+            elif self.xml_data['Event'] == 'CLICK':
+                userinfo = self.linkUser()
+            elif self.xml_data['Event'] == 'VIEW':
+                userinfo = self.linkUser()
             else:
                 logger.error("事件未定义{}".format(self.xml_data))
                 return "success"
+        elif self.xml_data['MsgType'] == 'text':
+            userinfo = self.linkUser()
+        elif self.xml_data['MsgType'] == 'image':
+            userinfo = self.linkUser()
+        elif self.xml_data['MsgType'] == 'voice':
+            userinfo = self.linkUser()
+        elif self.xml_data['MsgType'] == 'video':
+            userinfo = self.linkUser()
+        elif self.xml_data['MsgType'] == 'shortvideo':
+            userinfo = self.linkUser()
+        elif self.xml_data['MsgType'] == 'location':
+            userinfo = self.linkUser()
+        elif self.xml_data['MsgType'] == 'link':
+            userinfo = self.linkUser()
         else:
             logger.error("消息类型错误!{}".format(self.xml_data['MsgType']))
             return "success"
 
+        return "success"
 
     def msgHandler(self,**kwargs):
 

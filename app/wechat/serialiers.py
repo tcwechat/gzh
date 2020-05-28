@@ -1,7 +1,7 @@
 
 import json
 from rest_framework import serializers
-from app.wechat.models import Acc,AccTag,AccQrcode,AccQrcodeList,AccQrcodeImageTextList,AccLinkUser,AccFollow
+from app.wechat.models import Acc,AccTag,AccQrcode,AccQrcodeList,AccQrcodeImageTextList,AccLinkUser,AccFollow,AccReply
 from lib.utils.mytime import UtilTime
 from app.public.models import Meterial
 from project.config_include.common import ServerUrl
@@ -72,6 +72,24 @@ class AccFollowModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AccFollow
+        fields = '__all__'
+
+class AccReplyModelSerializer(serializers.ModelSerializer):
+
+    lists = serializers.SerializerMethodField()
+    acc = serializers.SerializerMethodField()
+
+    def get_acc(self,obj):
+        try:
+            return AccSerializer(Acc.objects.get(accid=obj.accid), many=False).data
+        except AccQrcode.DoesNotExist:
+            return {}
+
+    def get_lists(self,obj):
+        return AccQrcodeListModelSerializer(AccQrcodeList.objects.filter(id__in=json.loads(obj.listids)).order_by('sort'),many=True).data
+
+    class Meta:
+        model = AccReply
         fields = '__all__'
 
 
