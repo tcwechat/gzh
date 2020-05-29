@@ -23,16 +23,17 @@ from app.wechat.utils import tag_batchtagging,customMsgListAdd,customMsgListUpd
 from lib.utils.mytime import UtilTime
 
 from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeModel,AccQrcodeList,AccQrcodeImageTextList,AccLinkUser,\
-                                    AccFollow,AccReply,AccSend
+                                    AccFollow,AccReply,AccSend,AccMsgCustomer,AccMsgCustomerLinkAcc
 from app.public.models import Meterial
 from lib.utils.exceptions import PubErrorCustom
 from lib.utils.task.follow import Follow
 from lib.utils.task.reply import Reply
+from lib.utils.task.msgcustomer import MsgCustomer
 
 from lib.utils.log import logger
 
 from app.wechat.serialiers import AccSerializer,AccTagModelSerializer,AccQrcodeModelSerializer,AccLinkUserSerializer,\
-    AccFollowModelSerializer,AccReplyModelSerializer,AccSendSerializer1
+    AccFollowModelSerializer,AccReplyModelSerializer,AccSendSerializer1,AccMsgCustomerModelSerializer
 
 class WeChatAPIView(viewsets.ViewSet):
 
@@ -764,6 +765,201 @@ class WeChatAPIView(viewsets.ViewSet):
         count = query.count()
 
         return {"data": AccSendSerializer1(query[request.page_start:request.page_end], many=True).data, "count": count}
+
+
+    @list_route(methods=['POST'])
+    @Core_connector(isTransaction=True)
+    def AccMsgCustomer_add(self,request,*args,**kwargs):
+
+        obj = AccMsgCustomer.objects.create(**dict(
+            name=request.data_format.get('name'),
+            accids=json.dumps(request.data_format.get("accids",[])),
+            sendtime=request.data_format.get('sendtime'),
+            type=request.data_format.get('type'),
+            select_sex=request.data_format.get("select_sex",""),
+            select_followtime=request.data_format.get("select_followtime",""),
+            select_province=request.data_format.get("select_province", ""),
+            select_city=request.data_format.get("select_city", ""),
+            select_tags=json.dumps(request.data_format.get("select_tags", [])),
+        ))
+        for item in request.data_format.get("accids"):
+            AccMsgCustomerLinkAcc.objects.create(**dict(
+                msgid=obj.id,
+                accid=item
+            ))
+
+        obj.listids = json.loads(obj.listids)
+
+        customMsgListAdd(obj,request.data_format.get('lists'))
+
+        obj.listids = json.dumps(obj.listids)
+
+        obj.save()
+
+        MsgCustomer().sendtask_add(obj.id)
+
+        return None
+
+    @list_route(methods=['PUT'])
+    @Core_connector(isTransaction=True)
+    def AcMsgCustomer_upd(self,request):
+
+        try:
+            obj = AccMsgCustomer.objects.get(id=request.data_format.get("id"))
+        except AccFollow.DoesNotExist:
+            raise PubErrorCustom("无此信息!")
+
+        AccMsgCustomerLinkAcc.objects.filter(msgid=obj.id).delete()
+
+        obj.name = request.data_format.get('name')
+        obj.accids = json.dumps(request.data_format.get("accids", []))
+        obj.sendtime = request.data_format.get('sendtime')
+        obj.type = request.data_format.get('type')
+        obj.select_sex = request.data_format.get("select_sex", "")
+        obj.select_followtime = request.data_format.get("select_followtime", "")
+        obj.select_province = request.data_format.get("select_province", "")
+        obj.select_city = request.data_format.get("select_city", "")
+        obj.select_tags = json.dumps(request.data_format.get("select_tags", []))
+
+        for item in request.data_format.get("accids"):
+            AccMsgCustomerLinkAcc.objects.create(**dict(
+                msgid=obj.id,
+                accid=item
+            ))
+
+        customMsgListUpd(obj,request.data_format.get('lists'))
+
+        obj.listids = json.dumps(obj.listids)
+        obj.save()
+
+        MsgCustomer().sendtask_upd(obj.id)
+
+        return None
+
+    @list_route(methods=['DELETE'])
+    @Core_connector(isTransaction=True)
+    def AcMsgCustomer_del(self,request):
+        AccMsgCustomer.objects.filter(id=request.data_format.get("id")).delete()
+        AccMsgCustomerLinkAcc.objects.filter(msgid=request.data_format.get("id")).delete()
+
+        MsgCustomer().sendtask_del(request.data_format.get("id"))
+        return None
+
+
+    @list_route(methods=['GET'])
+    @Core_connector(isPagination=True)
+    def AccMsgCustomer_get(self, request, *args, **kwargs):
+
+        ut = UtilTime()
+
+        query = AccMsgCustomer.objects.filter()
+
+        start = request.query_params_format.get("start",None)
+        end = request.query_params_format.get("end",ut.timestamp)
+
+        status = request.query_params_format.get("status",None)
+
+        if start:
+            query = query.filter(sendtime__gte=start,senditme__lte=end)
+
+        if status:
+            query = query.filter(status=status)
+
+        count = query.count()
+
+        return {"data": AccMsgCustomerModelSerializer(query[request.page_start:request.page_end], many=True).data, "count": count}
+
+    @list_route(methods=['POST'])
+    @Core_connector(isTransaction=True)
+    def AccMsgCustomer_Send(self, request, *args, **kwargs):
+
+        try:
+            obj = AccMsgCustomer.objects.get(id=request.data_format.get("id"))
+        except AccFollow.DoesNotExist:
+            raise PubErrorCustom("无此信息!")
+
+        isOk=True
+        for amclaItem in AccMsgCustomerLinkAcc.objects.filter(msgid=obj.id):
+            query_format=str()
+            query_params=list()
+
+            query_format = query_format + " and t1.accid =%d"
+            query_params.append(amclaItem.accid)
+
+            if obj.type != '1':
+                if obj.select_sex in ['0','1','2']:
+                    query_format = query_format + " and t1.sex =%s"
+                    query_params.append(obj.select_sex)
+                if len(obj.select_followtime):
+                    start = obj.select_followtime.split('-')[0]
+                    end = obj.select_followtime.split('-')[1]
+                    query_format = query_format + " and t1.subscribe_time>=%s and t1.subscribe_time<=%s"
+                    query_params.append(start)
+                    query_params.append(end)
+                if len(obj.select_province):
+                    query_format = query_format + " and t1.province=%s"
+                    query_params.append(obj.select_province)
+                if len(obj.select_city):
+                    query_format = query_format + " and t1.city=%s"
+                    query_params.append(obj.select_city)
+
+                select_tags = json.loads(obj.select_tags)
+                if len(select_tags):
+                    query_format = query_format + " and ("
+                    for j,item in enumerate(select_tags):
+                        if j>0:
+                            query_format = query_format + " or "
+
+                        query_format = query_format + " (t1.tags like %s,%s%s or t1.tags like %s%s,%s)"
+                        query_params.append('%')
+                        query_params.append(item)
+                        query_params.append('%')
+                        query_params.append('%')
+                        query_params.append(item)
+                        query_params.append('%')
+
+                    query_format = query_format + " )"
+
+            res = AccLinkUser.objects.raw("""
+                SELECT t1.* FROM acclinkuser as t1
+                WHERE t1.umark='0' %s
+            """% (query_format), query_params)
+
+            amclaItem.send_count1 = res.count()
+            obj.send_count1 += amclaItem.send_count1
+
+            for aluItem in res:
+                try:
+                    MsgCustomer().sendmsg(
+                        listids=obj.listids,
+                        nickname=aluItem.nickname,
+                        openid=aluItem.openid,
+                        accid=aluItem.accid
+                    )
+                    amclaItem.send_count+=1
+                    obj.send_count+=1
+                except Exception as e:
+                    logger.error(str(e))
+
+            if amclaItem.send_count ==0:
+                amclaItem.send_flag = '1账号未授权或已删除'
+                isOk=False
+            else:
+                amclaItem.send_flag = '0'
+
+            amclaItem.save()
+
+        obj.status = '0' if isOk else '4'
+        obj.save()
+
+        return None
+
+
+    @list_route(methods=['GET'])
+    @Core_connector()
+    def AccUserCount_get(self, request, *args, **kwargs):
+
+        return {"data":{"count":AccLinkUser.objects.filter(accid__in=request.query_params_format.get("accids",[]),umark='0').count()}}
 
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)

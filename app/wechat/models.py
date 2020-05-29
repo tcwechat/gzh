@@ -296,3 +296,62 @@ class AccQrcodeImageTextList(models.Model):
         verbose_name_plural = verbose_name
         db_table = 'accqrcodeimagetextlist'
 
+
+class AccMsgCustomer(models.Model):
+    """
+    客服消息表
+    """
+
+    id = models.BigAutoField(primary_key=True)
+    accids = models.CharField(max_length=1024,verbose_name="公众号ids",default="[]")
+    name = models.CharField(max_length=60,default="",verbose_name="消息名称")
+    listids = models.CharField(max_length=1024,verbose_name="推送内容id集合",default='[]')
+    sendtime = models.BigIntegerField(default=0,verbose_name="发送时间")
+    createtime = models.BigIntegerField(default=0)
+
+    type = models.CharField(max_length=1,verbose_name="群发粉丝 '0'-按条件筛选,'1'-全部粉丝")
+    status = models.CharField(max_length=1,verbose_name="""
+                                            发送状态
+                                                '0'-已发送,
+                                                '1'-未发送,
+                                                '2'-发送中,
+                                                '3'-发送终止,
+                                                '4'-发送失败
+                                            """,default='1')
+
+    select_sex = models.CharField(max_length=1,verbose_name="条件筛选->性别,值为1时是男性，值为2时是女性，值为0时是未知")
+    select_followtime = models.CharField(max_length=60,verbose_name="条件筛选->关注时间",default="")
+    select_province = models.CharField(max_length=60,verbose_name="条件筛选->省份",default="")
+    select_city = models.CharField(max_length=60,verbose_name="条件筛选->城市",default="")
+    select_tags = models.CharField(max_length=1024,verbose_name="条件筛选->标签集合",default="[]")
+
+    send_count = models.IntegerField(verbose_name="发送成功人数",default=0)
+    send_count1 = models.IntegerField(verbose_name="预估发送人数", default=0)
+
+    def save(self, *args, **kwargs):
+
+        ut =  UtilTime()
+        if not self.createtime:
+            self.createtime = ut.timestamp
+        return super(AccMsgCustomer, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = '客服消息表'
+        verbose_name_plural = verbose_name
+        db_table = 'accmsgcustomer'
+
+class AccMsgCustomerLinkAcc(models.Model):
+    """
+    客服消息公众号关联表
+    """
+    id = models.BigAutoField(primary_key=True)
+    msgid = models.BigIntegerField(default=0,verbose_name="消息表ID")
+    accid = models.BigIntegerField(default=0,verbose_name="公众号ID")
+    send_flag = models.CharField(max_length=60,verbose_name="发送成功 0-发送成功,1-发送失败(失败理由),2-未开始",default="2")
+    send_count = models.IntegerField(verbose_name="发送成功人数",default=0)
+    send_count1 = models.IntegerField(verbose_name="预估发送人数", default=0)
+
+    class Meta:
+        verbose_name = '客服消息公众号关联表'
+        verbose_name_plural = verbose_name
+        db_table = 'accmsgcustomerlinkacc'

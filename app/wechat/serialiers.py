@@ -1,7 +1,8 @@
 
 import json
 from rest_framework import serializers
-from app.wechat.models import Acc,AccTag,AccQrcode,AccQrcodeList,AccQrcodeImageTextList,AccLinkUser,AccFollow,AccReply
+from app.wechat.models import Acc,AccTag,AccQrcode,AccQrcodeList,AccQrcodeImageTextList,\
+                    AccLinkUser,AccFollow,AccReply,AccMsgCustomer,AccMsgCustomerLinkAcc
 from lib.utils.mytime import UtilTime
 from app.public.models import Meterial
 from project.config_include.common import ServerUrl
@@ -92,7 +93,6 @@ class AccReplyModelSerializer(serializers.ModelSerializer):
         model = AccReply
         fields = '__all__'
 
-
 class AccFollowModelSerializer1(serializers.ModelSerializer):
 
     class Meta:
@@ -111,7 +111,6 @@ class AccReplyModelSerializer1(serializers.ModelSerializer):
     class Meta:
         model = AccReply
         fields = '__all__'
-
 
 class AccQrcodeModelSerializer(serializers.ModelSerializer):
 
@@ -187,4 +186,76 @@ class AccTagModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AccTag
+        fields = '__all__'
+
+class AccMsgCustomerLinkAccModelSerializer(serializers.ModelSerializer):
+
+    acc = serializers.SerializerMethodField()
+
+    def get_acc(self,obj):
+        r = Acc.objects.get(accid=obj.accid)
+        return {
+            "nick_name":r.nick_name,
+            "head_img":r.head_img
+        }
+
+    class Meta:
+        model = AccMsgCustomerLinkAcc
+        fields = '__all__'
+
+class AccMsgCustomerModelSerializer(serializers.ModelSerializer):
+
+    acclinkobj = serializers.SerializerMethodField()
+    sendobjects_format = serializers.SerializerMethodField()
+    accids_format =  serializers.SerializerMethodField()
+    createtime_format = serializers.SerializerMethodField()
+    sendtime_format = serializers.SerializerMethodField()
+    lists = serializers.SerializerMethodField()
+
+    def get_lists(self,obj):
+        return AccQrcodeListModelSerializer(AccQrcodeList.objects.filter(id__in=json.loads(obj.listids)).order_by('sort'),many=True).data
+
+    def get_acclinkobj(self,obj):
+
+        return AccMsgCustomerLinkAccModelSerializer(AccMsgCustomerLinkAcc(msgid=obj.id),many=True).data
+
+    def get_createtime_format(self,obj):
+        return UtilTime().timestamp_to_string(obj.createtime)
+
+    def get_sendtime_format(self,obj):
+        return UtilTime().timestamp_to_string(obj.sendtime)
+
+    def get_accids_format(self,obj):
+        accids = json.loads(obj.accids)
+        nickname = Acc.objects.get(accid=accids[0]).nick_name
+        return "{}等{}个号".format(nickname,len(accids)) if len(accids)>1 else nickname
+
+    def get_sendobjects_format(self,obj):
+        ut = UtilTime()
+        res = ""
+        if obj.type == '1':
+            return "全部粉丝"
+        else:
+            if obj.select_sex == '1':
+                res+='仅男性粉丝'
+            elif  obj.select_sex == '2':
+                res += '仅女性粉丝'
+            elif obj.select_sex == '0':
+                res += '未知性别'
+
+            if len(obj.select_followtime):
+                res += "{}-{}".format(ut.timestamp_to_string(obj.select_followtime.split('-')[0]),ut.timestamp_to_string(obj.select_followtime.split('-')[1]))
+
+            if len(obj.select_province) and len(obj.select_city):
+                res += "{}-{}".format(obj.select_province,obj.select_city)
+
+            for j,item in enumerate(AccTag.objects.filter(id__in=json.loads(obj.select_tags))):
+                if j>0:
+                    res += ","
+                res += "item.name"
+
+        return res
+
+    class Meta:
+        model = AccMsgCustomer
         fields = '__all__'
