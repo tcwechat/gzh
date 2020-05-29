@@ -33,6 +33,7 @@ class Acc(models.Model):
 
     send_type= None
     listids = None
+    nosend_limit = None
 
     def save(self, *args, **kwargs):
 

@@ -92,6 +92,22 @@ class AccFollowModelSerializer(serializers.ModelSerializer):
         model = AccFollow
         fields = '__all__'
 
+class AccReplySerializer(serializers.Serializer):
+
+    nick_name = serializers.CharField()
+    accid = serializers.IntegerField()
+    head_img = serializers.CharField()
+    reply_setting = serializers.CharField()
+    reply_obj = serializers.SerializerMethodField()
+
+    def get_reply_obj(self,obj):
+        res={}
+        if obj.send_type and obj.listids and obj.nosend_limit:
+            res['send_type'] = obj.send_type
+            res['send_content_count'] = len(json.loads(obj.listids))
+            res['send_time'] = obj.nosend_limit
+        return res
+
 class AccReplyModelSerializer(serializers.ModelSerializer):
 
     lists = serializers.SerializerMethodField()

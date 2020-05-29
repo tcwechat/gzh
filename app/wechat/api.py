@@ -35,7 +35,8 @@ from lib.utils.task.msgmould import MsgMould
 from lib.utils.log import logger
 
 from app.wechat.serialiers import AccSerializer,AccTagModelSerializer,AccQrcodeModelSerializer,AccLinkUserSerializer,\
-    AccFollowModelSerializer,AccReplyModelSerializer,AccSendSerializer1,AccMsgCustomerModelSerializer,AccFollowSerializer
+    AccFollowModelSerializer,AccReplyModelSerializer,AccSendSerializer1,AccMsgCustomerModelSerializer,AccFollowSerializer,\
+        AccReplySerializer
 
 class WeChatAPIView(viewsets.ViewSet):
 
@@ -704,13 +705,11 @@ class WeChatAPIView(viewsets.ViewSet):
     @Core_connector(isPagination=True)
     def AccReply_get(self, request, *args, **kwargs):
 
-
-        query = AccReply.objects.filter(accid=request.query_params_format.get("accid",0))
-
-        query = query.order_by('-createtime')
-        count = query.count()
-
-        return {"data":AccReplyModelSerializer(query[request.page_start:request.page_end],many=True).data,"count":count}
+        try:
+            query = AccReply.objects.get(accid=request.query_params_format.get("accid",0))
+            return {"data":AccReplyModelSerializer(query[request.page_start:request.page_end],many=False).data}
+        except AccReply.DoesNotExist:
+            return None
 
     @list_route(methods=['POST'])
     @Core_connector(isTransaction=True)
@@ -755,7 +754,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
     @list_route(methods=['GET'])
     @Core_connector(isPagination=True)
-    def AccReplyList_get(self, request, *args, **kwargs):
+    def AccReplyList1_get(self, request, *args, **kwargs):
 
         query_format=str()
         query_params=list()
@@ -779,6 +778,19 @@ class WeChatAPIView(viewsets.ViewSet):
 
         return {"data": AccSendSerializer1(query[request.page_start:request.page_end], many=True).data, "count": count}
 
+    @list_route(methods=['GET'])
+    @Core_connector(isPagination=True)
+    def AccReplyList_get(self, request, *args, **kwargs):
+
+        query = Acc.objects.raw("""
+            SELECT t1.*,t2.send_type,t2.listids,t2.nosend_limit FROM acc as t1
+            LEFT JOIN accreply as t2 ON t1.accid = t2.accid
+            WHERE 1=1 ORDER BY t1.createtime DESC
+        """)
+
+        count = len(list(query))
+
+        return {"data":AccReplySerializer(query[request.page_start:request.page_end],many=True).data,"count":count}
 
     @list_route(methods=['POST'])
     @Core_connector(isTransaction=True)
