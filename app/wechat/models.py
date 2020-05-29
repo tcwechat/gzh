@@ -355,3 +355,43 @@ class AccMsgCustomerLinkAcc(models.Model):
         verbose_name = '客服消息公众号关联表'
         verbose_name_plural = verbose_name
         db_table = 'accmsgcustomerlinkacc'
+
+class AccMsgMould(models.Model):
+    """
+    模板消息表
+    """
+
+    id = models.BigAutoField(primary_key=True)
+    accid = models.BigAutoField(verbose_name="公众号ID")
+    name = models.CharField(max_length=60,default="",verbose_name="消息名称")
+    mould_id = models.CharField(max_length=60,verbose_name="模板ID",default="")
+    mould_name = models.CharField(max_length=60,default="",verbose_name="模板名称")
+    mould_data = models.CharField(max_length=1024,default="{}",verbose_name="模板数据")
+    sendtime = models.BigIntegerField(default=0, verbose_name="发送时间")
+    send_count = models.IntegerField(verbose_name="发送人数", default=0)
+    status = models.CharField(max_length=1,verbose_name="""
+                                            发送状态
+                                                '0'-已发送,
+                                                '1'-未发送,
+                                                '2'-发送中,
+                                                '3'-发送终止,
+                                                '4'-发送失败
+                                            """,default='1')
+
+    type = models.CharField(max_length=1, verbose_name="群发粉丝 '0'-全部,'1'-选择标签,'2'-选择性别")
+    select_sex = models.CharField(max_length=1,verbose_name="条件筛选->性别,值为1时是男性，值为2时是女性，值为0时是未知")
+    select_tags = models.CharField(max_length=1024,verbose_name="条件筛选->标签集合",default="[]")
+
+    createtime = models.BigIntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+
+        if not self.createtime:
+            ut = UtilTime()
+            self.createtime = ut.timestamp
+        return super(AccMsgMould, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = '模板消息表'
+        verbose_name_plural = verbose_name
+        db_table = 'accmsgmould'

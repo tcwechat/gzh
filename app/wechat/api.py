@@ -16,6 +16,7 @@ from lib.utils.wechat.msg import WeChatAccEvent
 from lib.utils.wechat.base import WechatBaseForUser
 from lib.utils.wechat.qrcode import WechatQrcode
 from lib.utils.wechat.user import WeChatAccTag,WechatAccUser
+from lib.utils.wechat.mouldmsg import MouldMsg
 from lib.utils.db import RedisTicketHandler
 
 from app.wechat.utils import tag_batchtagging,customMsgListAdd,customMsgListUpd
@@ -960,6 +961,12 @@ class WeChatAPIView(viewsets.ViewSet):
     def AccUserCount_get(self, request, *args, **kwargs):
 
         return {"data":{"count":AccLinkUser.objects.filter(accid__in=request.query_params_format.get("accids",[]),umark='0').count()}}
+
+    @list_route(methods=['GET'])
+    @Core_connector()
+    def AccMsgMouldMould_get(self, request, *args, **kwargs):
+
+        return {"data":MouldMsg(accid=request.query_params_format.get("accid",0)).get_list()['template_list']}
 
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)
