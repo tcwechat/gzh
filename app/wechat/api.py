@@ -603,8 +603,12 @@ class WeChatAPIView(viewsets.ViewSet):
     @Core_connector(isPagination=True)
     def AccFollow_get(self, request, *args, **kwargs):
 
+        accid = request.query_params_format.get("accid", None)
 
-        query = AccFollow.objects.filter(accid=request.query_params_format.get("accid",0))
+        query = AccFollow.objects.filter()
+
+        if accid:
+            query = AccFollow.objects.filter(accid=accid)
 
         query = query.order_by('-createtime')
         count = query.count()
