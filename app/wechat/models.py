@@ -31,6 +31,9 @@ class Acc(models.Model):
 
     createtime=models.BigIntegerField(default=0)
 
+    send_type= None
+    listids = None
+
     def save(self, *args, **kwargs):
 
         if not self.createtime:
@@ -170,6 +173,11 @@ class AccFollow(models.Model):
     send_limit = models.CharField(max_length=20,verbose_name="顺序推送时，每条间隔的时间 1,H ->1小时 1,M -> 1分钟 1,S -> 1秒",default="")
     listids = models.CharField(max_length=1024,verbose_name="推送内容id集合",default='[]')
     createtime = models.BigIntegerField(default=0)
+
+
+    nick_name = None
+    head_img = None
+    follow_setting = None
 
     def save(self, *args, **kwargs):
 
@@ -362,7 +370,7 @@ class AccMsgMould(models.Model):
     """
 
     id = models.BigAutoField(primary_key=True)
-    accid = models.BigAutoField(verbose_name="公众号ID")
+    accid = models.BigIntegerField(verbose_name="公众号ID")
     name = models.CharField(max_length=60,default="",verbose_name="消息名称")
     mould_id = models.CharField(max_length=60,verbose_name="模板ID",default="")
     mould_name = models.CharField(max_length=60,default="",verbose_name="模板名称")

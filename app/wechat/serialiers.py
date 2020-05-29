@@ -38,7 +38,6 @@ class AccSerializer(serializers.Serializer):
 
         return AccLinkUser.objects.filter(accid=obj.accid,umark='0').count()
 
-
 class AccLinkUserSerializer(serializers.Serializer):
 
     openid = serializers.CharField()
@@ -59,6 +58,21 @@ class AccLinkUserSerializer(serializers.Serializer):
 
     def get_subscribe_time(self,obj):
         return UtilTime().timestamp_to_string(obj.subscribe_time)
+
+class AccFollowSerializer(serializers.Serializer):
+
+    nick_name = serializers.CharField()
+    accid = serializers.IntegerField()
+    head_img = serializers.CharField()
+    follow_setting = serializers.CharField()
+    follow_obj = serializers.SerializerMethodField()
+
+    def get_follow_obj(self,obj):
+        res={}
+        if obj.send_type and obj.listids:
+            res['send_type'] = obj.send_type
+            res['send_content_count'] = len(json.loads(obj.listids))
+        return res
 
 class AccFollowModelSerializer(serializers.ModelSerializer):
 

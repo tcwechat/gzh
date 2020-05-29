@@ -35,7 +35,7 @@ from lib.utils.task.msgmould import MsgMould
 from lib.utils.log import logger
 
 from app.wechat.serialiers import AccSerializer,AccTagModelSerializer,AccQrcodeModelSerializer,AccLinkUserSerializer,\
-    AccFollowModelSerializer,AccReplyModelSerializer,AccSendSerializer1,AccMsgCustomerModelSerializer
+    AccFollowModelSerializer,AccReplyModelSerializer,AccSendSerializer1,AccMsgCustomerModelSerializer,AccFollowSerializer
 
 class WeChatAPIView(viewsets.ViewSet):
 
@@ -600,20 +600,27 @@ class WeChatAPIView(viewsets.ViewSet):
         return None
 
     @list_route(methods=['GET'])
-    @Core_connector(isPagination=True)
+    @Core_connector()
     def AccFollow_get(self, request, *args, **kwargs):
+        try:
+            query = AccFollow.objects.get(accid=request.query_params_format.get("accid",0))
+            return {"data":AccFollowModelSerializer(query,many=False).data}
+        except AccFollow.DoesNotExist:
+            return None
 
-        accid = request.query_params_format.get("accid", None)
+    @list_route(methods=['GET'])
+    @Core_connector(isPagination=True)
+    def AccFollowList_get(self, request, *args, **kwargs):
 
-        query = AccFollow.objects.filter()
+        query = Acc.objects.raw("""
+            SELECT t1.*,t2.send_type,t2.listids FROM acc as t1
+            LEFT JOIN accfollow as t2 ON t1.accid = t2.accid
+            WHERE 1=1 ORDER BY t1.createtime DESC
+        """)
 
-        if accid:
-            query = AccFollow.objects.filter(accid=accid)
+        count = len(list(query))
 
-        query = query.order_by('-createtime')
-        count = query.count()
-
-        return {"data":AccFollowModelSerializer(query[request.page_start:request.page_end],many=True).data,"count":count}
+        return {"data":AccFollowSerializer(query[request.page_start:request.page_end],many=True).data,"count":count}
 
     @list_route(methods=['PUT'])
     @Core_connector(isTransaction=True)
@@ -768,7 +775,7 @@ class WeChatAPIView(viewsets.ViewSet):
                 WHERE 1=1 %s GROUP BY t1.date,t2.nick_name ORDER BY t1.date DESC
         """% (query_format), query_params)
 
-        count = query.count()
+        count = len(list(query))
 
         return {"data": AccSendSerializer1(query[request.page_start:request.page_end], many=True).data, "count": count}
 
@@ -931,7 +938,7 @@ class WeChatAPIView(viewsets.ViewSet):
                 WHERE t1.umark='0' %s
             """% (query_format), query_params)
 
-            amclaItem.send_count1 = res.count()
+            amclaItem.send_count1 = len(list(res))
             obj.send_count1 += amclaItem.send_count1
 
             for aluItem in res:
