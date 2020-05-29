@@ -18,6 +18,9 @@ class AccSerializer(serializers.Serializer):
     active_fans_count = serializers.SerializerMethodField()
     service_type = serializers.SerializerMethodField()
     verify_type = serializers.SerializerMethodField()
+    follow_setting = serializers.CharField()
+    reply_setting = serializers.CharField()
+
 
     def get_service_type(self,obj):
         return str(json.loads(obj.service_type_info).get("id","3"))

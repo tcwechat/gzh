@@ -24,12 +24,13 @@ from app.wechat.utils import tag_batchtagging,customMsgListAdd,customMsgListUpd
 from lib.utils.mytime import UtilTime
 
 from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeModel,AccQrcodeList,AccQrcodeImageTextList,AccLinkUser,\
-                                    AccFollow,AccReply,AccSend,AccMsgCustomer,AccMsgCustomerLinkAcc
+                                    AccFollow,AccReply,AccSend,AccMsgCustomer,AccMsgCustomerLinkAcc,AccMsgMould
 from app.public.models import Meterial
 from lib.utils.exceptions import PubErrorCustom
 from lib.utils.task.follow import Follow
 from lib.utils.task.reply import Reply
 from lib.utils.task.msgcustomer import MsgCustomer
+from lib.utils.task.msgmould import MsgMould
 
 from lib.utils.log import logger
 
@@ -967,6 +968,35 @@ class WeChatAPIView(viewsets.ViewSet):
     def AccMsgMouldMould_get(self, request, *args, **kwargs):
 
         return {"data":MouldMsg(accid=request.query_params_format.get("accid",0)).get_list()['template_list']}
+
+    @list_route(methods=['POST'])
+    @Core_connector(isTransaction=True)
+    def AccMsgMould_add(self,request,*args,**kwargs):
+
+        skip_type = request.data_format.get("skip_type", None)
+        if not skip_type:
+            raise PubErrorCustom("跳转类型是空!")
+
+        if skip_type == '0':
+            mould_skip = "{}{}".format('0',request.data_format.get("skip_url", ""))
+        else:
+            mould_skip = "{}{}||{}".format('1', request.data_format.get("skip_appid", ""),request.data_format.get("skip_pagepath", ""))
+
+        obj = AccMsgMould.objects.create(**dict(
+            accid = request.data_format.get("accid",0),
+            name = request.data_format.get("name",""),
+            mould_id=request.data_format.get("mould_id", ""),
+            mould_data=json.loads(request.data_format.get("mould_data", {})),
+            sendtime=request.data_format.get("sendtime", 0),
+            type=request.data_format.get("type", ""),
+            mould_skip=mould_skip,
+            select_sex=request.data_format.get("select_sex", ""),
+            select_tags=request.data_format.get("select_tags", ""),
+        ))
+
+        MsgMould().sendtask_add(obj.id)
+
+        return None
 
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)

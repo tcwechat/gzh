@@ -367,6 +367,7 @@ class AccMsgMould(models.Model):
     mould_id = models.CharField(max_length=60,verbose_name="模板ID",default="")
     mould_name = models.CharField(max_length=60,default="",verbose_name="模板名称")
     mould_data = models.CharField(max_length=1024,default="{}",verbose_name="模板数据")
+    mould_skip = models.CharField(max_length=255,verbose_name="跳转",default="")
     sendtime = models.BigIntegerField(default=0, verbose_name="发送时间")
     send_count = models.IntegerField(verbose_name="发送人数", default=0)
     status = models.CharField(max_length=1,verbose_name="""
