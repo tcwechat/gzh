@@ -275,6 +275,7 @@ class AccQrcodeList(models.Model):
     iamgetextids = models.CharField(max_length=1024,default="[]",verbose_name="图文列表ID")
 
     media_id = models.CharField(max_length=60,verbose_name="媒体ID/图文推送内容ID",default="")
+    url = models.CharField(max_length=255,verbose_name="链接",default="")
     content = models.TextField(verbose_name="文字内容",default="")
 
     sort = models.IntegerField(default=0)

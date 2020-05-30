@@ -387,51 +387,53 @@ class WeChatAPIView(viewsets.ViewSet):
         wQClass= WechatQrcode(accid=obj.accid)
         # waUClass = WechatAccUser(auth_accesstoken=wQClass.auth_accesstoken).get_info()
 
-        for c,item in enumerate(request.data_format.get('lists')):
-            aqlObj = AccQrcodeList.objects.create(**dict(
-                type=item.get("type"),
-                qrid=obj.id,
-                media_id=item.get("media_id", ""),
-                content=item.get("content", ""),
-                sort=c+1
-            ))
-            obj.listids.append(aqlObj.id)
+        customMsgListAdd(obj, request.data_format.get('lists'))
 
-            if str(item.get("type")) == '1':
-
-                # articles = []
-
-                aqlObj.iamgetextids = json.loads(aqlObj.iamgetextids)
-
-                for j,cItem in enumerate(item.get("imagetextlist")):
-
-                    try:
-                        mObj = Meterial.objects.get(media_id=cItem.get("media_id", ""))
-                    except Meterial.DoesNotExist:
-                        raise PubErrorCustom("无此媒体数据{}".format(cItem.get("media_id", "")))
-
-                    aqitlObj = AccQrcodeImageTextList.objects.create(**dict(
-                        qr_listid=aqlObj.id,
-                        picurl=mObj.url,
-                        media_id=mObj.media_id,
-                        url=cItem.get("url", ""),
-                        title=cItem.get("title", ""),
-                        description=cItem.get("description", ""),
-                        sort=j+1
-                    ))
-                    aqlObj.iamgetextids.append(aqitlObj.id)
-
-                    # articles.append(dict(
-                    #     title = aqitlObj.title,
-                    #     thumb_media_id = aqitlObj.media_id,
-                    #     show_cover_pic = "1",
-                    #     content=aqitlObj.description,
-                    #     content_source_url=aqitlObj.url
-                    # ))
-                # media_id = wQClass.image_text_create(articles)
-
-                aqlObj.iamgetextids = json.dumps(aqlObj.iamgetextids)
-                aqlObj.save()
+        # for c,item in enumerate(request.data_format.get('lists')):
+        #     aqlObj = AccQrcodeList.objects.create(**dict(
+        #         type=item.get("type"),
+        #         qrid=obj.id,
+        #         media_id=item.get("media_id", ""),
+        #         content=item.get("content", ""),
+        #         sort=c+1
+        #     ))
+        #     obj.listids.append(aqlObj.id)
+        #
+        #     if str(item.get("type")) == '1':
+        #
+        #         # articles = []
+        #
+        #         aqlObj.iamgetextids = json.loads(aqlObj.iamgetextids)
+        #
+        #         for j,cItem in enumerate(item.get("imagetextlist")):
+        #
+        #             try:
+        #                 mObj = Meterial.objects.get(media_id=cItem.get("media_id", ""))
+        #             except Meterial.DoesNotExist:
+        #                 raise PubErrorCustom("无此媒体数据{}".format(cItem.get("media_id", "")))
+        #
+        #             aqitlObj = AccQrcodeImageTextList.objects.create(**dict(
+        #                 qr_listid=aqlObj.id,
+        #                 picurl=mObj.url,
+        #                 media_id=mObj.media_id,
+        #                 url=cItem.get("url", ""),
+        #                 title=cItem.get("title", ""),
+        #                 description=cItem.get("description", ""),
+        #                 sort=j+1
+        #             ))
+        #             aqlObj.iamgetextids.append(aqitlObj.id)
+        #
+        #             # articles.append(dict(
+        #             #     title = aqitlObj.title,
+        #             #     thumb_media_id = aqitlObj.media_id,
+        #             #     show_cover_pic = "1",
+        #             #     content=aqitlObj.description,
+        #             #     content_source_url=aqitlObj.url
+        #             # ))
+        #         # media_id = wQClass.image_text_create(articles)
+        #
+        #         aqlObj.iamgetextids = json.dumps(aqlObj.iamgetextids)
+        #         aqlObj.save()
 
         obj.listids = json.dumps(obj.listids)
 
@@ -482,65 +484,67 @@ class WeChatAPIView(viewsets.ViewSet):
         obj.tags = json.dumps(request.data_format.get('tags'))
         obj.listids = []
 
-        for c,item in enumerate(request.data_format.get('lists')):
-            if item.get("id",None):
-                try:
-                    aqlObj = AccQrcodeList.objects.get(id=item.get("id",None))
-                except AccQrcodeList.DoesNotExist:
-                    raise PubErrorCustom("无此内容明细!")
-                aqlObj.type = item.get("type")
-                aqlObj.qrid=obj.id
-                aqlObj.media_id=item.get("media_id", "")
-                aqlObj.content = item.get("content", "")
-                aqlObj.sort = c+1
-            else:
-                aqlObj = AccQrcodeList.objects.create(**dict(
-                    type=item.get("type"),
-                    qrid=obj.id,
-                    media_id=item.get("media_id", ""),
-                    content=item.get("content", ""),
-                    sort = c+1
-                ))
+        customMsgListUpd(obj, request.data_format.get('lists'))
 
-            obj.listids.append(aqlObj.id)
-
-            if item.get("type") == '1':
-                aqlObj.iamgetextids = []
-                for j,cItem in enumerate(item.get("imagetextlist")):
-
-                    try:
-                        mObj = Meterial.objects.get(media_id=cItem.get("media_id", ""))
-                    except Meterial.DoesNotExist:
-                        raise PubErrorCustom("无此媒体数据{}".format(cItem.get("media_id", "")))
-
-                    if cItem.get("id",None):
-                        try:
-                            aqitlObj = AccQrcodeImageTextList.objects.get(id=cItem.get("id",None))
-                        except AccQrcodeImageTextList.DoesNotExist:
-                            raise PubErrorCustom("无此图文明细!")
-
-                        aqitlObj.qr_listid = aqlObj.id
-                        aqitlObj.picurl = mObj.url
-                        aqitlObj.media_id = mObj.media_id
-                        aqitlObj.url = cItem.get("url", "")
-                        aqitlObj.title = cItem.get("title", "")
-                        aqitlObj.description = cItem.get("description", "")
-                        aqitlObj.sort = j + 1
-                        aqitlObj.save()
-                    else:
-                        aqitlObj = AccQrcodeImageTextList.objects.create(**dict(
-                            qr_listid=aqlObj.id,
-                            picurl=mObj.url,
-                            media_id=mObj.media_id,
-                            url=cItem.get("url", ""),
-                            title=cItem.get("title", ""),
-                            description=cItem.get("description", ""),
-                            sort = j+1
-                        ))
-                    aqlObj.iamgetextids.append(aqitlObj.id)
-                aqlObj.iamgetextids = json.dumps(aqlObj.iamgetextids)
-
-            aqlObj.save()
+        # for c,item in enumerate(request.data_format.get('lists')):
+        #     if item.get("id",None):
+        #         try:
+        #             aqlObj = AccQrcodeList.objects.get(id=item.get("id",None))
+        #         except AccQrcodeList.DoesNotExist:
+        #             raise PubErrorCustom("无此内容明细!")
+        #         aqlObj.type = item.get("type")
+        #         aqlObj.qrid=obj.id
+        #         aqlObj.media_id=item.get("media_id", "")
+        #         aqlObj.content = item.get("content", "")
+        #         aqlObj.sort = c+1
+        #     else:
+        #         aqlObj = AccQrcodeList.objects.create(**dict(
+        #             type=item.get("type"),
+        #             qrid=obj.id,
+        #             media_id=item.get("media_id", ""),
+        #             content=item.get("content", ""),
+        #             sort = c+1
+        #         ))
+        #
+        #     obj.listids.append(aqlObj.id)
+        #
+        #     if item.get("type") == '1':
+        #         aqlObj.iamgetextids = []
+        #         for j,cItem in enumerate(item.get("imagetextlist")):
+        #
+        #             try:
+        #                 mObj = Meterial.objects.get(media_id=cItem.get("media_id", ""))
+        #             except Meterial.DoesNotExist:
+        #                 raise PubErrorCustom("无此媒体数据{}".format(cItem.get("media_id", "")))
+        #
+        #             if cItem.get("id",None):
+        #                 try:
+        #                     aqitlObj = AccQrcodeImageTextList.objects.get(id=cItem.get("id",None))
+        #                 except AccQrcodeImageTextList.DoesNotExist:
+        #                     raise PubErrorCustom("无此图文明细!")
+        #
+        #                 aqitlObj.qr_listid = aqlObj.id
+        #                 aqitlObj.picurl = mObj.url
+        #                 aqitlObj.media_id = mObj.media_id
+        #                 aqitlObj.url = cItem.get("url", "")
+        #                 aqitlObj.title = cItem.get("title", "")
+        #                 aqitlObj.description = cItem.get("description", "")
+        #                 aqitlObj.sort = j + 1
+        #                 aqitlObj.save()
+        #             else:
+        #                 aqitlObj = AccQrcodeImageTextList.objects.create(**dict(
+        #                     qr_listid=aqlObj.id,
+        #                     picurl=mObj.url,
+        #                     media_id=mObj.media_id,
+        #                     url=cItem.get("url", ""),
+        #                     title=cItem.get("title", ""),
+        #                     description=cItem.get("description", ""),
+        #                     sort = j+1
+        #                 ))
+        #             aqlObj.iamgetextids.append(aqitlObj.id)
+        #         aqlObj.iamgetextids = json.dumps(aqlObj.iamgetextids)
+        #
+        #     aqlObj.save()
 
         obj.listids = json.dumps(obj.listids)
 

@@ -59,6 +59,7 @@ def customMsgListAdd(obj,lists):
             type=item.get("type"),
             qrid=obj.id,
             media_id=item.get("media_id", ""),
+            url = item.get("url",""),
             content=item.get("content", ""),
             sort=c + 1
         ))
@@ -67,15 +68,15 @@ def customMsgListAdd(obj,lists):
         if str(item.get("type")) == '1':
             aqlObj.iamgetextids = json.loads(aqlObj.iamgetextids)
             for j, cItem in enumerate(item.get("imagetextlist")):
-                try:
-                    mObj = Meterial.objects.get(media_id=cItem.get("media_id", ""))
-                except Meterial.DoesNotExist:
-                    raise PubErrorCustom("无此媒体数据{}".format(cItem.get("media_id", "")))
+                # try:
+                #     mObj = Meterial.objects.get(media_id=cItem.get("media_id", ""))
+                # except Meterial.DoesNotExist:
+                #     raise PubErrorCustom("无此媒体数据{}".format(cItem.get("media_id", "")))
 
                 aqitlObj = AccQrcodeImageTextList.objects.create(**dict(
                     qr_listid=aqlObj.id,
-                    picurl=mObj.url,
-                    media_id=mObj.media_id,
+                    picurl=cItem.get("url", ""),
+                    media_id=cItem.get("media_id", ""),
                     url=cItem.get("url", ""),
                     title=cItem.get("title", ""),
                     description=cItem.get("description", ""),
@@ -98,6 +99,7 @@ def customMsgListUpd(obj,lists):
             aqlObj.type = item.get("type")
             aqlObj.qrid = obj.id
             aqlObj.media_id = item.get("media_id", "")
+            aqlObj.url = item.get("url", "")
             aqlObj.content = item.get("content", "")
             aqlObj.sort = c + 1
         else:
@@ -105,6 +107,7 @@ def customMsgListUpd(obj,lists):
                 type=item.get("type"),
                 qrid=obj.id,
                 media_id=item.get("media_id", ""),
+                url=item.get("url", ""),
                 content=item.get("content", ""),
                 sort=c + 1
             ))
@@ -115,10 +118,10 @@ def customMsgListUpd(obj,lists):
             aqlObj.iamgetextids = []
             for j, cItem in enumerate(item.get("imagetextlist")):
 
-                try:
-                    mObj = Meterial.objects.get(media_id=cItem.get("media_id", ""))
-                except Meterial.DoesNotExist:
-                    raise PubErrorCustom("无此媒体数据{}".format(cItem.get("media_id", "")))
+                # try:
+                #     mObj = Meterial.objects.get(media_id=cItem.get("media_id", ""))
+                # except Meterial.DoesNotExist:
+                #     raise PubErrorCustom("无此媒体数据{}".format(cItem.get("media_id", "")))
 
                 if cItem.get("id", None):
                     try:
@@ -127,8 +130,8 @@ def customMsgListUpd(obj,lists):
                         raise PubErrorCustom("无此图文明细!")
 
                     aqitlObj.qr_listid = aqlObj.id
-                    aqitlObj.picurl = mObj.url
-                    aqitlObj.media_id = mObj.media_id
+                    aqitlObj.picurl = cItem.get("url", "")
+                    aqitlObj.media_id = cItem.get("media_id", "")
                     aqitlObj.url = cItem.get("url", "")
                     aqitlObj.title = cItem.get("title", "")
                     aqitlObj.description = cItem.get("description", "")
@@ -137,8 +140,8 @@ def customMsgListUpd(obj,lists):
                 else:
                     aqitlObj = AccQrcodeImageTextList.objects.create(**dict(
                         qr_listid=aqlObj.id,
-                        picurl=mObj.url,
-                        media_id=mObj.media_id,
+                        picurl=cItem.get("url", ""),
+                        media_id=cItem.get("media_id", ""),
                         url=cItem.get("url", ""),
                         title=cItem.get("title", ""),
                         description=cItem.get("description", ""),
