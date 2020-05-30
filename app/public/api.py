@@ -56,8 +56,8 @@ class PublicAPIView(viewsets.ViewSet):
     def meterial_get(self, request, *args, **kwargs):
 
         type = request.query_params_format.get("type",None)
-        offset = request.page_start
-        count = request.page_end
+        offset = request.offset
+        count = request.count
 
         logger.info("page_start {} page_end {}".format(offset,count))
 
