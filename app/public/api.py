@@ -6,7 +6,7 @@ from project.config_include.common import ServerUrl
 from lib.core.decorator.response import Core_connector
 from lib.utils.exceptions import PubErrorCustom
 from project.settings import IMAGE_PATH,BASE_DIR
-
+from lib.utils.log import logger
 from lib.utils.wechat.material import WechatMaterial
 from app.public.models import Meterial
 from app.public.serialiers import MeterialSerializer
@@ -58,6 +58,8 @@ class PublicAPIView(viewsets.ViewSet):
         type = request.query_params_format.get("type",None)
         offset = request.page_start
         count = request.page_end
+
+        logger.info("page_start {} page_end {}".format(offset,count))
 
         return {"data":WechatMaterial(accid=request.data_format.get("accid", "")).get_forever_list(
             type=type,
