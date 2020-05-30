@@ -17,5 +17,6 @@ class MeterialSerializer(serializers.Serializer):
 
     def get_local_url(self,obj):
 
-        return "{}{}".format(ServerUrl,obj.local_url)
+        # return "{}{}".format(ServerUrl,obj.local_url)
+        return obj.url
 

@@ -2,11 +2,18 @@
 import json
 from rest_framework import serializers
 from app.wechat.models import Acc,AccTag,AccQrcode,AccQrcodeList,AccQrcodeImageTextList,\
-                    AccLinkUser,AccFollow,AccReply,AccMsgCustomer,AccMsgCustomerLinkAcc
+                    AccLinkUser,AccFollow,AccReply,AccMsgCustomer,AccMsgCustomerLinkAcc,AccMsgMould
 from lib.utils.mytime import UtilTime
 from app.public.models import Meterial
 from project.config_include.common import ServerUrl
 from app.public.serialiers import MeterialSerializer
+
+
+class AccSerializer1(serializers.Serializer):
+    accid = serializers.IntegerField()
+    nick_name = serializers.CharField()
+    head_img = serializers.CharField()
+    createtime = serializers.IntegerField()
 
 class AccSerializer(serializers.Serializer):
 
@@ -291,4 +298,61 @@ class AccMsgCustomerModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AccMsgCustomer
+        fields = '__all__'
+
+class AccMsgMouldSerializer(serializers.Serializer):
+
+    id = serializers.IntegerField()
+    acc = serializers.SerializerMethodField()
+    name = serializers.CharField()
+    sendobjects_format = serializers.SerializerMethodField()
+    mould_name = serializers.CharField()
+    sendtime_format = serializers.SerializerMethodField()
+    send_count = serializers.IntegerField()
+    status = serializers.CharField()
+    mould_data = serializers.SerializerMethodField()
+
+    def get_mould_data(self,obj):
+
+        return json.loads(obj.mould_data)
+
+    def get_acc(self,obj):
+        try:
+            return AccSerializer1(Acc.objects.get(accid=obj.accid), many=False).data
+        except AccQrcode.DoesNotExist:
+            return {}
+
+    def get_sendtime_format(self,obj):
+        return UtilTime().timestamp_to_string(obj.sendtime)
+
+    def get_sendobjects_format(self,obj):
+        res = ""
+        if obj.type == '1':
+            return "全部粉丝"
+        else:
+            if obj.select_sex == '1':
+                res+='仅男性粉丝'
+            elif  obj.select_sex == '2':
+                res += '仅女性粉丝'
+            elif obj.select_sex == '0':
+                res += '未知性别'
+
+            for j,item in enumerate(AccTag.objects.filter(id__in=json.loads(obj.select_tags))):
+                if j>0:
+                    res += ","
+                res += "item.name"
+
+        return res
+
+
+class AccMsgMouldModelSerializer(serializers.ModelSerializer):
+
+    mould_data = serializers.SerializerMethodField()
+
+    def get_mould_data(self,obj):
+        r = json.loads(obj.mould_data)
+        return r['data'] if len(r) else {}
+
+    class Meta:
+        model = AccMsgMould
         fields = '__all__'

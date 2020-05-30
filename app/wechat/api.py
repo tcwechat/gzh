@@ -36,7 +36,7 @@ from lib.utils.log import logger
 
 from app.wechat.serialiers import AccSerializer,AccTagModelSerializer,AccQrcodeModelSerializer,AccLinkUserSerializer,\
     AccFollowModelSerializer,AccReplyModelSerializer,AccSendSerializer1,AccMsgCustomerModelSerializer,AccFollowSerializer,\
-        AccReplySerializer
+        AccReplySerializer,AccMsgMouldSerializer,AccMsgMouldModelSerializer
 
 class WeChatAPIView(viewsets.ViewSet):
 
@@ -990,26 +990,83 @@ class WeChatAPIView(viewsets.ViewSet):
     @Core_connector()
     def AccMsgMouldMould_get(self, request, *args, **kwargs):
 
-        return {"data":MouldMsg(accid=request.query_params_format.get("accid",0)).get_list()['template_list']}
+        return {"data":MouldMsg(accid=request.query_params_format.get("accid",0)).get_list()}
+
+    @list_route(methods=['PUT'])
+    @Core_connector(isTransaction=True)
+    def AccMsgMould_upd(self,request,*args,**kwargs):
+
+        skip_type = request.data_format.get("skip_type", None)
+
+        if skip_type:
+            if skip_type == '0':
+                mould_skip = "{}{}".format('0', request.data_format.get("skip_url", ""))
+            else:
+                mould_skip = "{}{}||{}".format('1', request.data_format.get("skip_appid", ""),
+                                               request.data_format.get("skip_pagepath", ""))
+        else:
+            mould_skip = ""
+
+        try:
+            obj = AccMsgMould.objects.get(id=request.data_format.get("id"))
+        except AccMsgMould.DoesNotExist:
+            raise PubErrorCustom("无此信息!")
+
+        obj.accid = request.data_format.get("accid",0)
+        obj.name = request.data_format.get("name","")
+        obj.mould_id=request.data_format.get("mould_id", "")
+        # obj.mould_data=json.loads()
+        obj.sendtime=request.data_format.get("sendtime", 0)
+        obj.type=request.data_format.get("type", "")
+        obj.mould_skip=mould_skip
+        obj.select_sex=request.data_format.get("select_sex", "")
+        obj.select_tags=request.data_format.get("select_tags", "")
+
+        templateObj = MouldMsg(accid=obj.accid).get_list(template_id=obj.mould_id)
+        if not templateObj:
+            raise PubErrorCustom("无此模板!")
+
+        obj.mould_data = json.dumps({
+            "data":request.data_format.get("mould_data", {}),
+            "templateObj":templateObj
+        })
+
+        obj.mould_name = templateObj['title']
+
+        obj.save()
+
+        MsgMould().sendtask_upd(obj.id)
+
+        return None
 
     @list_route(methods=['POST'])
     @Core_connector(isTransaction=True)
-    def AccMsgMould_add(self,request,*args,**kwargs):
+    def AccMsgMould_add(self, request, *args, **kwargs):
 
         skip_type = request.data_format.get("skip_type", None)
-        if not skip_type:
-            raise PubErrorCustom("跳转类型是空!")
 
-        if skip_type == '0':
-            mould_skip = "{}{}".format('0',request.data_format.get("skip_url", ""))
+        if skip_type:
+            if skip_type == '0':
+                mould_skip = "{}{}".format('0', request.data_format.get("skip_url", ""))
+            else:
+                mould_skip = "{}{}||{}".format('1', request.data_format.get("skip_appid", ""),
+                                               request.data_format.get("skip_pagepath", ""))
         else:
-            mould_skip = "{}{}||{}".format('1', request.data_format.get("skip_appid", ""),request.data_format.get("skip_pagepath", ""))
+            mould_skip = ""
+
+        templateObj = MouldMsg(accid=obj.accid).get_list(template_id=request.data_format.get("mould_id", ""))
+        if not templateObj:
+            raise PubErrorCustom("无此模板!")
 
         obj = AccMsgMould.objects.create(**dict(
-            accid = request.data_format.get("accid",0),
-            name = request.data_format.get("name",""),
+            accid=request.data_format.get("accid", 0),
+            name=request.data_format.get("name", ""),
             mould_id=request.data_format.get("mould_id", ""),
-            mould_data=json.loads(request.data_format.get("mould_data", {})),
+            mould_data=json.dumps({
+                                    "data":request.data_format.get("mould_data", {}),
+                                    "templateObj":templateObj
+                                }),
+            mould_name=templateObj['title'],
             sendtime=request.data_format.get("sendtime", 0),
             type=request.data_format.get("type", ""),
             mould_skip=mould_skip,
@@ -1019,6 +1076,103 @@ class WeChatAPIView(viewsets.ViewSet):
 
         MsgMould().sendtask_add(obj.id)
 
+        return None
+
+    @list_route(methods=['DELETE'])
+    @Core_connector(isTransaction=True)
+    def AccMsgMould_del(self, request, *args, **kwargs):
+
+        AccMsgMould.objects.filter(id=request.data_format.get("id")).delete()
+        MsgMould().sendtask_del(request.data_format.get("id"))
+
+        return None
+
+    @list_route(methods=['GET'])
+    @Core_connector(isPagination=True)
+    def AccMsgMouldList_get(self, request, *args, **kwargs):
+
+        query = AccMsgMould.objects.filter()
+
+        status = request.query_params_format.get("status",None)
+
+        if status:
+            query = query.filter(status=status)
+
+        count = query.count()
+
+        return {"data": AccMsgMouldSerializer(query[request.page_start:request.page_end], many=True).data, "count": count}
+
+    @list_route(methods=['GET'])
+    @Core_connector()
+    def AccMsgMould_get(self, request, *args, **kwargs):
+
+        query = AccMsgMould.objects.get(id=request.query_params_format.get("id", 0))
+        return {"data": AccMsgMouldModelSerializer(query, many=False).data}
+
+    @list_route(methods=['POST'])
+    @Core_connector(isTransaction=True)
+    def AccMsgMould_Send(self, request, *args, **kwargs):
+
+        try:
+            obj = AccMsgMould.objects.get(id=request.data_format.get("id"))
+        except AccFollow.DoesNotExist:
+            raise PubErrorCustom("无此信息!")
+
+        query_format=str()
+        query_params=list()
+
+        query_format = query_format + " and t1.accid =%d"
+        query_params.append(obj.accid)
+
+        if obj.type == '1':
+            select_tags = json.loads(obj.select_tags)
+            if len(select_tags):
+                query_format = query_format + " and ("
+                for j,item in enumerate(select_tags):
+                    if j>0:
+                        query_format = query_format + " or "
+
+                    query_format = query_format + " (t1.tags like %s,%s%s or t1.tags like %s%s,%s)"
+                    query_params.append('%')
+                    query_params.append(item)
+                    query_params.append('%')
+                    query_params.append('%')
+                    query_params.append(item)
+                    query_params.append('%')
+
+                query_format = query_format + " )"
+        elif obj.type == '2':
+            if obj.select_sex in ['0','1','2']:
+                query_format = query_format + " and t1.sex =%s"
+                query_params.append(obj.select_sex)
+
+        res = AccLinkUser.objects.raw("""
+            SELECT t1.* FROM acclinkuser as t1
+            WHERE t1.umark='0' %s
+        """% (query_format), query_params)
+
+        for aluItem in res:
+            try:
+                data = {
+                    "touser": aluItem.openid,
+                    "template_id": obj.mould_id,
+                    "data": json.loads(obj.mould_data['data'])
+                }
+                if len(obj.mould_skip):
+                    if obj.mould_skip[0] == '0':
+                        data['url'] = obj.mould_skip[1:]
+                    else:
+                        data['miniprogram'] = {
+                            "appid": obj.mould_skip[1:].split("||")[0],
+                            "pagepath":obj.mould_skip[1:].split("||")[1]
+                        }
+                MouldMsg(accid=obj.accid).send_msg(data)
+                obj.send_count+=1
+            except Exception as e:
+                logger.error(str(e))
+
+        obj.status = '0'
+        obj.save()
         return None
 
     @list_route(methods=['GET','POST'])

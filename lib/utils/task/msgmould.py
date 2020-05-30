@@ -1,6 +1,7 @@
 
 
 from lib.utils.task.base import TaskBase
+from lib.utils.wechat.mouldmsg import MouldMsg
 
 class MsgMould(TaskBase):
 
