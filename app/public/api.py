@@ -55,17 +55,14 @@ class PublicAPIView(viewsets.ViewSet):
     @Core_connector(isPagination=True)
     def meterial_get(self, request, *args, **kwargs):
 
-        type = request.query_params_format.get("type",None)
-        offset = request.offset
-        count = request.count
 
-        logger.info("page_start {} page_end {}".format(offset,count))
+        response = WechatMaterial(accid=request.data_format.get("accid", "")).get_forever_list(
+            type = request.query_params_format.get("type",None),
+            offset=request.offset,
+            count=request.count
+        )
 
-        return {"data":WechatMaterial(accid=request.data_format.get("accid", "")).get_forever_list(
-            type=type,
-            offset=offset,
-            count=count
-        )}
+        return {"data":response['item'],"count":response['total_count']}
 
 
     @list_route(methods=['DELETE'])
