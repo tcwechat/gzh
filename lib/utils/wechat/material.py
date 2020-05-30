@@ -30,6 +30,8 @@ class WechatMaterial(WechatBaseForUser):
             return 'video'
         elif type =='6':
             return 'thumb'
+        elif type == '1':
+            return 'news'
         else:
             raise PubErrorCustom("类型有误!")
 
@@ -66,13 +68,22 @@ class WechatMaterial(WechatBaseForUser):
                                 "media_id":media_id
                            })
 
+    def get_forever(self,media_id):
+
+        return self.request_handler(method="POST",
+                           url="https://api.weixin.qq.com/cgi-bin/material/get_material?access_token={}".format(
+                               self.auth_accesstoken),
+                           json={
+                                "media_id":media_id
+                           })
+
     def get_forever_list(self,**kwargs):
 
         type = self.type_change(kwargs.get("type"))
         offset = kwargs.get("offset",0)
         count = kwargs.get("count",20)
 
-        return self.request_handler(method="POST",
+        response = self.request_handler(method="POST",
                            url="https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token={}".format(
                                self.auth_accesstoken),
                                 json={
@@ -80,3 +91,12 @@ class WechatMaterial(WechatBaseForUser):
                                     "offset":offset,
                                     "count":count
                                 })
+
+        if type == 'video':
+            for item in response['item']:
+                res = self.get_forever(item['media_id'])
+                item['url'] = res['down_url']
+                item['title'] = res['title']
+                item['description'] = res['description']
+
+        return response
