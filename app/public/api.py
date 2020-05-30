@@ -38,15 +38,8 @@ class PublicAPIView(viewsets.ViewSet):
 
         file_obj = request.FILES.get('filename')
         if file_obj:
-
             new_file = "{}_{}".format(uuid.uuid4().hex, file_obj.name)
-
-            file_path = os.path.join(IMAGE_PATH, new_file)
-
             file_strem = file_obj.read()
-
-            saveFileUrl = "/static/images/{}".format(new_file)
-            fileUrl = "{}/static/images/{}".format(ServerUrl, new_file)
 
             media_id, url = WechatMaterial(accid=request.data_format.get("accid", "")).create_forever(
                 meterialObj={"file":file_strem,"filename":new_file},
@@ -54,21 +47,7 @@ class PublicAPIView(viewsets.ViewSet):
                 title=request.data_format.get("title", ""),
                 introduction=request.data_format.get("introduction", "")
             )
-
-            with open(file_path, 'wb+') as f:
-                f.write(file_strem)
-
-            Meterial.objects.create(**dict(
-                type=request.data_format.get("type", ""),
-                title=request.data_format.get("title", ""),
-                accid=request.data_format.get("accid",0),
-                introduction=request.data_format.get("introduction", ""),
-                media_id=media_id,
-                url=url,
-                local_url = saveFileUrl
-            ))
-            return {"data": {"path":fileUrl,"media_id":media_id}}
-
+            return {"data": {"path":url,"media_id":media_id}}
         else:
             raise PubErrorCustom("文件上传失败!")
 
@@ -76,25 +55,21 @@ class PublicAPIView(viewsets.ViewSet):
     @Core_connector(isPagination=True)
     def meterial_get(self, request, *args, **kwargs):
 
-        mQuery = Meterial.objects.filter(accid=request.query_params_format.get("accid",0),type=request.query_params_format.get("type",None)).order_by('-createtime')
+        type = request.query_params_format.get("type",None)
+        offset = request.page_start
+        count = request.page_end
 
-        count = mQuery.count()
-
-        return {"data":MeterialSerializer(mQuery[request.page_start:request.page_end],many=True).data,"count":count}
+        return {"data":WechatMaterial(accid=request.data_format.get("accid", "")).get_forever_list(
+            type=type,
+            offset=offset,
+            count=count
+        )}
 
 
     @list_route(methods=['DELETE'])
     @Core_connector(isTransaction=True)
     def meterial_delete(self, request, *args, **kwargs):
 
-        try:
-            obj = Meterial.objects.get(media_id=request.data_format.get("media_id",0))
-        except Meterial.DoesNotExist:
-            raise PubErrorCustom("此素材不存在!")
-
-        WechatMaterial(accid=obj.accid).delete_forever(obj.media_id)
-
-        os.remove(BASE_DIR+obj.local_url)
-        obj.delete()
+        WechatMaterial(accid=obj.accid).delete_forever(request.data_format.get("media_id",0))
 
         return None
