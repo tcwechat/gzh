@@ -277,7 +277,8 @@ class AccQrcodeList(models.Model):
     media_id = models.CharField(max_length=60,verbose_name="媒体ID/图文推送内容ID",default="")
     title = models.CharField(max_length=60,verbose_name="视频标题",default="")
     description = models.CharField(max_length=255, verbose_name="视频描述", default="")
-    url = models.CharField(max_length=255,verbose_name="链接",default="")
+    url = models.CharField(max_length=255,verbose_name="图片链接",default="")
+    url1 = models.CharField(max_length=255,verbose_name="链接",default="")
     content = models.TextField(verbose_name="文字内容",default="")
 
     sort = models.IntegerField(default=0)
