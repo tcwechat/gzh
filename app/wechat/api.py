@@ -24,19 +24,22 @@ from app.wechat.utils import tag_batchtagging,customMsgListAdd,customMsgListUpd
 from lib.utils.mytime import UtilTime
 
 from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeModel,AccQrcodeList,AccQrcodeImageTextList,AccLinkUser,\
-                                    AccFollow,AccReply,AccSend,AccMsgCustomer,AccMsgCustomerLinkAcc,AccMsgMould
+                                    AccFollow,AccReply,AccSend,AccMsgCustomer,AccMsgCustomerLinkAcc,AccMsgMould,AccMsgMass
 from app.public.models import Meterial
 from lib.utils.exceptions import PubErrorCustom
 from lib.utils.task.follow import Follow
 from lib.utils.task.reply import Reply
 from lib.utils.task.msgcustomer import MsgCustomer
 from lib.utils.task.msgmould import MsgMould
+from lib.utils.task.msgmass import MsgMass
+from lib.utils.wechat.material import WechatMaterial
 
 from lib.utils.log import logger
 
 from app.wechat.serialiers import AccSerializer,AccTagModelSerializer,AccQrcodeModelSerializer,AccLinkUserSerializer,\
     AccFollowModelSerializer,AccReplyModelSerializer,AccSendSerializer1,AccMsgCustomerModelSerializer,AccFollowSerializer,\
-        AccReplySerializer,AccMsgMouldSerializer,AccMsgMouldModelSerializer
+        AccReplySerializer,AccMsgMouldSerializer,AccMsgMouldModelSerializer,AccMsgMassSerializer,AccQrcodeListModelSerializer1,\
+            AccMsgMassModelSerializer
 
 class WeChatAPIView(viewsets.ViewSet):
 
@@ -674,7 +677,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
         try:
             obj = AccReply.objects.get(accid=request.data_format.get("accid"))
-        except AccFollow.DoesNotExist:
+        except AccReply.DoesNotExist:
             raise PubErrorCustom("无此信息!")
 
         obj.accid = request.data_format.get('accid')
@@ -835,7 +838,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
         try:
             obj = AccMsgCustomer.objects.get(id=request.data_format.get("id"))
-        except AccFollow.DoesNotExist:
+        except AccMsgCustomer.DoesNotExist:
             raise PubErrorCustom("无此信息!")
 
         AccMsgCustomerLinkAcc.objects.filter(msgid=obj.id).delete()
@@ -904,7 +907,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
         try:
             obj = AccMsgCustomer.objects.get(id=request.data_format.get("id"))
-        except AccFollow.DoesNotExist:
+        except AccMsgCustomer.DoesNotExist:
             raise PubErrorCustom("无此信息!")
 
         isOk=True
@@ -1119,7 +1122,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
         try:
             obj = AccMsgMould.objects.get(id=request.data_format.get("id"))
-        except AccFollow.DoesNotExist:
+        except AccMsgMould.DoesNotExist:
             raise PubErrorCustom("无此信息!")
 
         query_format=str()
@@ -1174,6 +1177,191 @@ class WeChatAPIView(viewsets.ViewSet):
                 obj.send_count+=1
             except Exception as e:
                 logger.error(str(e))
+
+        obj.status = '0'
+        obj.save()
+        return None
+
+    @list_route(methods=['POST'])
+    @Core_connector(isTransaction=True)
+    def AccMsgMass_add(self,request,*args,**kwargs):
+
+        obj = AccMsgMass.objects.create(**dict(
+            accid=request.data_format.get('accid'),
+            sendtime=request.data_format.get('sendtime'),
+            type=request.data_format.get('type'),
+            select_sex=request.data_format.get("select_sex",""),
+            select_followtime=request.data_format.get("select_followtime",""),
+            select_province=request.data_format.get("select_province", ""),
+            select_city=request.data_format.get("select_city", ""),
+            select_tags=json.dumps(request.data_format.get("select_tags", [])),
+            power=request.data_format.get("power"),
+            repeat_send=request.data_format.get("repeat_send"),
+            mobile=request.data_format.get("mobile",""),
+            msgtype=request.data_format.get('lists')[0]['type']
+        ))
+
+        obj.listids = json.loads(obj.listids)
+
+        customMsgListAdd(obj,request.data_format.get('lists'),isHaveNewsList=False)
+
+        obj.listids = json.dumps(obj.listids)
+
+        obj.save()
+
+        MsgMass().sendtask_add(obj.id)
+
+        return None
+
+    @list_route(methods=['PUT'])
+    @Core_connector(isTransaction=True)
+    def AcMsgMass_upd(self,request):
+
+        try:
+            obj = AccMsgMass.objects.get(id=request.data_format.get("id"))
+        except AccMsgMass.DoesNotExist:
+            raise PubErrorCustom("无此信息!")
+
+        obj.accid = request.data_format.get('accid')
+        obj.sendtime = request.data_format.get('sendtime')
+        obj.type = request.data_format.get('type')
+        obj.select_sex = request.data_format.get("select_sex", "")
+        obj.select_followtime = request.data_format.get("select_followtime", "")
+        obj.select_province = request.data_format.get("select_province", "")
+        obj.select_city = request.data_format.get("select_city", "")
+        obj.select_tags = json.dumps(request.data_format.get("select_tags", []))
+        obj.power = request.data_format.get("power")
+        obj.repeat_send = request.data_format.get("repeat_send")
+        obj.mobile = request.data_format.get("mobile", "")
+        obj.msgtype = request.data_format.get('lists')[0]['type']
+
+        customMsgListUpd(obj,request.data_format.get('lists'),isHaveNewsList=False)
+
+        obj.listids = json.dumps(obj.listids)
+        obj.save()
+
+        MsgMass().sendtask_upd(obj.id)
+
+        return None
+
+    @list_route(methods=['DELETE'])
+    @Core_connector(isTransaction=True)
+    def AcMsgMass_del(self, request):
+        AccMsgMass.objects.filter(id=request.data_format.get("id")).delete()
+        MsgMass().sendtask_del(request.data_format.get("id"))
+        return None
+
+    @list_route(methods=['GET'])
+    @Core_connector(isPagination=True)
+    def AccMassList_get(self, request, *args, **kwargs):
+
+        ut = UtilTime()
+
+        query = AccMsgCustomer.objects.filter()
+
+        date = request.query_params_format.get("date", None)
+
+        status = request.query_params_format.get("status", None)
+
+        if date:
+            start = ut.string_to_timestamp(date+' 00:00:01')
+            end = ut.string_to_timestamp(date+' 23:59:59')
+            query = query.filter(sendtime__gte=start, senditme__lte=end)
+
+        if status:
+            query = query.filter(status=status)
+
+        count = query.count()
+
+        return {"data": AccMsgMassSerializer(query[request.page_start:request.page_end], many=True).data,
+                "count": count}
+
+    @list_route(methods=['GET'])
+    @Core_connector()
+    def AccMassDetail_get(self, request, *args, **kwargs):
+        try:
+            obj = AccMsgMass.objects.get(id=request.query_params_format.get("id"))
+        except AccMsgMass.DoesNotExist:
+            raise PubErrorCustom("无此信息!")
+
+        aqlObj = AccQrcodeList.objects.get(id=json.loads(obj.listids[0]))
+        if obj.msg_type != '1':
+            return {"data":AccQrcodeListModelSerializer1(aqlObj,many=False).data}
+        else:
+            response = WechatMaterial(accid=obj.accid).get_forever(
+                media_id=aqlObj.media
+            )
+            return {"data":response}
+
+    @list_route(methods=['GET'])
+    @Core_connector()
+    def AccMass_get(self, request, *args, **kwargs):
+
+        try:
+            return {"data":AccMsgMassModelSerializer(AccMsgMass.objects.get(id=request.query_params_format.get("id")),many=False).data}
+        except AccMsgMass.DoesNotExist:
+            raise PubErrorCustom("无此信息!")
+
+    @list_route(methods=['POST'])
+    @Core_connector()
+    def AccMass_Send(self, request, *args, **kwargs):
+        try:
+            obj = AccMsgMass.objects.get(id=request.data_format.get("id"))
+        except AccMsgMass.DoesNotExist:
+            raise PubErrorCustom("无此信息!")
+
+        query_format=str()
+        query_params=list()
+
+        query_format = query_format + " and t1.accid =%d"
+        query_params.append(obj.accid)
+
+        if obj.type != '1':
+            if obj.select_sex in ['0', '1', '2']:
+                query_format = query_format + " and t1.sex =%s"
+                query_params.append(obj.select_sex)
+            if len(obj.select_followtime):
+                start = obj.select_followtime.split('-')[0]
+                end = obj.select_followtime.split('-')[1]
+                query_format = query_format + " and t1.subscribe_time>=%s and t1.subscribe_time<=%s"
+                query_params.append(start)
+                query_params.append(end)
+            if len(obj.select_province):
+                query_format = query_format + " and t1.province=%s"
+                query_params.append(obj.select_province)
+            if len(obj.select_city):
+                query_format = query_format + " and t1.city=%s"
+                query_params.append(obj.select_city)
+
+            select_tags = json.loads(obj.select_tags)
+            if len(select_tags):
+                query_format = query_format + " and ("
+                for j, item in enumerate(select_tags):
+                    if j > 0:
+                        query_format = query_format + " or "
+
+                    query_format = query_format + " (t1.tags like %s,%s%s or t1.tags like %s%s,%s)"
+                    query_params.append('%')
+                    query_params.append(item)
+                    query_params.append('%')
+                    query_params.append('%')
+                    query_params.append(item)
+                    query_params.append('%')
+
+                query_format = query_format + " )"
+
+        res = AccLinkUser.objects.raw("""
+            SELECT t1.* FROM acclinkuser as t1
+            WHERE t1.umark='0' %s
+        """% (query_format), query_params)
+        openids = [ item.openid for item in res]
+        obj.send_count = len(openids)
+        MsgMass().send_msg(
+            openids=openids,
+            accid=obj.accid,
+            listids=obj.listids,
+            is_to_all=True if obj.power=='0' else False,
+            send_ignore_reprint= 1 if obj.repeat_send=='0' else 0 )
 
         obj.status = '0'
         obj.save()

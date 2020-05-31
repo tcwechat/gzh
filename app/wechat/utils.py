@@ -52,7 +52,7 @@ def tag_batchtagging(query,tagid,accid):
         WeChatAccTag(accid=accid).batchtagging(openids, int(tagid))
 
 
-def customMsgListAdd(obj,lists):
+def customMsgListAdd(obj,lists,isHaveNewsList=True):
 
     for c, item in enumerate(lists):
         aqlObj = AccQrcodeList.objects.create(**dict(
@@ -65,30 +65,31 @@ def customMsgListAdd(obj,lists):
         ))
         obj.listids.append(aqlObj.id)
 
-        if str(item.get("type")) == '1':
-            aqlObj.iamgetextids = json.loads(aqlObj.iamgetextids)
-            for j, cItem in enumerate(item.get("imagetextlist")):
-                # try:
-                #     mObj = Meterial.objects.get(media_id=cItem.get("media_id", ""))
-                # except Meterial.DoesNotExist:
-                #     raise PubErrorCustom("无此媒体数据{}".format(cItem.get("media_id", "")))
+        if isHaveNewsList:
+            if str(item.get("type")) == '1':
+                aqlObj.iamgetextids = json.loads(aqlObj.iamgetextids)
+                for j, cItem in enumerate(item.get("imagetextlist")):
+                    # try:
+                    #     mObj = Meterial.objects.get(media_id=cItem.get("media_id", ""))
+                    # except Meterial.DoesNotExist:
+                    #     raise PubErrorCustom("无此媒体数据{}".format(cItem.get("media_id", "")))
 
-                aqitlObj = AccQrcodeImageTextList.objects.create(**dict(
-                    qr_listid=aqlObj.id,
-                    picurl=cItem.get("url", ""),
-                    media_id=cItem.get("media_id", ""),
-                    url=cItem.get("url", ""),
-                    title=cItem.get("title", ""),
-                    description=cItem.get("description", ""),
-                    sort=j + 1
-                ))
-                aqlObj.iamgetextids.append(aqitlObj.id)
+                    aqitlObj = AccQrcodeImageTextList.objects.create(**dict(
+                        qr_listid=aqlObj.id,
+                        picurl=cItem.get("url", ""),
+                        media_id=cItem.get("media_id", ""),
+                        url=cItem.get("url", ""),
+                        title=cItem.get("title", ""),
+                        description=cItem.get("description", ""),
+                        sort=j + 1
+                    ))
+                    aqlObj.iamgetextids.append(aqitlObj.id)
 
-            aqlObj.iamgetextids = json.dumps(aqlObj.iamgetextids)
-            aqlObj.save()
+                aqlObj.iamgetextids = json.dumps(aqlObj.iamgetextids)
+                aqlObj.save()
 
 
-def customMsgListUpd(obj,lists):
+def customMsgListUpd(obj,lists,isHaveNewsList=True):
 
     for c, item in enumerate(lists):
         if item.get("id", None):
@@ -114,41 +115,42 @@ def customMsgListUpd(obj,lists):
 
         obj.listids.append(aqlObj.id)
 
-        if item.get("type") == '1':
-            aqlObj.iamgetextids = []
-            for j, cItem in enumerate(item.get("imagetextlist")):
+        if isHaveNewsList:
+            if item.get("type") == '1':
+                aqlObj.iamgetextids = []
+                for j, cItem in enumerate(item.get("imagetextlist")):
 
-                # try:
-                #     mObj = Meterial.objects.get(media_id=cItem.get("media_id", ""))
-                # except Meterial.DoesNotExist:
-                #     raise PubErrorCustom("无此媒体数据{}".format(cItem.get("media_id", "")))
+                    # try:
+                    #     mObj = Meterial.objects.get(media_id=cItem.get("media_id", ""))
+                    # except Meterial.DoesNotExist:
+                    #     raise PubErrorCustom("无此媒体数据{}".format(cItem.get("media_id", "")))
 
-                if cItem.get("id", None):
-                    try:
-                        aqitlObj = AccQrcodeImageTextList.objects.get(id=cItem.get("id", None))
-                    except AccQrcodeImageTextList.DoesNotExist:
-                        raise PubErrorCustom("无此图文明细!")
+                    if cItem.get("id", None):
+                        try:
+                            aqitlObj = AccQrcodeImageTextList.objects.get(id=cItem.get("id", None))
+                        except AccQrcodeImageTextList.DoesNotExist:
+                            raise PubErrorCustom("无此图文明细!")
 
-                    aqitlObj.qr_listid = aqlObj.id
-                    aqitlObj.picurl = cItem.get("url", "")
-                    aqitlObj.media_id = cItem.get("media_id", "")
-                    aqitlObj.url = cItem.get("url", "")
-                    aqitlObj.title = cItem.get("title", "")
-                    aqitlObj.description = cItem.get("description", "")
-                    aqitlObj.sort = j + 1
-                    aqitlObj.save()
-                else:
-                    aqitlObj = AccQrcodeImageTextList.objects.create(**dict(
-                        qr_listid=aqlObj.id,
-                        picurl=cItem.get("url", ""),
-                        media_id=cItem.get("media_id", ""),
-                        url=cItem.get("url", ""),
-                        title=cItem.get("title", ""),
-                        description=cItem.get("description", ""),
-                        sort=j + 1
-                    ))
-                aqlObj.iamgetextids.append(aqitlObj.id)
-            aqlObj.iamgetextids = json.dumps(aqlObj.iamgetextids)
+                        aqitlObj.qr_listid = aqlObj.id
+                        aqitlObj.picurl = cItem.get("url", "")
+                        aqitlObj.media_id = cItem.get("media_id", "")
+                        aqitlObj.url = cItem.get("url", "")
+                        aqitlObj.title = cItem.get("title", "")
+                        aqitlObj.description = cItem.get("description", "")
+                        aqitlObj.sort = j + 1
+                        aqitlObj.save()
+                    else:
+                        aqitlObj = AccQrcodeImageTextList.objects.create(**dict(
+                            qr_listid=aqlObj.id,
+                            picurl=cItem.get("url", ""),
+                            media_id=cItem.get("media_id", ""),
+                            url=cItem.get("url", ""),
+                            title=cItem.get("title", ""),
+                            description=cItem.get("description", ""),
+                            sort=j + 1
+                        ))
+                    aqlObj.iamgetextids.append(aqitlObj.id)
+                aqlObj.iamgetextids = json.dumps(aqlObj.iamgetextids)
 
         aqlObj.save()
 

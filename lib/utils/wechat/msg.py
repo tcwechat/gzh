@@ -386,8 +386,6 @@ class WechatAccMsg(WechatBase):
 
     def videoSend(self,obj,user):
 
-        mObj = Meterial.objects.get(media_id=obj.media_id)
-
         self.request_handler(
             method="POST",
             url=self.url,
@@ -397,8 +395,8 @@ class WechatAccMsg(WechatBase):
                 "video":
                 {
                   "media_id":obj.media_id,
-                  "title":mObj.title,
-                  "description":mObj.introduction
+                  "title":obj.title,
+                  "description":obj.description
                 }
             })
 
@@ -444,3 +442,155 @@ class WechatAccMsg(WechatBase):
             method="POST",
             url=self.url,
             data=data)
+
+
+
+class WechatAccMassMsg(WechatBase):
+
+    def __init__(self,**kwargs):
+
+        super().__init__(**kwargs)
+        self.url = "https://api.weixin.qq.com/cgi-bin/message/mass/send?access_token={}".format(kwargs.get("auth_accesstoken"))
+
+    def run(self,**kwargs):
+        listids = kwargs.get("listids")
+        openids = kwargs.get("openids")
+        is_to_all = kwargs.get("is_to_all")
+        send_ignore_reprint = kwargs.get("send_ignore_reprint")
+
+        for item in AccQrcodeList.objects.filter(id__in=json.loads(listids)).order_by('sort'):
+            if item.type == '5':
+                self.videoSend(obj=item,openids=openids,is_to_all=is_to_all)
+            elif item.type == '2':
+                self.imgSend(obj=item,openids=openids,is_to_all=is_to_all)
+            elif item.type == '3':
+                self.textSend(obj=item,openids=openids,is_to_all=is_to_all)
+            elif item.type == '4':
+                self.voiceSend(obj=item,openids=openids,is_to_all=is_to_all)
+            elif item.type == '1':
+                self.newsSend(obj=item,openids=openids,is_to_all=is_to_all,send_ignore_reprint=send_ignore_reprint)
+
+    def newsSend(self,**kwargs):
+
+        obj = kwargs.get("obj")
+        openids = kwargs.get("openids")
+        is_to_all=kwargs.get("is_to_all",False)
+        send_ignore_reprint = kwargs.get("send_ignore_reprint",0)
+
+        self.request_handler(
+            method="POST",
+            url=self.url,
+            json={
+                "filter": {
+                    "is_to_all": is_to_all
+                },
+                "touser": openids,
+                "msgtype": "mpnews",
+                "mpnews": {
+                    "media_id": obj.media_id
+                },
+                "send_ignore_reprint": int(send_ignore_reprint)
+            })
+
+    def textSend(self,**kwargs):
+
+        obj = kwargs.get("obj")
+        is_to_all = kwargs.get("is_to_all",False)
+        openids = kwargs.get("openids")
+
+        self.request_handler(
+            method="POST",
+            url=self.url,
+            json={
+                "filter": {
+                    "is_to_all": is_to_all
+                },
+                "touser": openids,
+                "msgtype": "text",
+                "text": obj.content
+            })
+
+    def voiceSend(self,**kwargs):
+
+        obj = kwargs.get("obj")
+        is_to_all = kwargs.get("is_to_all",False)
+        openids = kwargs.get("openids")
+
+        self.request_handler(
+            method="POST",
+            url=self.url,
+            json={
+                "filter": {
+                    "is_to_all": is_to_all
+                },
+                "touser": openids,
+                "voice": {
+                    "media_id": obj.media_id
+                },
+                "msgtype": "voice"
+            })
+
+    def imgSend(self,**kwargs):
+
+        obj = kwargs.get("obj")
+        is_to_all = kwargs.get("is_to_all",False)
+        openids = kwargs.get("openids")
+
+        self.request_handler(
+            method="POST",
+            url=self.url,
+            json={
+                "filter": {
+                    "is_to_all": is_to_all
+                },
+                "touser": openids,
+                "images": {
+                    "media_ids": [
+                        obj.media_id
+                    ],
+                    "recommend": "分享图片",
+                    "need_open_comment": 1,
+                    "only_fans_can_comment": 0
+                },
+                "msgtype": "image"
+            })
+
+    def videoTransformation(self,obj):
+
+        self.request_handler(
+            method="POST",
+            url="https://api.weixin.qq.com/cgi-bin/media/uploadvideo?access_token={}".format(self.auth_accesstoken),
+            json={
+                "media_id":obj.media_id,
+                "title":obj.title,
+                "description":obj.description
+            })
+
+    def videoSend(self,**kwargs):
+
+        obj = kwargs.get("obj")
+        is_to_all = kwargs.get("is_to_all",False)
+        openids = kwargs.get("openids")
+
+        res = self.videoTransformation(obj)
+
+        self.request_handler(
+            method="POST",
+            url=self.url,
+            json={
+                "filter": {
+                    "is_to_all": is_to_all
+                },
+                "touser": openids,
+                "mpvideo": {
+                    "media_id": res['media_id'],
+                    "title": obj.title,
+                    "description": obj.description
+                },
+                "msgtype": "mpvideo"
+            })
+
+
+
+
+

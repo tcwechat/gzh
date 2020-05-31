@@ -2,11 +2,12 @@
 import json
 from rest_framework import serializers
 from app.wechat.models import Acc,AccTag,AccQrcode,AccQrcodeList,AccQrcodeImageTextList,\
-                    AccLinkUser,AccFollow,AccReply,AccMsgCustomer,AccMsgCustomerLinkAcc,AccMsgMould
+                    AccLinkUser,AccFollow,AccReply,AccMsgCustomer,AccMsgCustomerLinkAcc,AccMsgMould,AccMsgMass
 from lib.utils.mytime import UtilTime
 from app.public.models import Meterial
 from project.config_include.common import ServerUrl
 from app.public.serialiers import MeterialSerializer
+from lib.utils.wechat.material import WechatMaterial
 
 
 class AccSerializer1(serializers.Serializer):
@@ -186,18 +187,15 @@ class AccQrcodeModelSerializer(serializers.ModelSerializer):
         model = AccQrcode
         fields = ('id','name','accid','tot_count','createtime','acc','new_count','follow_count','type','endtime','qr_type','send_type','url','tags','lists',)
 
+class AccQrcodeListModelSerializer1(serializers.ModelSerializer):
+
+    class Meta:
+        model = AccQrcodeList
+        fields = '__all__'
+
 class AccQrcodeListModelSerializer(serializers.ModelSerializer):
 
     imagetextlist=serializers.SerializerMethodField()
-
-    local_url = serializers.SerializerMethodField()
-
-    def get_local_url(self,obj):
-
-        if obj.media_id:
-            return "{}{}".format(ServerUrl,Meterial.objects.get(media_id=obj.media_id).local_url)
-        else:
-            return ""
 
     def get_imagetextlist(self,obj):
         return AccQrcodeImageTextListModelSerializer(AccQrcodeImageTextList.objects.filter(id__in=json.loads(obj.iamgetextids)).order_by('sort'),
@@ -355,4 +353,69 @@ class AccMsgMouldModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AccMsgMould
+        fields = '__all__'
+
+class AccMsgMassSerializer(serializers.Serializer):
+
+    id = serializers.IntegerField()
+    acc = serializers.SerializerMethodField()
+    msgtype = serializers.CharField()
+    sendobjects_format = serializers.SerializerMethodField()
+    power=serializers.CharField()
+    sendtime_format = serializers.SerializerMethodField()
+    send_count = serializers.IntegerField()
+    status = serializers.CharField()
+
+    def get_acc(self,obj):
+        try:
+            return AccSerializer1(Acc.objects.get(accid=obj.accid), many=False).data
+        except AccQrcode.DoesNotExist:
+            return {}
+
+    def get_sendtime_format(self,obj):
+        return UtilTime().timestamp_to_string(obj.sendtime)
+
+    def get_sendobjects_format(self,obj):
+        ut = UtilTime()
+        res = ""
+        if obj.type == '1':
+            return "全部粉丝"
+        else:
+            if obj.select_sex == '1':
+                res+='仅男性粉丝'
+            elif  obj.select_sex == '2':
+                res += '仅女性粉丝'
+            elif obj.select_sex == '0':
+                res += '未知性别'
+
+            if len(obj.select_followtime):
+                res += "{}-{}".format(ut.timestamp_to_string(obj.select_followtime.split('-')[0]),ut.timestamp_to_string(obj.select_followtime.split('-')[1]))
+
+            if len(obj.select_province) and len(obj.select_city):
+                res += "{}-{}".format(obj.select_province,obj.select_city)
+
+            for j,item in enumerate(AccTag.objects.filter(id__in=json.loads(obj.select_tags))):
+                if j>0:
+                    res += ","
+                res += "item.name"
+
+        return res
+
+
+class AccMsgMassModelSerializer(serializers.ModelSerializer):
+
+    lists=serializers.SerializerMethodField()
+
+    def get_lists(self,obj):
+
+        aqlObj = AccQrcodeList.objects.get(id=json.loads(obj.listids[0]))
+        if obj.msg_type != '1':
+            return  AccQrcodeListModelSerializer1(aqlObj, many=False).data
+        else:
+            return WechatMaterial(accid=obj.accid).get_forever(
+                media_id=aqlObj.media
+            )
+
+    class Meta:
+        model = AccMsgMass
         fields = '__all__'

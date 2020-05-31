@@ -275,6 +275,8 @@ class AccQrcodeList(models.Model):
     iamgetextids = models.CharField(max_length=1024,default="[]",verbose_name="图文列表ID")
 
     media_id = models.CharField(max_length=60,verbose_name="媒体ID/图文推送内容ID",default="")
+    title = models.CharField(max_length=60,verbose_name="视频标题",default="")
+    description = models.CharField(max_length=255, verbose_name="视频描述", default="")
     url = models.CharField(max_length=255,verbose_name="链接",default="")
     content = models.TextField(verbose_name="文字内容",default="")
 
@@ -406,3 +408,49 @@ class AccMsgMould(models.Model):
         verbose_name = '模板消息表'
         verbose_name_plural = verbose_name
         db_table = 'accmsgmould'
+
+
+class AccMsgMass(models.Model):
+    """
+    群发消息
+    """
+
+    id = models.BigAutoField(primary_key=True)
+    accid = models.BigIntegerField(verbose_name="公众号ID")
+    sendtime = models.BigIntegerField(default=0, verbose_name="发送时间")
+    send_count = models.IntegerField(verbose_name="发送人数", default=0)
+    status = models.CharField(max_length=1,verbose_name="""
+                                            发送状态
+                                                '0'-已发送,
+                                                '1'-未发送,
+                                                '2'-发送中,
+                                                '3'-发送终止,
+                                                '4'-发送失败
+                                            """,default='1')
+
+    type = models.CharField(max_length=1,verbose_name="群发粉丝 '0'-按条件筛选,'1'-全部粉丝")
+    select_sex = models.CharField(max_length=1, verbose_name="条件筛选->性别,值为1时是男性，值为2时是女性，值为0时是未知")
+    select_followtime = models.CharField(max_length=60, verbose_name="条件筛选->关注时间", default="")
+    select_province = models.CharField(max_length=60, verbose_name="条件筛选->省份", default="")
+    select_city = models.CharField(max_length=60, verbose_name="条件筛选->城市", default="")
+    select_tags = models.CharField(max_length=1024, verbose_name="条件筛选->标签集合", default="[]")
+    power = models.CharField(max_length=1,verbose_name="微信后台权限 0-出现在微信后台已群发消息,1-不出现在微信后台已群发消息",default='1')
+    repeat_send = models.CharField(max_length=1,verbose_name="转发继续发送 0-是,1-否",default='0')
+    mobile = models.CharField(max_length=20,verbose_name="手机号",default="")
+    listids = models.CharField(max_length=1024,verbose_name="IDs")
+
+    msgtype =models.CharField(max_length=1,verbose_name="类型,1-图文,2-图片,3-文字,4-音频,5-视频")
+
+    createtime = models.BigIntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+
+        if not self.createtime:
+            ut = UtilTime()
+            self.createtime = ut.timestamp
+        return super(AccMsgMass, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = '群发消息'
+        verbose_name_plural = verbose_name
+        db_table = 'accmsgmass'
