@@ -207,14 +207,14 @@ class AccQrcodeListModelSerializer(serializers.ModelSerializer):
 
 class AccQrcodeImageTextListModelSerializer(serializers.ModelSerializer):
 
-    local_url = serializers.SerializerMethodField()
-
-    def get_local_url(self,obj):
-
-        if obj.media_id:
-            return "{}{}".format(ServerUrl,Meterial.objects.get(media_id=obj.media_id).local_url)
-        else:
-            return ""
+    # local_url = serializers.SerializerMethodField()
+    #
+    # def get_local_url(self,obj):
+    #
+    #     if obj.media_id:
+    #         return "{}{}".format(ServerUrl,Meterial.objects.get(media_id=obj.media_id).local_url)
+    #     else:
+    #         return ""
 
     class Meta:
         model = AccQrcodeImageTextList
