@@ -59,6 +59,7 @@ def customMsgListAdd(obj,lists,isHaveNewsList=True):
             type=item.get("type"),
             qrid=obj.id,
             media_id=item.get("media_id", ""),
+            url1= item.get("url1",""),
             url = item.get("url",""),
             content=item.get("content", ""),
             sort=c + 1
@@ -101,6 +102,7 @@ def customMsgListUpd(obj,lists,isHaveNewsList=True):
             aqlObj.qrid = obj.id
             aqlObj.media_id = item.get("media_id", "")
             aqlObj.url = item.get("url", "")
+            aqlObj.url1 = item.get("url1", "")
             aqlObj.content = item.get("content", "")
             aqlObj.sort = c + 1
         else:
@@ -109,6 +111,7 @@ def customMsgListUpd(obj,lists,isHaveNewsList=True):
                 qrid=obj.id,
                 media_id=item.get("media_id", ""),
                 url=item.get("url", ""),
+                url1=item.get("url1", ""),
                 content=item.get("content", ""),
                 sort=c + 1
             ))
