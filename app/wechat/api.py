@@ -637,11 +637,18 @@ class WeChatAPIView(viewsets.ViewSet):
     @Core_connector(isTransaction=True)
     def AcReply_upd(self,request):
 
+        trigger = request.data_format.get("trigger",[])
+        if not trigger or not len(trigger):
+            raise PubErrorCustom("trigger is void!")
+
+        t = ""
+        for item in trigger:
+            t+=str(item)
         try:
             obj = AccReply.objects.get(accid=request.data_format.get("accid"))
             obj.accid = request.data_format.get('accid')
             obj.nosend_limit = request.data_format.get("nosend_limit")
-            obj.trigger = request.data_format.get("trigger")
+            obj.trigger = t
             obj.quiet = request.data_format.get("quiet")
             obj.send_place = request.data_format.get("send_place")
             obj.send_type = request.data_format.get('send_type')
@@ -651,7 +658,7 @@ class WeChatAPIView(viewsets.ViewSet):
             obj = AccReply.objects.create(**dict(
                 accid=request.data_format.get('accid'),
                 nosend_limit=request.data_format.get("nosend_limit"),
-                trigger=request.data_format.get("trigger"),
+                trigger=t,
                 quiet=request.data_format.get("quiet"),
                 send_place=request.data_format.get("send_place"),
                 send_type=request.data_format.get('send_type'),
