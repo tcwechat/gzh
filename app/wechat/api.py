@@ -649,7 +649,7 @@ class WeChatAPIView(viewsets.ViewSet):
             obj.accid = request.data_format.get('accid')
             obj.nosend_limit = request.data_format.get("nosend_limit")
             obj.trigger = t
-            obj.quiet = request.data_format.get("quiet")
+            obj.quiet = "{}-{}".format(request.data_format.get("quiet")[0],request.data_format.get("quiet")[1])
             obj.send_place = request.data_format.get("send_place")
             obj.send_type = request.data_format.get('send_type')
             obj.send_limit = request.data_format.get('send_limit')
@@ -659,7 +659,7 @@ class WeChatAPIView(viewsets.ViewSet):
                 accid=request.data_format.get('accid'),
                 nosend_limit=request.data_format.get("nosend_limit"),
                 trigger=t,
-                quiet=request.data_format.get("quiet"),
+                quiet="{}-{}".format(request.data_format.get("quiet")[0],request.data_format.get("quiet")[1]),
                 send_place=request.data_format.get("send_place"),
                 send_type=request.data_format.get('send_type'),
                 send_limit=request.data_format.get('send_limit'),

@@ -121,6 +121,11 @@ class AccReplyModelSerializer(serializers.ModelSerializer):
     lists = serializers.SerializerMethodField()
     acc = serializers.SerializerMethodField()
     trigger = serializers.SerializerMethodField()
+    quiet = serializers.SerializerMethodField()
+
+    def get_quiet(self,obj):
+
+        return obj.quiet.split('-')
 
     def get_trigger(self,obj):
 
