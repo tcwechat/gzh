@@ -635,7 +635,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
     @list_route(methods=['PUT'])
     @Core_connector(isTransaction=True)
-    def AcReply_upd(self,request):
+    def AccReply_upd(self,request):
 
         trigger = request.data_format.get("trigger",[])
         if not trigger or not len(trigger):
