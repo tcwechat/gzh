@@ -120,6 +120,11 @@ class AccReplyModelSerializer(serializers.ModelSerializer):
 
     lists = serializers.SerializerMethodField()
     acc = serializers.SerializerMethodField()
+    trigger = serializers.SerializerMethodField()
+
+    def get_trigger(self,obj):
+
+        return [obj.trigger[0],obj.trigger[1],obj.trigger[2]]
 
     def get_acc(self,obj):
         try:
