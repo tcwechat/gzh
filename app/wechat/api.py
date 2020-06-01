@@ -686,12 +686,12 @@ class WeChatAPIView(viewsets.ViewSet):
         return None
 
     @list_route(methods=['GET'])
-    @Core_connector(isPagination=True)
+    @Core_connector()
     def AccReply_get(self, request, *args, **kwargs):
 
         try:
             query = AccReply.objects.get(accid=request.query_params_format.get("accid",0))
-            return {"data":AccReplyModelSerializer(query[request.page_start:request.page_end],many=False).data}
+            return {"data":AccReplyModelSerializer(query,many=False).data}
         except AccReply.DoesNotExist:
             return None
 
