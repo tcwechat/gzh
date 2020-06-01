@@ -586,13 +586,17 @@ class WeChatAPIView(viewsets.ViewSet):
 
         try:
             obj = AccFollow.objects.get(accid=request.data_format.get("accid"))
+            obj.accid = request.data_format.get('accid')
+            obj.send_type = request.data_format.get('send_type')
+            obj.send_limit = request.data_format.get('send_limit')
+            obj.listids = []
         except AccFollow.DoesNotExist:
-            raise PubErrorCustom("无此信息!")
-
-        obj.accid = request.data_format.get('accid')
-        obj.send_type = request.data_format.get('send_type')
-        obj.send_limit = request.data_format.get('send_limit')
-        obj.listids = []
+            obj = AccFollow.objects.create(**dict(
+                accid=request.data_format.get('accid'),
+                send_type=request.data_format.get('send_type'),
+                send_limit=request.data_format.get('send_limit'),
+            ))
+            obj.listids = []
 
         customMsgListUpd(obj,request.data_format.get('lists'))
 
