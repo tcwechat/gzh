@@ -561,25 +561,6 @@ class WeChatAPIView(viewsets.ViewSet):
 
         return None
 
-    @list_route(methods=['POST'])
-    @Core_connector(isTransaction=True)
-    def AccFollow_add(self,request,*args,**kwargs):
-
-        obj = AccFollow.objects.create(**dict(
-            accid=request.data_format.get('accid'),
-            send_type=request.data_format.get('send_type'),
-            send_limit=request.data_format.get('send_limit'),
-        ))
-        obj.listids = json.loads(obj.listids)
-
-        customMsgListAdd(obj,request.data_format.get('lists'))
-
-        obj.listids = json.dumps(obj.listids)
-
-        obj.save()
-
-        return None
-
     @list_route(methods=['PUT'])
     @Core_connector(isTransaction=True)
     def AccFollow_upd(self,request):
@@ -652,46 +633,31 @@ class WeChatAPIView(viewsets.ViewSet):
         )
         return None
 
-    @list_route(methods=['POST'])
-    @Core_connector(isTransaction=True)
-    def AccReply_add(self, request, *args, **kwargs):
-
-        obj = AccReply.objects.create(**dict(
-            accid=request.data_format.get('accid'),
-            nosend_limit=request.data_format.get("nosend_limit"),
-            trigger=request.data_format.get("trigger"),
-            quiet=request.data_format.get("quiet"),
-            send_place=request.data_format.get("send_place"),
-            send_type=request.data_format.get('send_type'),
-            send_limit=request.data_format.get('send_limit'),
-        ))
-        obj.listids = json.loads(obj.listids)
-
-        customMsgListAdd(obj, request.data_format.get('lists'))
-
-        obj.listids = json.dumps(obj.listids)
-
-        obj.save()
-
-        return None
-
     @list_route(methods=['PUT'])
     @Core_connector(isTransaction=True)
     def AcReply_upd(self,request):
 
         try:
             obj = AccReply.objects.get(accid=request.data_format.get("accid"))
+            obj.accid = request.data_format.get('accid')
+            obj.nosend_limit = request.data_format.get("nosend_limit")
+            obj.trigger = request.data_format.get("trigger")
+            obj.quiet = request.data_format.get("quiet")
+            obj.send_place = request.data_format.get("send_place")
+            obj.send_type = request.data_format.get('send_type')
+            obj.send_limit = request.data_format.get('send_limit')
+            obj.listids = []
         except AccReply.DoesNotExist:
-            raise PubErrorCustom("无此信息!")
-
-        obj.accid = request.data_format.get('accid')
-        obj.nosend_limit = request.data_format.get("nosend_limit")
-        obj.trigger = request.data_format.get("trigger")
-        obj.quiet = request.data_format.get("quiet")
-        obj.send_place = request.data_format.get("send_place")
-        obj.send_type = request.data_format.get('send_type')
-        obj.send_limit = request.data_format.get('send_limit')
-        obj.listids = []
+            obj = AccReply.objects.create(**dict(
+                accid=request.data_format.get('accid'),
+                nosend_limit=request.data_format.get("nosend_limit"),
+                trigger=request.data_format.get("trigger"),
+                quiet=request.data_format.get("quiet"),
+                send_place=request.data_format.get("send_place"),
+                send_type=request.data_format.get('send_type'),
+                send_limit=request.data_format.get('send_limit'),
+            ))
+            obj.listids = []
 
         customMsgListUpd(obj,request.data_format.get('lists'))
 
