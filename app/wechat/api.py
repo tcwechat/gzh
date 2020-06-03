@@ -711,13 +711,17 @@ class WeChatAPIView(viewsets.ViewSet):
             raise PubErrorCustom("已互动,不推送消息!{}".format(obj))
 
         ut = UtilTime()
-        today = ut.string_to_timestamp(ut.arrow_to_string(format_v="YYYY-MM-DD"),format_v="YYYY-MM-DD")
+
+        start = ut.string_to_timestamp(ut.arrow_to_string(format_v="YYYY-MM-DD")+' 00:00:01')
+        end = ut.string_to_timestamp(ut.arrow_to_string(format_v="YYYY-MM-DD") + ' 23:59:59')
+        # today = ut.string_to_timestamp(ut.arrow_to_string(format_v="YYYY-MM-DD"),format_v="YYYY-MM-DD")
 
         ok_count = AccSend.objects.filter(
-                createtime__gte=today,
-                createtime__lte=today,
+                createtime__gte=start,
+                createtime__lte=end,
                 send_type='2',accid=alObj.accid,openid=alObj.openid).count()
-        logger.info(today)
+        logger.info(start)
+        logger.info(end)
         logger.info(ok_count)
         logger.info(obj['send_place'])
         if ok_count >= obj['send_place']:
