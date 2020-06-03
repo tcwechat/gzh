@@ -87,7 +87,7 @@ class WeChatAccEvent(WechatBase):
 
         return userinfo
 
-    def Reply(self,**kwargs):
+    def ReplyCustom(self,**kwargs):
         """
         type
             0-关注公众号
@@ -194,6 +194,8 @@ class WeChatAccEvent(WechatBase):
 
                     userinfo = self.linkUser()
 
+                    self.ReplyCustom(type='0',userinfo=userinfo)
+
                     return self.msgHandler(
                         send_type=send_type,
                         obj=AccFollowModelSerializer1(obj,many=False).data,
@@ -205,6 +207,7 @@ class WeChatAccEvent(WechatBase):
                     )
             elif self.xml_data['Event'] == 'CLICK':
                 userinfo = self.linkUser()
+                self.ReplyCustom(type='2', userinfo=userinfo)
             elif self.xml_data['Event'] == 'VIEW':
                 userinfo = self.linkUser()
             else:
@@ -212,18 +215,25 @@ class WeChatAccEvent(WechatBase):
                 return "success"
         elif self.xml_data['MsgType'] == 'text':
             userinfo = self.linkUser()
+            self.ReplyCustom(type='1', userinfo=userinfo)
         elif self.xml_data['MsgType'] == 'image':
             userinfo = self.linkUser()
+            self.ReplyCustom(type='1', userinfo=userinfo)
         elif self.xml_data['MsgType'] == 'voice':
             userinfo = self.linkUser()
+            self.ReplyCustom(type='1', userinfo=userinfo)
         elif self.xml_data['MsgType'] == 'video':
             userinfo = self.linkUser()
+            self.ReplyCustom(type='1', userinfo=userinfo)
         elif self.xml_data['MsgType'] == 'shortvideo':
             userinfo = self.linkUser()
+            self.ReplyCustom(type='1', userinfo=userinfo)
         elif self.xml_data['MsgType'] == 'location':
             userinfo = self.linkUser()
+            self.ReplyCustom(type='1', userinfo=userinfo)
         elif self.xml_data['MsgType'] == 'link':
             userinfo = self.linkUser()
+            self.ReplyCustom(type='1', userinfo=userinfo)
         else:
             logger.error("消息类型错误!{}".format(self.xml_data['MsgType']))
             return "success"
