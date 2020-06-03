@@ -753,7 +753,7 @@ class WeChatAPIView(viewsets.ViewSet):
             query_params.append(request.query_params_format.get("end"))
 
         query = AccSend.objects.raw("""
-            SELECT t1.date,t2.nick_name,count(*) as send_count,count(distinct(t1.openid)) as reply_count FROM accsend as t1 
+            SELECT '1' as id,t1.date,t2.nick_name,count(*) as send_count,count(distinct(t1.openid)) as reply_count FROM accsend as t1 
                 INNER JOIN acc as t2 ON t1.accid=t2.accid and t1.send_type='2'
                 WHERE 1=1 %s GROUP BY t1.date,t2.nick_name ORDER BY t1.date DESC
         """% (query_format), query_params)
