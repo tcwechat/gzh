@@ -712,10 +712,14 @@ class WeChatAPIView(viewsets.ViewSet):
 
         ut = UtilTime()
         today = ut.string_to_timestamp(ut.arrow_to_string(format_v="YYYY-MM-DD"),format_v="YYYY-MM-DD")
+
         ok_count = AccSend.objects.filter(
                 createtime__gte=today,
                 createtime__lte=today,
                 send_type='2',accid=alObj.accid,openid=alObj.openid).count()
+        logger.info(today)
+        logger.info(ok_count)
+        logger.info(obj['send_place'])
         if ok_count >= obj['send_place']:
             raise PubErrorCustom("推送条数超限!{}".format(obj))
 
