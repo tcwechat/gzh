@@ -8,7 +8,7 @@ class Reply(TaskBase):
 
         self.request_handler(
             method='POST',
-            url="{}/v1/taskapi/task/follow".format(self.url),
+            url="{}/v1/taskapi/task/Reply".format(self.url),
             json={
                 "data":{
                     "obj":obj,
