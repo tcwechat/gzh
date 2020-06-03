@@ -21,7 +21,7 @@ class WeChatAccEvent(WechatBase):
         # if not authorizer_appid:
         #     raise PubErrorCustom("authorizer_appid void!")
 
-        super().__init__(isAccessToken=True,authorizer_appid=authorizer_appid)
+        super().__init__(isAccessToken=True,authorizer_appid=authorizer_appid,accid=kwargs.get("accid",None))
 
         if kwargs.get("isDecryptMsg",None):
             res = self.DecryptMsg(
