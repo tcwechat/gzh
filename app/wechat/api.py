@@ -707,7 +707,7 @@ class WeChatAPIView(viewsets.ViewSet):
         except AccLinkUser.DoesNotExist:
             raise PubErrorCustom("无此用户!{}".format(obj))
 
-        if alObj.last_active_time > obj['createtime']:
+        if alObj.last_active_time > request.data_format.get("createtime",0):
             raise PubErrorCustom("已互动,不推送消息!{}".format(obj))
 
         ut = UtilTime()
