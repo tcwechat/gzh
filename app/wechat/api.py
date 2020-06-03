@@ -711,7 +711,7 @@ class WeChatAPIView(viewsets.ViewSet):
             raise PubErrorCustom("已互动,不推送消息!{}".format(obj))
 
         ut = UtilTime()
-        today = ut.arrow_to_string(format_v="YYYY-MM-DD")
+        today = ut.string_to_timestamp(ut.arrow_to_string(format_v="YYYY-MM-DD"),format_v="YYYY-MM-DD")
         ok_count = AccSend.objects.filter(
                 createtime__gte=today,
                 createtime__lte=today,
