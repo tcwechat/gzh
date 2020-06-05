@@ -39,7 +39,7 @@ from lib.utils.log import logger
 from app.wechat.serialiers import AccSerializer,AccTagModelSerializer,AccQrcodeModelSerializer,AccLinkUserSerializer,\
     AccFollowModelSerializer,AccReplyModelSerializer,AccSendSerializer1,AccMsgCustomerModelSerializer,AccFollowSerializer,\
         AccReplySerializer,AccMsgMouldSerializer,AccMsgMouldModelSerializer,AccMsgMassSerializer,AccQrcodeListModelSerializer1,\
-            AccMsgMassModelSerializer
+            AccMsgMassModelSerializer,AccMsgCustomerModelSerializer1,AccMsgMouldModelSerializer1,AccMsgMassModelSerializer1
 
 class WeChatAPIView(viewsets.ViewSet):
 
@@ -813,7 +813,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
         obj.save()
 
-        MsgCustomer().sendtask_add(obj.id)
+        MsgCustomer().sendtask_add(obj=AccMsgCustomerModelSerializer1(obj,many=False).data)
 
         return None
 
@@ -849,7 +849,7 @@ class WeChatAPIView(viewsets.ViewSet):
         obj.listids = json.dumps(obj.listids)
         obj.save()
 
-        MsgCustomer().sendtask_upd(obj.id)
+        MsgCustomer().sendtask_upd(obj=AccMsgCustomerModelSerializer1(obj,many=False).data)
 
         return None
 
@@ -1027,7 +1027,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
         obj.save()
 
-        MsgMould().sendtask_upd(obj.id)
+        MsgMould().sendtask_upd(obj=AccMsgMouldModelSerializer1(obj,many=False).data)
 
         return None
 
@@ -1066,7 +1066,7 @@ class WeChatAPIView(viewsets.ViewSet):
             select_tags=request.data_format.get("select_tags", ""),
         ))
 
-        MsgMould().sendtask_add(obj.id)
+        MsgMould().sendtask_add(obj=AccMsgMouldModelSerializer1(obj,many=False).data)
 
         return None
 
@@ -1194,7 +1194,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
         obj.save()
 
-        MsgMass().sendtask_add(obj.id)
+        MsgMass().sendtask_add(obj=AccMsgMassModelSerializer1(obj,many=False).data)
 
         return None
 
@@ -1225,7 +1225,7 @@ class WeChatAPIView(viewsets.ViewSet):
         obj.listids = json.dumps(obj.listids)
         obj.save()
 
-        MsgMass().sendtask_upd(obj.id)
+        MsgMass().sendtask_upd(obj=AccMsgMassModelSerializer1(obj,many=False).data)
 
         return None
 

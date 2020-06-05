@@ -251,6 +251,11 @@ class AccMsgCustomerLinkAccModelSerializer(serializers.ModelSerializer):
         model = AccMsgCustomerLinkAcc
         fields = '__all__'
 
+class AccMsgCustomerModelSerializer1(serializers.ModelSerializer):
+    class Meta:
+        model = AccMsgCustomer
+        fields = '__all__'
+
 class AccMsgCustomerModelSerializer(serializers.ModelSerializer):
 
     acclinkobj = serializers.SerializerMethodField()
@@ -352,6 +357,11 @@ class AccMsgMouldSerializer(serializers.Serializer):
 
         return res
 
+class AccMsgMouldModelSerializer1(serializers.ModelSerializer):
+
+    class Meta:
+        model = AccMsgMould
+        fields = '__all__'
 
 class AccMsgMouldModelSerializer(serializers.ModelSerializer):
 
@@ -411,6 +421,11 @@ class AccMsgMassSerializer(serializers.Serializer):
 
         return res
 
+class AccMsgMassModelSerializer1(serializers.ModelSerializer):
+
+    class Meta:
+        model = AccMsgMass
+        fields = '__all__'
 
 class AccMsgMassModelSerializer(serializers.ModelSerializer):
 

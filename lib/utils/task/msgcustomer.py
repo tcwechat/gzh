@@ -4,26 +4,26 @@ from lib.utils.task.base import TaskBase
 
 class MsgCustomer(TaskBase):
 
-    def sendtask_add(self,id):
+    def sendtask_add(self,obj):
 
         self.request_handler(
             method='POST',
             url="{}/v1/taskapi/task/msgcustomer".format(self.url),
             json={
                 "data":{
-                    "id":id,
+                    "obj":obj,
                 }
             }
         )
 
-    def sendtask_upd(self,id):
+    def sendtask_upd(self,obj):
 
         self.request_handler(
             method='PUT',
             url="{}/v1/taskapi/task/msgcustomer".format(self.url),
             json={
                 "data":{
-                    "id":id,
+                    "obj":obj,
                 }
             }
         )
