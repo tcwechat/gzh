@@ -8,7 +8,7 @@ from app.public.models import Meterial
 from project.config_include.common import ServerUrl
 from app.public.serialiers import MeterialSerializer
 from lib.utils.wechat.material import WechatMaterial
-
+from lib.utils.log import logger
 
 class AccSerializer1(serializers.Serializer):
     accid = serializers.IntegerField()
@@ -280,8 +280,12 @@ class AccMsgCustomerModelSerializer(serializers.ModelSerializer):
 
     def get_accids_format(self,obj):
         accids = json.loads(obj.accids)
-        nickname = Acc.objects.get(accid=accids[0]).nick_name
-        return "{}等{}个号".format(nickname,len(accids)) if len(accids)>1 else nickname
+        logger.info(accids)
+        try:
+            nickname = Acc.objects.get(accid=accids[0]).nick_name
+            return "{}等{}个号".format(nickname,len(accids)) if len(accids)>1 else nickname
+        except Acc.DoesNotExist:
+            return ""
 
     def get_sendobjects_format(self,obj):
         ut = UtilTime()
@@ -332,7 +336,7 @@ class AccMsgMouldSerializer(serializers.Serializer):
     def get_acc(self,obj):
         try:
             return AccSerializer1(Acc.objects.get(accid=obj.accid), many=False).data
-        except AccQrcode.DoesNotExist:
+        except Acc.DoesNotExist:
             return {}
 
     def get_sendtime_format(self,obj):
