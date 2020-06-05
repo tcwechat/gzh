@@ -314,7 +314,7 @@ class AccMsgCustomerModelSerializer(serializers.ModelSerializer):
             for j,item in enumerate(AccTag.objects.filter(id__in=json.loads(obj.select_tags))):
                 if j>0:
                     res += ","
-                res += "item.name"
+                res += item.name
 
         return res
 
@@ -362,7 +362,7 @@ class AccMsgMouldSerializer(serializers.Serializer):
             for j,item in enumerate(AccTag.objects.filter(id__in=json.loads(obj.select_tags))):
                 if j>0:
                     res += ","
-                res += "item.name"
+                res += item.name
 
         return res
 
@@ -426,7 +426,7 @@ class AccMsgMassSerializer(serializers.Serializer):
             for j,item in enumerate(AccTag.objects.filter(id__in=json.loads(obj.select_tags))):
                 if j>0:
                     res += ","
-                res += "item.name"
+                res += item.name
 
         return res
 
