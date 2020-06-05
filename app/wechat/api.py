@@ -900,8 +900,8 @@ class WeChatAPIView(viewsets.ViewSet):
             query_format=str()
             query_params=list()
 
-            query_format = query_format + " and t1.accid =%d"
-            query_params.append(amclaItem.accid)
+            query_format = query_format + " and t1.accid =%s"
+            query_params.append(str(amclaItem.accid))
 
             if obj.type != '1':
                 if obj.select_sex in ['0','1','2']:
