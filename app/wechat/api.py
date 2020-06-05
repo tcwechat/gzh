@@ -935,14 +935,12 @@ class WeChatAPIView(viewsets.ViewSet):
                     query_format = query_format + " )"
 
 
-            print(query_params)
-            print(query_format)
             res = AccLinkUser.objects.raw("""
                 SELECT t1.* FROM acclinkuser as t1
                 WHERE t1.umark='0' %s
             """% (query_format), query_params)
 
-            print(res)
+            logger.info(res)
             amclaItem.send_count1 = len(list(res))
             obj.send_count1 += amclaItem.send_count1
 
