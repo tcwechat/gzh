@@ -270,7 +270,7 @@ class AccMsgCustomerModelSerializer(serializers.ModelSerializer):
 
     def get_acclinkobj(self,obj):
 
-        return AccMsgCustomerLinkAccModelSerializer(AccMsgCustomerLinkAcc(msgid=obj.id),many=True).data
+        return AccMsgCustomerLinkAccModelSerializer(AccMsgCustomerLinkAcc(msgid=obj.id),many=False).data
 
     def get_createtime_format(self,obj):
         return UtilTime().timestamp_to_string(obj.createtime)
