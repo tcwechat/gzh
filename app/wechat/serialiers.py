@@ -241,11 +241,16 @@ class AccMsgCustomerLinkAccModelSerializer(serializers.ModelSerializer):
     acc = serializers.SerializerMethodField()
 
     def get_acc(self,obj):
-        r = Acc.objects.get(accid=obj.accid)
-        return {
-            "nick_name":r.nick_name,
-            "head_img":r.head_img
-        }
+
+        logger.info(obj.accid)
+        try:
+            r = Acc.objects.get(accid=obj.accid)
+            return {
+                "nick_name":r.nick_name,
+                "head_img":r.head_img
+            }
+        except Acc.DoesNotExist:
+            return {}
 
     class Meta:
         model = AccMsgCustomerLinkAcc
