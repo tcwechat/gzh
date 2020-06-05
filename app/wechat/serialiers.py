@@ -274,9 +274,8 @@ class AccMsgCustomerModelSerializer(serializers.ModelSerializer):
         return AccQrcodeListModelSerializer(AccQrcodeList.objects.filter(id__in=json.loads(obj.listids)).order_by('sort'),many=True).data
 
     def get_acclinkobj(self,obj):
-        logger.info("ididididi")
-        logger.info(obj.id)
-        return AccMsgCustomerLinkAccModelSerializer(AccMsgCustomerLinkAcc(msgid=obj.id),many=False).data
+
+        return AccMsgCustomerLinkAccModelSerializer(AccMsgCustomerLinkAcc.objects.get(msgid=obj.id),many=False).data
 
     def get_createtime_format(self,obj):
         return UtilTime().timestamp_to_string(obj.createtime)
