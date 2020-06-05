@@ -937,6 +937,9 @@ class WeChatAPIView(viewsets.ViewSet):
 
                     query_format = query_format + " )"
 
+
+            logger.info(query_params)
+            logger.info(query_format)
             res = AccLinkUser.objects.raw("""
                 SELECT t1.* FROM acclinkuser as t1
                 WHERE t1.umark='0' %s
