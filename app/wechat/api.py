@@ -797,7 +797,7 @@ class WeChatAPIView(viewsets.ViewSet):
             select_followtime=request.data_format.get("select_followtime",""),
             select_province=request.data_format.get("select_province", ""),
             select_city=request.data_format.get("select_city", ""),
-            select_tags=json.dumps(request.data_format.get("select_tags", [])),
+            select_tags=json.dumps(request.data_format.get("select_tags", [])).replace(' ',''),
         ))
         for item in request.data_format.get("accids"):
             AccMsgCustomerLinkAcc.objects.create(**dict(
@@ -836,7 +836,7 @@ class WeChatAPIView(viewsets.ViewSet):
         obj.select_followtime = request.data_format.get("select_followtime", "")
         obj.select_province = request.data_format.get("select_province", "")
         obj.select_city = request.data_format.get("select_city", "")
-        obj.select_tags = json.dumps(request.data_format.get("select_tags", []))
+        obj.select_tags = json.dumps(request.data_format.get("select_tags", [])).replace(' ','')
 
         for item in request.data_format.get("accids"):
             AccMsgCustomerLinkAcc.objects.create(**dict(
@@ -927,24 +927,22 @@ class WeChatAPIView(viewsets.ViewSet):
                         if j>0:
                             query_format = query_format + " or "
 
-                        query_format = query_format + " (t1.tags like %s,%s%s or t1.tags like %s%s,%s)"
-                        query_params.append('%')
-                        query_params.append(item)
-                        query_params.append('%')
-                        query_params.append('%')
-                        query_params.append(item)
-                        query_params.append('%')
+                        query_format = query_format + " (t1.tags like %s or t1.tags like %s)"
+                        query_params.append("%,{}%".format(item))
+                        query_params.append("%{},%".format(item))
+
 
                     query_format = query_format + " )"
 
 
-            logger.info(query_params)
-            logger.info(query_format)
+            print(query_params)
+            print(query_format)
             res = AccLinkUser.objects.raw("""
                 SELECT t1.* FROM acclinkuser as t1
                 WHERE t1.umark='0' %s
             """% (query_format), query_params)
 
+            print(res)
             amclaItem.send_count1 = len(list(res))
             obj.send_count1 += amclaItem.send_count1
 
@@ -1127,13 +1125,9 @@ class WeChatAPIView(viewsets.ViewSet):
                     if j>0:
                         query_format = query_format + " or "
 
-                    query_format = query_format + " (t1.tags like %s,%s%s or t1.tags like %s%s,%s)"
-                    query_params.append('%')
-                    query_params.append(item)
-                    query_params.append('%')
-                    query_params.append('%')
-                    query_params.append(item)
-                    query_params.append('%')
+                    query_format = query_format + " (t1.tags like %s or t1.tags like %s)"
+                    query_params.append("%,{}%".format(item))
+                    query_params.append("%{},%".format(item))
 
                 query_format = query_format + " )"
         elif obj.type == '2':
@@ -1328,13 +1322,9 @@ class WeChatAPIView(viewsets.ViewSet):
                     if j > 0:
                         query_format = query_format + " or "
 
-                    query_format = query_format + " (t1.tags like %s,%s%s or t1.tags like %s%s,%s)"
-                    query_params.append('%')
-                    query_params.append(item)
-                    query_params.append('%')
-                    query_params.append('%')
-                    query_params.append(item)
-                    query_params.append('%')
+                    query_format = query_format + " (t1.tags like %s or t1.tags like %s)"
+                    query_params.append("%,{}%".format(item))
+                    query_params.append("%{},%".format(item))
 
                 query_format = query_format + " )"
 
