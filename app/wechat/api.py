@@ -1237,7 +1237,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
         ut = UtilTime()
 
-        query = AccMsgCustomer.objects.filter()
+        query = AccMsgMass.objects.filter()
 
         date = request.query_params_format.get("date", None)
 
