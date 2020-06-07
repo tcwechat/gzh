@@ -871,7 +871,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
         query = AccMsgCustomer.objects.filter()
 
-        start = request.query_params_format.get("start",None)
+        start = request.query_params_format.get("star",None)
         end = request.query_params_format.get("end",ut.timestamp)
 
         status = request.query_params_format.get("status",None)
