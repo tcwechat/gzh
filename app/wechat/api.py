@@ -1269,7 +1269,7 @@ class WeChatAPIView(viewsets.ViewSet):
             return {"data":AccQrcodeListModelSerializer1(aqlObj,many=False).data}
         else:
             response = WechatMaterial(accid=obj.accid).get_forever(
-                media_id=aqlObj.media
+                media_id=aqlObj.media_id
             )
             return {"data":response}
 
