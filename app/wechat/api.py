@@ -1265,7 +1265,7 @@ class WeChatAPIView(viewsets.ViewSet):
             raise PubErrorCustom("无此信息!")
 
         aqlObj = AccQrcodeList.objects.get(id=json.loads(obj.listids)[0])
-        if obj.msg_type != '1':
+        if aqlObj.type != '1':
             return {"data":AccQrcodeListModelSerializer1(aqlObj,many=False).data}
         else:
             response = WechatMaterial(accid=obj.accid).get_forever(
