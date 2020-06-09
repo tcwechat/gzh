@@ -437,7 +437,7 @@ class AccMsgMass(models.Model):
     power = models.CharField(max_length=1,verbose_name="微信后台权限 0-出现在微信后台已群发消息,1-不出现在微信后台已群发消息",default='1')
     repeat_send = models.CharField(max_length=1,verbose_name="转发继续发送 0-是,1-否",default='0')
     mobile = models.CharField(max_length=20,verbose_name="手机号",default="")
-    listids = models.CharField(max_length=1024,verbose_name="IDs")
+    listids = models.CharField(max_length=1024,verbose_name="IDs",default='[]')
 
     msgtype =models.CharField(max_length=1,verbose_name="类型,1-图文,2-图片,3-文字,4-音频,5-视频")
 
