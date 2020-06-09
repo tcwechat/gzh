@@ -8,6 +8,7 @@ from lib.utils.exceptions import PubErrorCustom
 from project.settings import IMAGE_PATH,BASE_DIR
 from lib.utils.log import logger
 from lib.utils.wechat.material import WechatMaterial
+from app.wechat.models import AccMsgMass
 from app.public.models import Meterial
 from app.public.serialiers import MeterialSerializer
 

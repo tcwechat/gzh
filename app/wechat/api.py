@@ -1264,7 +1264,7 @@ class WeChatAPIView(viewsets.ViewSet):
         except AccMsgMass.DoesNotExist:
             raise PubErrorCustom("无此信息!")
 
-        aqlObj = AccQrcodeList.objects.get(id=json.loads(obj.listids[0]))
+        aqlObj = AccQrcodeList.objects.get(id=json.loads(obj.listids)[0])
         if obj.msg_type != '1':
             return {"data":AccQrcodeListModelSerializer1(aqlObj,many=False).data}
         else:
