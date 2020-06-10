@@ -1226,7 +1226,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
     @list_route(methods=['DELETE'])
     @Core_connector(isTransaction=True)
-    def AcMsgMass_del(self, request):
+    def AccMsgMass_del(self, request):
         AccMsgMass.objects.filter(id=request.data_format.get("id")).delete()
         MsgMass().sendtask_del(request.data_format.get("id"))
         return None
