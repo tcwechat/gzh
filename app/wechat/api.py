@@ -1035,7 +1035,7 @@ class WeChatAPIView(viewsets.ViewSet):
     def AccMsgMould_add(self, request, *args, **kwargs):
 
         skip_type = request.data_format.get("skip_type", None)
-
+        accid = request.data_format.get("accid", 0)
         if skip_type:
             if skip_type == '0':
                 mould_skip = "{}{}".format('0', request.data_format.get("skip_url", ""))
@@ -1045,12 +1045,12 @@ class WeChatAPIView(viewsets.ViewSet):
         else:
             mould_skip = ""
 
-        templateObj = MouldMsg(accid=obj.accid).get_list(template_id=request.data_format.get("mould_id", ""))
+        templateObj = MouldMsg(accid=accid).get_list(template_id=request.data_format.get("mould_id", ""))
         if not templateObj:
             raise PubErrorCustom("无此模板!")
 
         obj = AccMsgMould.objects.create(**dict(
-            accid=request.data_format.get("accid", 0),
+            accid=accid,
             name=request.data_format.get("name", ""),
             mould_id=request.data_format.get("mould_id", ""),
             mould_data=json.dumps({
