@@ -116,7 +116,7 @@ class WeChatAccEvent(WechatBase):
 
     def eventHandler(self):
 
-        print(self.xml_data)
+        logger.info(self.xml_data)
 
         if self.xml_data['MsgType'] == 'event':
             """
