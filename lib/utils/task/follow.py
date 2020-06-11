@@ -25,6 +25,7 @@ class Follow(TaskBase):
 
     def sendmsg(self,listid,nickname,openid,accid):
         from lib.utils.wechat.msg import WeChatAccEvent
+        logger.info("{},{},{},{}".format(listid,nickname,openid,accid))
         WeChatAccEvent(accid=accid).\
             msgHandler(
                 send_type='2',
