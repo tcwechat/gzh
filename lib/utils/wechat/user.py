@@ -38,7 +38,7 @@ class WeChatAccTag(WechatBase):
     def create(self,name):
 
         response = self.request_handler(
-            method="GET",
+            method="POST",
             url="https://api.weixin.qq.com/cgi-bin/tags/create?access_token={}".format(
                 self.auth_accesstoken
             ),
@@ -48,7 +48,7 @@ class WeChatAccTag(WechatBase):
     def update(self,id,name):
 
         self.request_handler(
-            method="GET",
+            method="POST",
             url="https://api.weixin.qq.com/cgi-bin/tags/update?access_token={}".format(
                 self.auth_accesstoken
             ),
@@ -57,7 +57,7 @@ class WeChatAccTag(WechatBase):
     def delete(self,id):
 
         self.request_handler(
-            method="GET",
+            method="POST",
             url="https://api.weixin.qq.com/cgi-bin/tags/delete?access_token={}".format(
                 self.auth_accesstoken
             ),
