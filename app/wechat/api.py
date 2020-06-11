@@ -305,7 +305,10 @@ class WeChatAPIView(viewsets.ViewSet):
         :param request:
         :return:
         """
-        query = AccLinkUser.objects.filter(accid=request.data_format.get("accid", None), umark='0')
+        accid = request.data_format.get("accid", None)
+        if not accid:
+            raise PubErrorCustom("公众号ID为空!")
+        query = AccLinkUser.objects.filter(accid=accid, umark='0')
 
         nickname = request.data_format.get("nickname", None)
         sex = request.data_format.get("sex", None)
