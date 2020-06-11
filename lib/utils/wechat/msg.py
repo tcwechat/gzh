@@ -122,7 +122,7 @@ class WeChatAccEvent(WechatBase):
             """
             扫描带参数二维码事件
             """
-            if (self.xml_data['Event'] == 'subscribe' and 'EventKey' in self.xml_data) or self.xml_data['Event'] == 'SCAN':
+            if (self.xml_data['Event'] == 'subscribe' and 'EventKey' in self.xml_data and self.xml_data.get("EventKey")) or self.xml_data['Event'] == 'SCAN':
 
                 if self.xml_data['Event'] == 'SCAN':
                     """
