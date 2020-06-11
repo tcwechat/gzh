@@ -168,6 +168,7 @@ class AccFollow(models.Model):
     关注回复
     """
 
+
     id = models.BigAutoField(primary_key=True)
     accid = models.BigIntegerField(verbose_name="公众号ID")
     send_type = models.CharField(max_length=1,verbose_name="推送方式:0-全部推送,1-按顺序推送,2-随机推送一条",default="0")
