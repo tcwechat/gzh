@@ -1149,7 +1149,7 @@ class WeChatAPIView(viewsets.ViewSet):
                 data = {
                     "touser": aluItem.openid,
                     "template_id": obj.mould_id,
-                    "data":
+                    "data":mould_data
                 }
                 if len(obj.mould_skip):
                     if obj.mould_skip[0] == '0':
