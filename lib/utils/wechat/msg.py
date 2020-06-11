@@ -298,7 +298,7 @@ class WeChatAccEvent(WechatBase):
         elif send_type == '2':
 
             if isSend:
-                item = AccQrcodeList.objects.filter(id=listids[0])
+                item = AccQrcodeList.objects.filter(id=listids[0])[0]
                 if item.type == '5':
                     wamClass.videoSend(item, user)
                 elif item.type == '2':
