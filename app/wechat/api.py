@@ -19,7 +19,7 @@ from lib.utils.wechat.user import WeChatAccTag,WechatAccUser
 from lib.utils.wechat.mouldmsg import MouldMsg
 from lib.utils.db import RedisTicketHandler
 
-from app.wechat.utils import tag_batchtagging,customMsgListAdd,customMsgListUpd
+from app.wechat.utils import tag_batchtagging,customMsgListAdd,customMsgListUpd,tag_canle
 
 from lib.utils.mytime import UtilTime
 
@@ -365,6 +365,23 @@ class WeChatAPIView(viewsets.ViewSet):
 
         tag_batchtagging(accid=request.data_format.get("accid", None),query=query,tagid=int(tagid))
 
+    @list_route(methods=['POST'])
+    @Core_connector(isTransaction=True)
+    def AccUser_tagCanle(self, request):
+        """
+        取消标签
+        :param request:
+        :return:
+        """
+        tagid = request.data_format.get("tagid", None)
+        openids = request.data_format.get("openids", [])
+
+        if not tagid:
+            raise PubErrorCustom("tagid is void!")
+
+        query = AccLinkUser.objects.filter(accid=request.data_format.get("accid", None), umark='0', openid__in=openids)
+
+        tag_canle(accid=request.data_format.get("accid", None), query=query, tagid=int(tagid))
 
     @list_route(methods=['POST'])
     @Core_connector(isTransaction=True)

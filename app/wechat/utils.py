@@ -52,6 +52,32 @@ def tag_batchtagging(query,tagid,accid):
     if len(openids):
         WeChatAccTag(accid=accid).batchtagging(openids, int(tagid))
 
+def tag_canle(query,tagid,accid):
+
+    openids = []
+    valid_count = 0
+    for item in query:
+        tags = json.loads(item.tags)
+
+        if tagid in tags:
+            tags.remove(tagid)
+            item.tags = json.dumps(tags).replace(" ", "")
+            item.save()
+            valid_count += 1
+        openids.append(item.openid)
+
+    if valid_count:
+        try:
+            atmObj = AccTag.objects.select_for_update().get(id=tagid)
+            atmObj.fans_count -= valid_count
+            atmObj.wechat_fans_count -= valid_count
+            atmObj.save()
+        except AccTag.DoesNotExist:
+            raise PubErrorCustom("无此标签!")
+
+    if len(openids):
+        WeChatAccTag(accid=accid).batchtagging_canle(openids, int(tagid))
+
 
 def customMsgListAdd(obj,lists,isHaveNewsList=True):
 
