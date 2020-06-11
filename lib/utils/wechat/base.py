@@ -79,7 +79,8 @@ class WechatBase(object):
 
         res = t.get()
         if not res:
-
+            if not hasattr(self,"accesstoken"):
+                self.accesstoken = self.getAccessToken()
             response = self.request_handler(method="POST", url="https://api.weixin.qq.com/cgi-bin/component/api_authorizer_token?component_access_token={}".format(self.accesstoken),
                                json={
                                    "component_appid": self.appid,
