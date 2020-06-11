@@ -32,6 +32,7 @@ def tag_batchtagging(query,tagid,accid):
     valid_count = 0
     for item in query:
         tags = json.loads(item.tags)
+
         if tagid not in tags:
             tags.append(tagid)
             item.tags = json.dumps(tags).replace(" ", "")

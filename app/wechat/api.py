@@ -352,7 +352,6 @@ class WeChatAPIView(viewsets.ViewSet):
         :param request:
         :return:
         """
-
         tagid = request.data_format.get("tagid", None)
         openids = request.data_format.get("openids", [])
 
@@ -363,10 +362,6 @@ class WeChatAPIView(viewsets.ViewSet):
 
         tag_batchtagging(accid=request.data_format.get("accid", None),query=query,tagid=int(tagid))
 
-    @list_route(methods=['POST'])
-    @Core_connector(isTransaction=True)
-    def AccUser_batchtagging1(self, request):
-        pass
 
     @list_route(methods=['POST'])
     @Core_connector(isTransaction=True)
