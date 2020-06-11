@@ -378,7 +378,7 @@ class AccMsgMouldModelSerializer(serializers.ModelSerializer):
 
     def get_mould_data(self,obj):
         r = json.loads(obj.mould_data)
-        return r['data'] if len(r) else {}
+        return r if len(r) else {}
 
     class Meta:
         model = AccMsgMould
