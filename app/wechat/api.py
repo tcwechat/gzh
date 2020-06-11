@@ -1140,10 +1140,16 @@ class WeChatAPIView(viewsets.ViewSet):
 
         for aluItem in res:
             try:
+                """
+                obj.content.replace("<粉丝昵称>",user['nickname'])
+                """
+                mould_data=json.loads(obj.mould_data['data'])
+                for key in mould_data:
+                    mould_data[key]['value'] = mould_data['key']['value'].replace("<粉丝昵称>",aluItem.nickname)
                 data = {
                     "touser": aluItem.openid,
                     "template_id": obj.mould_id,
-                    "data": json.loads(obj.mould_data['data'])
+                    "data":
                 }
                 if len(obj.mould_skip):
                     if obj.mould_skip[0] == '0':
