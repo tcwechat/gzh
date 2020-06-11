@@ -43,7 +43,7 @@ class WeChatAccTag(WechatBase):
                 self.auth_accesstoken
             ),
             json={"tag":{"name":name}})
-        return response['id']
+        return response['tag']['id']
 
     def update(self,id,name):
 
