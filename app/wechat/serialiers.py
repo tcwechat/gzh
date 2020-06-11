@@ -375,6 +375,20 @@ class AccMsgMouldModelSerializer1(serializers.ModelSerializer):
 class AccMsgMouldModelSerializer(serializers.ModelSerializer):
 
     mould_data = serializers.SerializerMethodField()
+    mould_skip = serializers.SerializerMethodField()
+
+    def get_mould_skip(self,obj):
+        d={}
+        if obj.mould_skip[0]:
+            if obj.mould_skip[0] == '0':
+                d['skip_type'] =obj.mould_skip[0]
+                d['skip_url'] = obj.mould_skip[1:]
+            else:
+                d['skip_type'] =obj.mould_skip[0]
+                d['skip_appid'] = obj.mould_skip[1:].split("||")[0]
+                d['skip_pagepath'] = obj.mould_skip[1:].split("||")[1]
+
+        return d
 
     def get_mould_data(self,obj):
         r = json.loads(obj.mould_data)
