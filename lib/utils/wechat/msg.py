@@ -448,6 +448,7 @@ class WechatAccMsg(WechatBase):
                 }
             }
         data=json.dumps(data, ensure_ascii=False).encode('utf-8')
+        logger.info("发送文本消息:{}".format(data))
         self.request_handler(
             method="POST",
             url=self.url,
