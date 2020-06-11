@@ -644,7 +644,7 @@ class WeChatAPIView(viewsets.ViewSet):
     @list_route(methods=['POST'])
     @Core_connector(isTransaction=True)
     def AccFollow_Send(self, request, *args, **kwargs):
-
+        logger.info(request.data_format)
         Follow().sendmsg(
             listid = request.data_format.get("listid",0),
             nickname = request.data_format.get("nickname",""),
