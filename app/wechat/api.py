@@ -1357,6 +1357,7 @@ class WeChatAPIView(viewsets.ViewSet):
             SELECT t1.* FROM acclinkuser as t1
             WHERE t1.umark='0' %s
         """% (query_format), query_params)
+        logger.info(res)
         openids = [ item.openid for item in res]
         obj.send_count = len(openids)
         MsgMass().send_msg(
