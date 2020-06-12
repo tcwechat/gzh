@@ -1349,7 +1349,7 @@ class WeChatAPIView(viewsets.ViewSet):
                     if j > 0:
                         query_format = query_format + " or "
 
-                    query_format = query_format + " (t1.tags='%s' or t1.tags like %s or t1.tags like %s)"
+                    query_format = query_format + " (t1.tags=%s or t1.tags like %s or t1.tags like %s)"
                     query_params.append("[{}]".format(item))
                     query_params.append("%,{}%".format(item))
                     query_params.append("%{},%".format(item))
