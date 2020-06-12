@@ -948,7 +948,7 @@ class WeChatAPIView(viewsets.ViewSet):
                         if j>0:
                             query_format = query_format + " or "
 
-                        query_format = query_format + " (t1.tags='%s' or t1.tags like '%s' or t1.tags like '%s')"
+                        query_format = query_format + " (t1.tags=%s or t1.tags like %s or t1.tags like %s)"
                         query_params.append("[{}]".format(item))
                         query_params.append("%,{}%".format(item))
                         query_params.append("%{},%".format(item))
@@ -1145,7 +1145,7 @@ class WeChatAPIView(viewsets.ViewSet):
                     if j>0:
                         query_format = query_format + " or "
 
-                    query_format = query_format + " (t1.tags='%s' or t1.tags like '%s' or t1.tags like '%s')"
+                    query_format = query_format + " (t1.tags=%s or t1.tags like %s or t1.tags like %s)"
                     query_params.append("[{}]".format(item))
                     query_params.append("%,{}%".format(item))
                     query_params.append("%{},%".format(item))
@@ -1363,12 +1363,13 @@ class WeChatAPIView(viewsets.ViewSet):
         logger.info(res)
         openids = [ item.openid for item in res]
         obj.send_count = len(openids)
+
         MsgMass().send_msg(
-            openids=openids,
-            accid=obj.accid,
             listids=obj.listids,
+            openids=openids,
             is_to_all=True if obj.power=='0' else False,
-            send_ignore_reprint= 1 if obj.repeat_send=='0' else 0 )
+            send_ignore_reprint= 1 if obj.repeat_send=='0' else 0,
+            accid = obj.accid)
 
         obj.status = '0'
         obj.save()

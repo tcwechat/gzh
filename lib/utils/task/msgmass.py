@@ -1,6 +1,7 @@
 
 
 from lib.utils.task.base import TaskBase
+from lib.utils.log import logger
 
 class MsgMass(TaskBase):
 
@@ -44,6 +45,7 @@ class MsgMass(TaskBase):
     def send_msg(self,listids,openids,is_to_all,send_ignore_reprint,accid):
 
         from lib.utils.wechat.msg import WechatAccMassMsg
+        logger.info("{}-{}-{}-{}-{}".format(listids,openids,is_to_all,send_ignore_reprint,accid))
         WechatAccMassMsg(accid=accid).\
             run(
                 listids=listids,
