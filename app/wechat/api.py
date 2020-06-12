@@ -266,7 +266,7 @@ class WeChatAPIView(viewsets.ViewSet):
         if city:
             query = query.filter(city=city)
         if tagid1:
-            query = query.filter(Q(tags__icontains=",{}".format(tagid1)) | Q(tags__icontains="{},".format(tagid1)))
+            query = query.filter(Q(tags__icontains=",{}".format(tagid1)) | Q(tags__icontains="{},".format(tagid1)) | Q(tags="{[]}".format(tagid1)))
 
         if subscribe_start:
             ut = UtilTime()
@@ -948,7 +948,8 @@ class WeChatAPIView(viewsets.ViewSet):
                         if j>0:
                             query_format = query_format + " or "
 
-                        query_format = query_format + " (t1.tags like %s or t1.tags like %s)"
+                        query_format = query_format + " (t1.tags='%s' or t1.tags like '%s' or t1.tags like '%s')"
+                        query_params.append("[{}]".format(item))
                         query_params.append("%,{}%".format(item))
                         query_params.append("%{},%".format(item))
 
@@ -1144,7 +1145,8 @@ class WeChatAPIView(viewsets.ViewSet):
                     if j>0:
                         query_format = query_format + " or "
 
-                    query_format = query_format + " (t1.tags like %s or t1.tags like %s)"
+                    query_format = query_format + " (t1.tags='%s' or t1.tags like '%s' or t1.tags like '%s')"
+                    query_params.append("[{}]".format(item))
                     query_params.append("%,{}%".format(item))
                     query_params.append("%{},%".format(item))
 
@@ -1320,8 +1322,8 @@ class WeChatAPIView(viewsets.ViewSet):
         query_format=str()
         query_params=list()
 
-        query_format = query_format + " and t1.accid =%d"
-        query_params.append(obj.accid)
+        query_format = query_format + " and t1.accid =%s"
+        query_params.append(str(obj.accid))
 
         if obj.type != '1':
             if obj.select_sex in ['0', '1', '2']:
