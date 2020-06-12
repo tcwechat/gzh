@@ -52,6 +52,22 @@ def tag_batchtagging(query,tagid,accid):
     if len(openids):
         WeChatAccTag(accid=accid).batchtagging(openids, int(tagid))
 
+
+def tag_del(query,tagid,accid):
+    openids = []
+    valid_count = 0
+    for item in query:
+        tags = json.loads(item.tags)
+
+        if tagid in tags:
+            tags.remove(tagid)
+            item.tags = json.dumps(tags).replace(" ", "")
+            item.save()
+            valid_count += 1
+        openids.append(item.openid)
+
+    WeChatAccTag(accid=accid).delete(id=tagid)
+
 def tag_canle(query,tagid,accid):
 
     openids = []

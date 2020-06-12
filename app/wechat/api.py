@@ -19,7 +19,7 @@ from lib.utils.wechat.user import WeChatAccTag,WechatAccUser
 from lib.utils.wechat.mouldmsg import MouldMsg
 from lib.utils.db import RedisTicketHandler
 
-from app.wechat.utils import tag_batchtagging,customMsgListAdd,customMsgListUpd,tag_canle
+from app.wechat.utils import tag_batchtagging,customMsgListAdd,customMsgListUpd,tag_canle,tag_del
 
 from lib.utils.mytime import UtilTime
 
@@ -198,7 +198,7 @@ class WeChatAPIView(viewsets.ViewSet):
                 obj = AccTagModel.objects.get(id=request.data_format.get("id"))
                 obj.name = request.data_format.get("name")
 
-                WeChatAccTag(accid=request.data_format.get("accid")).update(obj.id,obj.name)
+                WeChatAccTag(accid=obj.accid).update(obj.id,obj.name)
 
                 obj.save()
             except AccTagModel.DoesNotExist:
@@ -207,7 +207,8 @@ class WeChatAPIView(viewsets.ViewSet):
         elif request.method == 'DELETE':
             try:
                 obj = AccTagModel.objects.get(id=request.data_format.get("id"))
-                WeChatAccTag(accid=request.data_format.get("accid")).delete(id=obj.id)
+                query = AccLinkUser.objects.filter(accid=obj.accid, umark='0')
+                tag_del(query,obj.id,obj.accid)
                 obj.delete()
             except AccTagModel.DoesNotExist:
                 raise PubErrorCustom("不存在此标签!")
