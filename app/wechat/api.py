@@ -1311,7 +1311,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
     @list_route(methods=['POST'])
     @Core_connector()
-    def AccMass_Send(self, request, *args, **kwargs):
+    def AccMsgMass_Send(self, request, *args, **kwargs):
         try:
             obj = AccMsgMass.objects.get(id=request.data_format.get("id"))
         except AccMsgMass.DoesNotExist:
