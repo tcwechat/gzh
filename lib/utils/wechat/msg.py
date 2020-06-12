@@ -461,7 +461,7 @@ class WechatAccMassMsg(WechatBase):
     def __init__(self,**kwargs):
         logger.info(kwargs)
         super().__init__(accid=kwargs.get("accid",None))
-        self.url = "https://api.weixin.qq.com/cgi-bin/message/mass/send?access_token={}".format(kwargs.get("auth_accesstoken"))
+        self.url = "https://api.weixin.qq.com/cgi-bin/message/mass/send?access_token={}".format(self.auth_accesstoken)
 
     def run(self,**kwargs):
         listids = kwargs.get("listids")
