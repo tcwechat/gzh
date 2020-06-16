@@ -1283,6 +1283,8 @@ class WeChatAPIView(viewsets.ViewSet):
         if status:
             query = query.filter(status=status)
 
+        query = query.order_by('-createtime')
+
         count = query.count()
 
         return {"data": AccMsgMassSerializer(query[request.page_start:request.page_end], many=True).data,
