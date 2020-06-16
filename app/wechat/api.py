@@ -1195,6 +1195,9 @@ class WeChatAPIView(viewsets.ViewSet):
     @Core_connector(isTransaction=True)
     def AccMsgMass_add(self,request,*args,**kwargs):
 
+        if not request.data_format.get('sendtime'):
+            raise PubErrorCustom("请输入群发时间!")
+
         obj = AccMsgMass.objects.create(**dict(
             accid=request.data_format.get('accid'),
             sendtime=request.data_format.get('sendtime'),
