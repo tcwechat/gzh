@@ -455,3 +455,61 @@ class AccMsgMass(models.Model):
         verbose_name = '群发消息'
         verbose_name_plural = verbose_name
         db_table = 'accmsgmass'
+
+
+class AccCount(models.Model):
+    """
+    数据统计
+    """
+
+    id = models.BigAutoField(primary_key=True)
+    accid = models.BigIntegerField(verbose_name="公众号ID")
+    gz_num = models.IntegerField(verbose_name="关注数量",default=0)
+    xgz_num = models.IntegerField(verbose_name="新关注数量", default=0)
+    qx_gz_num = models.IntegerField(verbose_name="取消关注数量",default=0)
+    hy_num = models.IntegerField(verbose_name="活跃数量",default=0)
+    tot_fs_num = models.IntegerField(verbose_name="总粉丝数量",default=0)
+    yd_num = models.IntegerField(verbose_name="阅读数量",default=0)
+
+    date = models.CharField(max_length=10,default="",verbose_name="日期")
+    # time = models.CharField(max_length=10,default="",verbose_name="时分秒")
+
+    def save(self, *args, **kwargs):
+        ut = UtilTime()
+
+        if not self.date:
+            self.date = ut.arrow_to_string(format_v="YYYY-MM-DD")
+
+        # if not self.time:
+        #     self.time = ut.arrow_to_string(format_v="HH:mm:ss")
+        return super(AccCount, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = '数据统计'
+        verbose_name_plural = verbose_name
+        db_table = 'acccount'
+
+
+class AccActionCount(models.Model):
+    """
+    粉丝动作统计
+    """
+
+    id = models.BigAutoField(primary_key=True)
+    accid = models.BigIntegerField(verbose_name="公众号ID")
+    openid = models.CharField(max_length=60, verbose_name="粉丝openid")
+    action =  models.CharField(max_length=1,verbose_name="0-粉丝消息,1-新关注,2-关注,3-取关,4-扫描二维码,5-菜单点击")
+
+    createtime = models.BigIntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+
+        if not self.createtime:
+            ut = UtilTime()
+            self.createtime = ut.timestamp
+        return super(AccActionCount, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = '粉丝动作统计'
+        verbose_name_plural = verbose_name
+        db_table = 'accactioncount'

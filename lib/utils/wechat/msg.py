@@ -5,7 +5,7 @@ from lib.utils.wechat.WXBizMsgCrypt import WXBizMsgCrypt
 from lib.utils.exceptions import PubErrorCustom
 import xmltodict
 from lib.utils.wechat.user import WechatAccUser,WeChatAccTag
-from app.wechat.models import AccQrcode,AccLinkUser,AccQrcodeList,AccQrcodeImageTextList,AccFollow,AccReply
+from app.wechat.models import AccQrcode,AccLinkUser,AccQrcodeList,AccQrcodeImageTextList,AccFollow,AccReply,AccActionCount
 from app.wechat.serialiers import AccFollowModelSerializer1,AccReplyModelSerializer1
 from app.public.models import Meterial
 from lib.utils.mytime import UtilTime
@@ -112,6 +112,13 @@ class WeChatAccEvent(WechatBase):
         except AccReply.DoesNotExist:
             pass
 
+    def ActionHandler(self,action):
+
+        AccActionCount.objects.create(**{
+            "accid": self.acc.accid,
+            "openid": self.xml_data['FromUserName'],
+            "action": action
+        })
 
 
     def eventHandler(self):
@@ -134,6 +141,9 @@ class WeChatAccEvent(WechatBase):
                         logger.info("未找到此渠道二维码{}".format(self.xml_data))
                         return "success"
 
+                    self.ActionHandler('4')
+                    self.ActionHandler('2')
+
                     aqc_obj.tot_count += 1
                     aqc_obj.follow_count += 1
                     aqc_obj.save()
@@ -147,6 +157,9 @@ class WeChatAccEvent(WechatBase):
                     except AccQrcode.DoesNotExist:
                         logger.info("未找到此渠道二维码{}".format(self.xml_data))
                         return "success"
+
+                    self.ActionHandler('4')
+                    self.ActionHandler('1')
 
                     aqc_obj.tot_count +=1
                     aqc_obj.new_count +=1
@@ -194,6 +207,8 @@ class WeChatAccEvent(WechatBase):
 
                     userinfo = self.linkUser()
 
+                    self.ActionHandler('1')
+
                     self.ReplyCustom(type='0',userinfo=userinfo)
 
                     return self.msgHandler(
@@ -205,34 +220,53 @@ class WeChatAccEvent(WechatBase):
                             "nickname":userinfo['nickname']
                         }
                     )
+            elif self.xml_data['Event'] == 'unsubscribe':
+                try:
+                    aobj = AccLinkUser.objects.get(accid=self.acc.accid, openid=self.xml_data['FromUserName'])
+                    aobj.umark = '1'
+                    aobj.save()
+                except AccLinkUser.DoesNotExist:
+                    pass
+
+                self.ActionHandler('3')
+
             elif self.xml_data['Event'] == 'CLICK':
                 userinfo = self.linkUser()
+                self.ActionHandler('5')
                 self.ReplyCustom(type='2', userinfo=userinfo)
             elif self.xml_data['Event'] == 'VIEW':
                 userinfo = self.linkUser()
+                self.ActionHandler('5')
             else:
                 logger.error("事件未定义{}".format(self.xml_data))
                 return "success"
         elif self.xml_data['MsgType'] == 'text':
             userinfo = self.linkUser()
+            self.ActionHandler('0')
             self.ReplyCustom(type='1', userinfo=userinfo)
         elif self.xml_data['MsgType'] == 'image':
             userinfo = self.linkUser()
+            self.ActionHandler('0')
             self.ReplyCustom(type='1', userinfo=userinfo)
         elif self.xml_data['MsgType'] == 'voice':
             userinfo = self.linkUser()
+            self.ActionHandler('0')
             self.ReplyCustom(type='1', userinfo=userinfo)
         elif self.xml_data['MsgType'] == 'video':
             userinfo = self.linkUser()
+            self.ActionHandler('0')
             self.ReplyCustom(type='1', userinfo=userinfo)
         elif self.xml_data['MsgType'] == 'shortvideo':
             userinfo = self.linkUser()
+            self.ActionHandler('0')
             self.ReplyCustom(type='1', userinfo=userinfo)
         elif self.xml_data['MsgType'] == 'location':
             userinfo = self.linkUser()
+            self.ActionHandler('0')
             self.ReplyCustom(type='1', userinfo=userinfo)
         elif self.xml_data['MsgType'] == 'link':
             userinfo = self.linkUser()
+            self.ActionHandler('0')
             self.ReplyCustom(type='1', userinfo=userinfo)
         else:
             logger.error("消息类型错误!{}".format(self.xml_data['MsgType']))
