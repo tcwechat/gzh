@@ -1908,7 +1908,7 @@ class WeChatAPIView(viewsets.ViewSet):
                 tmp['ori_page_read_count'] += item1['ori_page_read_count']
 
             response.append(tmp)
-            end_date_arrow.shift(days=-1)
+            end_date_arrow = end_date_arrow.shift(days=-1)
 
         return {"data":response}
 
