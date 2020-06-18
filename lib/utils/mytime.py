@@ -259,5 +259,11 @@ if __name__ == '__main__':
         d = (today_arrow - tmp_start_date_arrow).days
 
         print(d,tmp_start_date_arrow,tmp_end_date_arrow)
+        d_tmp =1
+        while d_tmp <= d:
+            tmp_start_date_arrow = tmp_start_date_arrow.shift(days=1)
+            tmp_end_date_arrow = tmp_start_date_arrow.shift(days=1)
+            print(tmp_start_date_arrow,tmp_end_date_arrow)
+            d_tmp += 1
 
         c +=1

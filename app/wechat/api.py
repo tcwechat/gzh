@@ -1825,7 +1825,7 @@ class WeChatAPIView(viewsets.ViewSet):
                 openids =  [ item.openid for item in response]
 
                 while d_tmp<=d:
-                    tmp_start_date_arrow = date_arrow.shift(days=d_tmp * 1)
+                    tmp_start_date_arrow = tmp_start_date_arrow.shift(days=1)
                     tmp_end_date_arrow = tmp_start_date_arrow.shift(days=1)
 
                     response = AccLinkUser.objects.filter(
