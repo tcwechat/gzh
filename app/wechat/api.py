@@ -40,7 +40,8 @@ from lib.utils.log import logger
 from app.wechat.serialiers import AccSerializer,AccTagModelSerializer,AccQrcodeModelSerializer,AccLinkUserSerializer,\
     AccFollowModelSerializer,AccReplyModelSerializer,AccSendSerializer1,AccMsgCustomerModelSerializer,AccFollowSerializer,\
         AccReplySerializer,AccMsgMouldSerializer,AccMsgMouldModelSerializer,AccMsgMassSerializer,AccQrcodeListModelSerializer1,\
-            AccMsgMassModelSerializer,AccMsgCustomerModelSerializer1,AccMsgMouldModelSerializer1,AccMsgMassModelSerializer1,AccCountBaseSerializer
+            AccMsgMassModelSerializer,AccMsgCustomerModelSerializer1,AccMsgMouldModelSerializer1,AccMsgMassModelSerializer1,AccCountBaseSerializer,\
+                AccCountBaseSerializer1
 
 class WeChatAPIView(viewsets.ViewSet):
 
@@ -1774,7 +1775,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
 
         obj = AccCount.objects.filter(accid=accid,date__gte=start_date,date__lte=end_date).order_by('-date')
-        return {"data": AccCountBaseSerializer(obj[request.page_start:request.page_end],many=True).data}
+        return {"data": AccCountBaseSerializer1(obj[request.page_start:request.page_end],many=True).data}
 
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)

@@ -484,8 +484,16 @@ class AccCountBaseSerializer(serializers.Serializer):
     yd_add_rate = serializers.DecimalField(max_digits=18,decimal_places=2)
 
 
-    hy_rate = serializers.SerializerMethodField()
+class AccCountBaseSerializer1(serializers.Serializer):
 
+    date = serializers.CharField()
+    hy_num = serializers.IntegerField()
+    seven_day_fs_num = serializers.IntegerField()
+    fifteen_day_fs_num = serializers.IntegerField()
+    tot_fs_num = serializers.IntegerField()
+
+    hy_rate = serializers.SerializerMethodField()
 
     def get_hy_rate(self,obj):
         return round(obj.hy_num * 100.0 / obj.tot_fs_num,2)
+
