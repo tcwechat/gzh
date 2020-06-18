@@ -8,6 +8,7 @@ from app.wechat.models import AccTag,AccQrcodeList,AccQrcodeImageTextList,AccAct
 from app.public.models import Meterial
 
 from lib.utils.exceptions import PubErrorCustom
+from lib.utils.log import logger
 
 
 def requestValid(params):
@@ -273,7 +274,8 @@ def countHandler(**kwargs):
                                               createtime__lte=end):
 
         try:
-            tot_fs_num = AccCount.objects.get(accid=accid,date=ut.timestamp_to_string(item.createtime)[:10]).tot_fs_num
+            tot_fs_num_tmp = AccCount.objects.get(accid=accid,date=ut.timestamp_to_string(item.createtime)[:10]).tot_fs_num
+            tot_fs_num=tot_fs_num_tmp
         except AccCount.DoesNotExist:
             pass
 
@@ -284,6 +286,8 @@ def countHandler(**kwargs):
 
         res['qg_rate'] = round(res['qg_num'] * 100 / (tot_fs_num + res['qg_num']) if tot_fs_num + res['qg_num'] else 0.0,2)
         res['jz_num'] = res['xgz_num'] - res['qg_num']
+
+        logger.info("{}-{}-{}".format(isday,start,end))
 
         if isday:
             res['tot_fs_num'] = tot_fs_num
