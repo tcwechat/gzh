@@ -480,3 +480,5 @@ class AccCountBaseSerializer(serializers.Serializer):
     hy_add_rate = serializers.DecimalField(max_digits=18,decimal_places=2)
     tot_fs_num = serializers.IntegerField()
     tot_fs_add_rate = serializers.DecimalField(max_digits=18,decimal_places=2)
+    yd_num = serializers.IntegerField()
+    yd_add_rate = serializers.DecimalField(max_digits=18,decimal_places=2)

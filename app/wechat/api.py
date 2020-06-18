@@ -1538,6 +1538,22 @@ class WeChatAPIView(viewsets.ViewSet):
 
         return {"data":data}
 
+    @list_route(methods=['GET'])
+    @Core_connector()
+    def AccCountAcc(self, request, *args, **kwargs):
+
+        ut = UtilTime()
+
+        date_arrow = ut.today.shift(days=-1)
+        date_string = ut.arrow_to_string(date_arrow, format_v="YYYY-MM-DD")
+
+        if not request.query_params_format.get("accid",0):
+            raise PubErrorCustom("请选择公众号!")
+
+        query = AccCount.objects.get(date=date_string,accid=request.query_params_format.get("accid",0))
+
+        return {"data":AccCountBaseSerializer(query,many=False).data}
+
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)
     def test(self,request, *args, **kwargs):
