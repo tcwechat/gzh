@@ -1966,6 +1966,9 @@ class WeChatAPIView(viewsets.ViewSet):
 
         }
 
+        for item in range(24):
+            r_data[str(item).zfill(2)]={}
+
         for item in res:
             if item.id not in r_data:
                 r_data[item.id] = {}
