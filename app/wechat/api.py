@@ -1578,30 +1578,42 @@ class WeChatAPIView(viewsets.ViewSet):
         r_data={}
 
         if type == 'h':
-            h = 1
+
+            if not start_date or not end_date:
+                raise PubErrorCustom("时间区间不能为空!")
+
+            s = ut.string_to_arrow(start_date + ' 00:00:00')
+            e = ut.string_to_arrow(end_date + ' 00:00:00').shift(days=1)
+
+            h = (e - s).days * 24
+            h_tmp = 1
             today = ut.string_to_arrow(ut.arrow_to_string(ut.today)[:13] + ':00:00')
 
-            while h <= 24:
-                start = today.shift(hours=h * -1)
-                end = today.shift(hours=(h - 1) * -1)
+            if e > today:
+                e = today
 
-                h += 1
+            while h_tmp <= h:
+                start = ut.arrow_to_string(e.shift(hours=h_tmp * -1))
+                end = ut.arrow_to_string(e.shift(hours=(h_tmp - 1) * -1))
+
+                h_tmp += 1
+
                 data.append(countHandler(
                     accid=accid,
                     time="{}{}{}-{}".format(start.format("YYYY-MM-DD"),
                                             "\n",
-                                             start.format("HH:mm"),
-                                             end.format("HH:mm") if end.format("HH:mm")!='00:00' else '24:00'),
+                                            start.format("HH:mm"),
+                                            end.format("HH:mm") if end.format("HH:mm") != '00:00' else '24:00'),
                     start=start.timestamp,
                     end=end.timestamp,
                     tot_fs_num=tot_fs_num))
 
-                r_data=countHandlerEx(
+                r_data = countHandlerEx(
                     data=data,
                     tot_fs_num=tot_fs_num,
-                    num = 24
+                    num=h
                 )
-                r_data['data']=data
+                r_data['data'] = data
 
 
         elif type == 'd':

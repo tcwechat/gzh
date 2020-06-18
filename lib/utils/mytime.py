@@ -138,10 +138,10 @@ def get_current_month_start_and_end(date):
 if __name__ == '__main__':
 
 
-    start = UtilTime().today
-    end = UtilTime().today.shift(days=1)
-
-    print((end-start).days)
+    # start = UtilTime().today
+    # end = UtilTime().today.shift(days=1)
+    #
+    # print((end-start).days)
 
     """
         按天
@@ -165,18 +165,28 @@ if __name__ == '__main__':
     """
         按小时
     """
+    start_date = "2020-04-19"
+    end_date="2020-05-19"
 
-    # ut = UtilTime()
-    # h = 1
-    # today  = ut.string_to_arrow(ut.arrow_to_string(ut.today)[:13] + ':00:00')
-    #
-    # while h<=24:
-    #     start = ut.arrow_to_string(today.shift(hours=h*-1))
-    #     end = ut.arrow_to_string(today.shift(hours=(h-1)*-1))
-    #
-    #     h+=1
-    #
-    #     print(start,end)
+    ut = UtilTime()
+
+    s = ut.string_to_arrow(start_date+' 00:00:00')
+    e = ut.string_to_arrow(end_date+' 00:00:00').shift(days=1)
+
+    h = (e-s).days*24
+    h_tmp = 1
+    today  = ut.string_to_arrow(ut.arrow_to_string(ut.today)[:13] + ':00:00')
+
+    if e>today:
+        e=today
+
+    while h_tmp<=h:
+        start = ut.arrow_to_string(e.shift(hours=h_tmp*-1))
+        end = ut.arrow_to_string(e.shift(hours=(h_tmp-1)*-1))
+
+        h_tmp+=1
+
+        print(start,end)
 
     """
         按周
