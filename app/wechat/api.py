@@ -1843,7 +1843,7 @@ class WeChatAPIView(viewsets.ViewSet):
                         "date": tmp_start_date_arrow.format("YYYY-MM-DD"),
                         "num": openidsNum - response.count()
                     }
-                    ss['rate'] = round(ss['num'] * 100.0 / openidsNum,2)
+                    ss['rate'] = round(ss['num'] * 100.0 / openidsNum if openidsNum else 0.0,2)
 
                     inner_data.append(ss)
 
