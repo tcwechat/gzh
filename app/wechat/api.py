@@ -1596,6 +1596,7 @@ class WeChatAPIView(viewsets.ViewSet):
                     end=end.timestamp,
                     tot_fs_num=tot_fs_num))
 
+
         elif type == 'm':
             m = 1
             today = ut.string_to_arrow(ut.today.format("YYYY-MM"), format_v="YYYY-MM")
