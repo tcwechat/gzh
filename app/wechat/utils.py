@@ -219,6 +219,29 @@ def customMsgListUpd(obj,lists,isHaveNewsList=True):
 #         else:
 #             return True
 
+def countHandlerEx(**kwargs):
+
+    data = kwargs.get("data")
+    tot_fs_num = kwargs.get("tot_fs_num")
+    num = kwargs.get("num")
+
+    r_data={
+        "xgz_num":0,
+        "qg_num":0,
+        "qg_rate":0.0,
+        "jz_num":0,
+        "zz_agree":0
+    }
+
+    for item in data:
+        r_data['xgz_num'] += item['xgz_num']
+        r_data['qg_num'] += item['qg_num']
+        r_data['jz_num'] += item['jz_num']
+
+    r_data['qg_rate'] = round(r_data['qg_num'] * 100 / (tot_fs_num + r_data['qg_num']) if tot_fs_num + r_data['qg_num'] else 0.0,2)
+    r_data['zz_agree'] = int(r_data['xgz_num'] / num) if num else 0
+
+    return r_data
 
 def countHandler(**kwargs):
 

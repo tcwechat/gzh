@@ -20,7 +20,7 @@ from lib.utils.wechat.mouldmsg import MouldMsg
 from lib.utils.wechat.count import WechatAccCount
 from lib.utils.db import RedisTicketHandler
 
-from app.wechat.utils import tag_batchtagging,customMsgListAdd,customMsgListUpd,tag_canle,tag_del,countHandler
+from app.wechat.utils import tag_batchtagging,customMsgListAdd,customMsgListUpd,tag_canle,tag_del,countHandler,countHandlerEx
 
 from lib.utils.mytime import UtilTime
 
@@ -1575,6 +1575,8 @@ class WeChatAPIView(viewsets.ViewSet):
         ut = UtilTime()
         data=[]
 
+        r_data={}
+
         if type == 'h':
             h = 1
             today = ut.string_to_arrow(ut.arrow_to_string(ut.today)[:13] + ':00:00')
@@ -1594,6 +1596,14 @@ class WeChatAPIView(viewsets.ViewSet):
                     end=end.timestamp,
                     tot_fs_num=tot_fs_num))
 
+                r_data=countHandlerEx(
+                    data=data,
+                    tot_fs_num=tot_fs_num,
+                    num = 24
+                )
+                r_data['data']=data
+
+
         elif type == 'd':
             if not start_date or not end_date:
                 raise PubErrorCustom("时间区间不能为空!")
@@ -1611,6 +1621,13 @@ class WeChatAPIView(viewsets.ViewSet):
                     start=start.timestamp,
                     end=end.timestamp,
                     tot_fs_num=tot_fs_num))
+
+                r_data=countHandlerEx(
+                    data=data,
+                    tot_fs_num=tot_fs_num,
+                    num = (ut.string_to_arrow(end_date,format_v="YYYY-MM-DD") - ut.string_to_arrow(start_date,format_v="YYYY-MM-DD")).days
+                )
+                r_data['data']=data
 
                 e = e.shift(days=-1)
 
@@ -1631,6 +1648,13 @@ class WeChatAPIView(viewsets.ViewSet):
                     end=end.timestamp,
                     tot_fs_num=tot_fs_num))
 
+                r_data=countHandlerEx(
+                    data=data,
+                    tot_fs_num=tot_fs_num,
+                    num = 5
+                )
+                r_data['data']=data
+
         elif type == 'm':
             m = 1
             today = ut.string_to_arrow(ut.today.format("YYYY-MM"), format_v="YYYY-MM")
@@ -1647,6 +1671,13 @@ class WeChatAPIView(viewsets.ViewSet):
                     start=start.timestamp,
                     end=end.timestamp,
                     tot_fs_num=tot_fs_num))
+
+                r_data=countHandlerEx(
+                    data=data,
+                    tot_fs_num=tot_fs_num,
+                    num = 3
+                )
+                r_data['data']=data
         else:
             raise PubErrorCustom("查询类型有误!")
 
