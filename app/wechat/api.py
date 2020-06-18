@@ -1586,7 +1586,8 @@ class WeChatAPIView(viewsets.ViewSet):
                 h += 1
                 data.append(countHandler(
                     accid=accid,
-                    time="{}\\n{}-{}".format(start.format("YYYY-MM-DD"),
+                    time="{}{}{}-{}".format(start.format("YYYY-MM-DD"),
+                                            "\n",
                                              start.format("HH:mm"),
                                              end.format("HH:mm") if end.format("HH:mm")!='00:00' else '24:00'),
                     start=start.timestamp,
