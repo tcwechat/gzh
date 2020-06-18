@@ -9,7 +9,7 @@ from lib.utils.wechat.base import WechatBase
 class WechatAccCount(WechatBase):
 
     def __init__(self,**kwargs):
-        super().__init__()
+        super().__init__(**kwargs)
 
 
     def getusersunmmary(self,begin_date,end_date):
