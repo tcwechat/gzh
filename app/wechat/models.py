@@ -464,24 +464,21 @@ class AccCount(models.Model):
 
     id = models.BigAutoField(primary_key=True)
     accid = models.BigIntegerField(verbose_name="公众号ID")
-    gz_num = models.IntegerField(verbose_name="关注数量",default=0)
-    xgz_num = models.IntegerField(verbose_name="新关注数量", default=0)
-    qx_gz_num = models.IntegerField(verbose_name="取消关注数量",default=0)
+    xz_num = models.IntegerField(verbose_name="新增数量", default=0)
+    qg_num = models.IntegerField(verbose_name="取关数量",default=0)
     hy_num = models.IntegerField(verbose_name="活跃数量",default=0)
     tot_fs_num = models.IntegerField(verbose_name="总粉丝数量",default=0)
-    yd_num = models.IntegerField(verbose_name="阅读数量",default=0)
+    yd_num = models.IntegerField(verbose_name="阅读数量", default=0)
+
+    seven_day_fs_num = models.IntegerField(verbose_name="7天内互动粉丝数量", default=0)
+    fifteen_day_fs_num = models.IntegerField(verbose_name="15天内互动粉丝数量", default=0)
 
     date = models.CharField(max_length=10,default="",verbose_name="日期")
-    # time = models.CharField(max_length=10,default="",verbose_name="时分秒")
 
     def save(self, *args, **kwargs):
-        ut = UtilTime()
-
         if not self.date:
+            ut = UtilTime()
             self.date = ut.arrow_to_string(format_v="YYYY-MM-DD")
-
-        # if not self.time:
-        #     self.time = ut.arrow_to_string(format_v="HH:mm:ss")
         return super(AccCount, self).save(*args, **kwargs)
 
     class Meta:
@@ -501,6 +498,8 @@ class AccActionCount(models.Model):
     action =  models.CharField(max_length=1,verbose_name="0-粉丝消息,1-新关注,2-关注,3-取关,4-扫描二维码,5-菜单点击")
 
     createtime = models.BigIntegerField(default=0)
+
+    sex = None
 
     def save(self, *args, **kwargs):
 

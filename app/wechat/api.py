@@ -17,6 +17,7 @@ from lib.utils.wechat.base import WechatBaseForUser
 from lib.utils.wechat.qrcode import WechatQrcode
 from lib.utils.wechat.user import WeChatAccTag,WechatAccUser
 from lib.utils.wechat.mouldmsg import MouldMsg
+from lib.utils.wechat.count import WechatAccCount
 from lib.utils.db import RedisTicketHandler
 
 from app.wechat.utils import tag_batchtagging,customMsgListAdd,customMsgListUpd,tag_canle,tag_del
@@ -24,7 +25,7 @@ from app.wechat.utils import tag_batchtagging,customMsgListAdd,customMsgListUpd,
 from lib.utils.mytime import UtilTime
 
 from app.wechat.models import Acc,AccTag as AccTagModel,AccQrcode as AccQrcodeModel,AccQrcodeList,AccQrcodeImageTextList,AccLinkUser,\
-                                    AccFollow,AccReply,AccSend,AccMsgCustomer,AccMsgCustomerLinkAcc,AccMsgMould,AccMsgMass
+                                    AccFollow,AccReply,AccSend,AccMsgCustomer,AccMsgCustomerLinkAcc,AccMsgMould,AccMsgMass,AccActionCount,AccCount
 from app.public.models import Meterial
 from lib.utils.exceptions import PubErrorCustom
 from lib.utils.task.follow import Follow
@@ -1379,6 +1380,86 @@ class WeChatAPIView(viewsets.ViewSet):
         obj.status = '0'
         obj.save()
         return None
+
+
+    @list_route(methods=['POST'])
+    @Core_connector()
+    def AccCount_Handler(self, request, *args, **kwargs):
+
+        ut = UtilTime()
+
+        date_arrow  = ut.today.shift(days=-1)
+
+        date_timestamp = date_arrow.timestamp
+        date_string = ut.arrow_to_string(date_arrow,format_v="YYYY-MM-DD")
+
+        for item in Acc.objects.filter():
+
+            wacHandler = WechatAccCount(accid=item.accid)
+
+            """
+                昨日新增(取关)用户数据
+            """
+
+            response = wacHandler.getusersunmmary(date_string,date_string)[0]
+
+            """
+                昨日总用户数据
+            """
+            response1 = wacHandler.getusercumulate(date_string, date_string)[0]
+
+            """
+                获取图文每日数据
+            """
+            response2 = wacHandler.getarticlesummary(date_string, date_string)[0]
+
+            """
+                昨日活跃粉丝数量
+            """
+            sql_append="t1.accid = {} and t1.createtime<={} and t1.createtime>={}".format(str(item.accid,date_timestamp,date_timestamp))
+            aacObj = AccActionCount.objects.raw("""
+                SELECT t1.*,t2.sex FROM accactioncount as t1
+                INNER JOIN acclinkuser ad t2 ON t1.accid = t2.accid and t2.umark='0'
+                WHERE %s
+            """%(sql_append))
+
+            aacObj=list(aacObj)
+
+            """
+                7天互动粉丝数量
+            """
+            start = date_arrow.shift(days=-7)
+            sql_append="t1.accid = {} and t1.createtime<={} and t1.createtime>={}".format(str(item.accid,date_timestamp,start))
+            aacObj1 = AccActionCount.objects.raw("""
+                SELECT t1.*,t2.sex FROM accactioncount as t1
+                INNER JOIN acclinkuser ad t2 ON t1.accid = t2.accid and t2.umark='0'
+                WHERE %s
+            """%(sql_append))
+            aacObj1 = list(aacObj1)
+
+            """
+                15天互动粉丝数量
+            """
+            start = date_arrow.shift(days=-15)
+            sql_append="t1.accid = {} and t1.createtime<={} and t1.createtime>={}".format(str(item.accid,date_timestamp,start))
+            aacObj2 = AccActionCount.objects.raw("""
+                SELECT t1.*,t2.sex FROM accactioncount as t1
+                INNER JOIN acclinkuser ad t2 ON t1.accid = t2.accid and t2.umark='0'
+                WHERE %s
+            """%(sql_append))
+            aacObj2 = list(aacObj2)
+
+            AccCount.objects.create(**{
+                "accid":item.accid,
+                "xz_num":response['new_user'],
+                "qg_num":response['cancel_user'],
+                "hy_num": len(set([ i.openid for i in aacObj])),
+                "tot_fs_num":response1['cumulate_user'],
+                "seven_day_fs_num":len(set([ i.openid for i in aacObj1])),
+                "fifteen_day_fs_num":len(set([ i.openid for i in aacObj2])),
+                "yd_num":response2['int_page_read_user'],
+                "date":date_string
+            })
 
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)
