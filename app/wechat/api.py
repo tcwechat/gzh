@@ -1842,6 +1842,8 @@ class WeChatAPIView(viewsets.ViewSet):
             tables.append(inner_data)
             c+=1
 
+        return {"data":tables}
+
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)
     def test(self,request, *args, **kwargs):
