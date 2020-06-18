@@ -4,7 +4,7 @@ from project.config_include.params import TX_WECHAT_TOKEN
 
 from lib.utils.wechat.user import WeChatAccTag
 
-from app.wechat.models import AccTag,AccQrcodeList,AccQrcodeImageTextList,AccActionCount
+from app.wechat.models import AccTag,AccQrcodeList,AccQrcodeImageTextList,AccActionCount,AccCount
 from app.public.models import Meterial
 
 from lib.utils.exceptions import PubErrorCustom
@@ -233,23 +233,32 @@ def countHandlerEx(**kwargs):
         "zz_agree":0
     }
 
+    count = 0
     for item in data:
         r_data['xgz_num'] += item['xgz_num']
         r_data['qg_num'] += item['qg_num']
         r_data['jz_num'] += item['jz_num']
+        r_data['qg_rate'] += item['qg_rate']
+        count+=1
 
-    r_data['qg_rate'] = round(r_data['qg_num'] * 100 / (tot_fs_num + r_data['qg_num']) if tot_fs_num + r_data['qg_num'] else 0.0,2)
+    r_data['qg_rate'] = round(r_data['qg_rate'] * 1.0 / count if count else 0.0,2)
     r_data['zz_agree'] = int(r_data['xgz_num'] / num) if num else 0
 
     return r_data
 
 def countHandler(**kwargs):
 
+
+
     accid = kwargs.get("accid")
     time = kwargs.get("time")
     start = kwargs.get("start")
     end = kwargs.get("end")
     tot_fs_num = kwargs.get("tot_fs_num")
+
+    isday = kwargs.get("isday",None)
+
+    ut = kwargs.get("ut")
 
     res = {
         "time": time,
@@ -262,6 +271,12 @@ def countHandler(**kwargs):
     for item in AccActionCount.objects.filter(accid=accid, action__in=['1', '3'],
                                               createtime__gte=start,
                                               createtime__lte=end):
+
+        try:
+            tot_fs_num = AccCount.objects.get(accid=accid,date=ut.timestamp_to_string(item.createtime)[:10]).tot_fs_num
+        except AccCount.DoesNotExist:
+            pass
+
         if item.action == '1':
             res['xgz_num'] += 1
         elif item.action == '3':
@@ -269,6 +284,9 @@ def countHandler(**kwargs):
 
         res['qg_rate'] = round(res['qg_num'] * 100 / (tot_fs_num + res['qg_num']) if tot_fs_num + res['qg_num'] else 0.0,2)
         res['jz_num'] = res['xgz_num'] - res['qg_num']
+
+        if isday:
+            res['tot_fs_num'] = tot_fs_num
 
     return res
 

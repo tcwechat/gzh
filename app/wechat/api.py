@@ -1388,7 +1388,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
         ut = UtilTime()
 
-        date_arrow  = ut.today.shift(days=-1)
+        date_arrow = ut.today.shift(days=-1)
 
         date_timestamp = date_arrow.timestamp
         date_string = ut.arrow_to_string(date_arrow,format_v="YYYY-MM-DD")
@@ -1606,7 +1606,8 @@ class WeChatAPIView(viewsets.ViewSet):
                                             end.format("HH:mm") if end.format("HH:mm") != '00:00' else '24:00'),
                     start=start.timestamp,
                     end=end.timestamp,
-                    tot_fs_num=tot_fs_num))
+                    tot_fs_num=tot_fs_num,
+                    ut = ut))
 
                 r_data = countHandlerEx(
                     data=data,
@@ -1632,7 +1633,9 @@ class WeChatAPIView(viewsets.ViewSet):
                     time="{}".format(start.format("YYYY-MM-DD")),
                     start=start.timestamp,
                     end=end.timestamp,
-                    tot_fs_num=tot_fs_num))
+                    tot_fs_num=tot_fs_num,
+                    ut = ut,
+                    isday=True))
 
                 r_data=countHandlerEx(
                     data=data,
@@ -1658,7 +1661,8 @@ class WeChatAPIView(viewsets.ViewSet):
                     time="{}~{}".format(start.format("YYYY-MM-DD"),end.shift(days=-1).format("YYYY-MM-DD")),
                     start=start.timestamp,
                     end=end.timestamp,
-                    tot_fs_num=tot_fs_num))
+                    tot_fs_num=tot_fs_num,
+                    ut = ut))
 
                 r_data=countHandlerEx(
                     data=data,
@@ -1682,7 +1686,8 @@ class WeChatAPIView(viewsets.ViewSet):
                     time=start.format("YYYY/MM"),
                     start=start.timestamp,
                     end=end.timestamp,
-                    tot_fs_num=tot_fs_num))
+                    tot_fs_num=tot_fs_num,
+                    ut = ut))
 
                 r_data=countHandlerEx(
                     data=data,
