@@ -1977,13 +1977,15 @@ class WeChatAPIView(viewsets.ViewSet):
 
         r_data_array=[]
         for item in r_data:
+
+            item_tmp = r_data[item]
             tmp={
                 "time":item,
-                "fs_xx_num": item.get("0",0),
-                "gz_num": item.get("2",0) + item.get("1",0),
-                "qg_num": item.get("3",0),
-                "sm_qrcode_num":item.get("4",0),
-                "cd_click_num":item.get("5",0)
+                "fs_xx_num": item_tmp.get("0",0),
+                "gz_num": item_tmp.get("2",0) + item.get("1",0),
+                "qg_num": item_tmp.get("3",0),
+                "sm_qrcode_num":item_tmp.get("4",0),
+                "cd_click_num":item_tmp.get("5",0)
             }
             tmp['tot_num'] = tmp['fs_xx_num'] + tmp['gz_num'] + tmp['qg_num'] + tmp['sm_qrcode_num'] + tmp['cd_click_num']
             r_data_array.append(tmp)
