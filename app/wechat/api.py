@@ -1984,7 +1984,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
             item_tmp = r_data[item]
             tmp={
-                "time":item,
+                "time":"{}:00-{}:00".format(item,str(int(item)+1).zfill(2)),
                 "fs_xx_num": item_tmp.get("0",0),
                 "gz_num": item_tmp.get("2",0) + item_tmp.get("1",0),
                 "qg_num": item_tmp.get("3",0),
@@ -1993,7 +1993,7 @@ class WeChatAPIView(viewsets.ViewSet):
             }
             tmp['tot_num'] = tmp['fs_xx_num'] + tmp['gz_num'] + tmp['qg_num'] + tmp['sm_qrcode_num'] + tmp['cd_click_num']
             r_data_array.append(tmp)
-
+        r_data_array.sort(key=lambda k: k['time'],reverse=True)
         return {"data":r_data_array}
 
 
