@@ -1756,8 +1756,25 @@ class WeChatAPIView(viewsets.ViewSet):
 
         obj = AccLinkUser.objects.filter(accid=accid,
                                          umark='0')
-
         return {"data": fs_count_hander(obj)}
+
+    @list_route(methods=['GET'])
+    @Core_connector(isPagination=True)
+    def AccCount_fssx_hyd(self, request, *args, **kwargs):
+
+        start_date = request.query_params_format.get("start_date",None)
+        end_date = request.query_params_format.get("end_date", None)
+        accid  = request.query_params_format.get("accid", None)
+
+        if not start_date or not end_date:
+            raise PubErrorCustom("时间区间有误!")
+
+        if not accid:
+            raise PubErrorCustom("公众号ID为空!")
+
+
+        obj = AccCount.objects.filter(accid=accid,date__gte=start_date,date__lte=end_date).order_by('-createtime')
+        return {"data": AccCountBaseSerializer(obj[request.page_start,request.page_end],many=True).data}
 
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)

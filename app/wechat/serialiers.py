@@ -482,3 +482,10 @@ class AccCountBaseSerializer(serializers.Serializer):
     tot_fs_add_rate = serializers.DecimalField(max_digits=18,decimal_places=2)
     yd_num = serializers.IntegerField()
     yd_add_rate = serializers.DecimalField(max_digits=18,decimal_places=2)
+
+
+    hy_rate = serializers.Serializer()
+
+
+    def get_hy_rate(self,obj):
+        return round(obj.hy_num * 100.0 / obj.tot_fs_num,2)
