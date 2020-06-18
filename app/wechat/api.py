@@ -1419,7 +1419,7 @@ class WeChatAPIView(viewsets.ViewSet):
             sql_append="t1.accid={} and t1.createtime<={} and t1.createtime>={}".format(str(item.accid),date_timestamp,date_timestamp)
             aacObj = AccActionCount.objects.raw("""
                 SELECT t1.*,t2.sex FROM accactioncount as t1
-                INNER JOIN acclinkuser ad t2 ON t1.accid = t2.accid and t2.umark='0'
+                INNER JOIN acclinkuser as t2 ON t1.accid = t2.accid and t2.umark='0'
                 WHERE %s
             """%(sql_append))
 
@@ -1434,7 +1434,7 @@ class WeChatAPIView(viewsets.ViewSet):
             sql_append="t1.accid = {} and t1.createtime<={} and t1.createtime>={}".format(str(item.accid),date_timestamp,start)
             aacObj1 = AccActionCount.objects.raw("""
                 SELECT t1.*,t2.sex FROM accactioncount as t1
-                INNER JOIN acclinkuser ad t2 ON t1.accid = t2.accid and t2.umark='0'
+                INNER JOIN acclinkuser as t2 ON t1.accid = t2.accid and t2.umark='0'
                 WHERE %s
             """%(sql_append))
 
@@ -1448,7 +1448,7 @@ class WeChatAPIView(viewsets.ViewSet):
             sql_append="t1.accid = {} and t1.createtime<={} and t1.createtime>={}".format(str(item.accid),date_timestamp,start)
             aacObj2 = AccActionCount.objects.raw("""
                 SELECT t1.*,t2.sex FROM accactioncount as t1
-                INNER JOIN acclinkuser ad t2 ON t1.accid = t2.accid and t2.umark='0'
+                INNER JOIN acclinkuser as t2 ON t1.accid = t2.accid and t2.umark='0'
                 WHERE %s
             """%(sql_append))
             logger.info(aacObj2)
