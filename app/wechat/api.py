@@ -1593,8 +1593,8 @@ class WeChatAPIView(viewsets.ViewSet):
                 e = today
 
             while h_tmp <= h:
-                start = ut.arrow_to_string(e.shift(hours=h_tmp * -1))
-                end = ut.arrow_to_string(e.shift(hours=(h_tmp - 1) * -1))
+                start = e.shift(hours=h_tmp * -1)
+                end = e.shift(hours=(h_tmp - 1) * -1)
 
                 h_tmp += 1
 
