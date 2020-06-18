@@ -1949,14 +1949,14 @@ class WeChatAPIView(viewsets.ViewSet):
         start_date_arrow = ut.string_to_arrow(start_date,"YYYY-MM-DD")
         end_date_arrow = ut.string_to_arrow(end_date,"YYYY-MM-DD")
 
-        sql_append = "t1.createtime>={} and t1.createtime<={} and t1.accid={} group by substr(from_unixtime(t1.createtime),11,3),t1.action".format(
+        sql_append = "t1.createtime>={} and t1.createtime<={} and t1.accid={} group by substr(from_unixtime(t1.createtime),12,2),t1.action".format(
             start_date_arrow.timestamp,
             end_date_arrow.shift(days=1).timestamp,
             str(accid)
         )
 
         res = AccActionCount.objects.raw("""
-            SELECT substr(from_unixtime(t1.createtime),11,3) as id,t1.action,count(*) as count FROM accactioncount as t1 
+            SELECT substr(from_unixtime(t1.createtime),12,2) as id,t1.action,count(*) as count FROM accactioncount as t1 
             WHERE %s
         """%(sql_append))
 
@@ -1973,8 +1973,20 @@ class WeChatAPIView(viewsets.ViewSet):
 
             r_data[item.id][item.action] += item.count
 
+        r_data_array=[]
+        for item in r_data:
+            tmp={
+                "time":item,
+                "fs_xx_num": item.get("0",0),
+                "gz_num": item.get("2",0) + item.get("1",0),
+                "qg_num": item.get("3",0),
+                "sm_qrcode_num":item.get("4",0),
+                "cd_click_num":item.get("5",0)
+            }
+            tmp['tot_num'] = tmp['fs_xx_num'] + tmp['gz_num'] + tmp['qg_num'] + tmp['sm_qrcode_num'] + tmp['cd_click_num']
+            r_data_array.append(tmp)
 
-        return {"data":r_data}
+        return {"data":r_data_array}
 
 
     @list_route(methods=['GET','POST'])
