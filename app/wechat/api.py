@@ -1817,27 +1817,31 @@ class WeChatAPIView(viewsets.ViewSet):
 
             if response.exists:
 
-                inner_data.append({
-                    "date":tmp_start_date_arrow.format("YYYY-MM-DD"),
-                    "num":response.count()
-                })
+
 
                 openids =  [ item.openid for item in response]
+                openidsNum = len(openids)
+
+                inner_data.append({
+                    "date":tmp_start_date_arrow.format("YYYY-MM-DD"),
+                    "num":openidsNum
+                })
+
 
                 while d_tmp<=d:
                     tmp_start_date_arrow = tmp_start_date_arrow.shift(days=1)
                     tmp_end_date_arrow = tmp_start_date_arrow.shift(days=1)
 
-                    response = AccLinkUser.objects.filter(
+                    response = AccActionCount.objects.filter(
                         accid=accid,
-                        subscribe_time__gte=tmp_start_date_arrow.timestamp,
-                        subscribe_time__lte=tmp_end_date_arrow.timestamp,
-                        umark='0',
+                        createtime__gte=tmp_start_date_arrow.timestamp,
+                        createtime__lte=tmp_end_date_arrow.timestamp,
+                        action='3',
                         openid__in=openids)
 
                     inner_data.append({
                         "date": tmp_start_date_arrow.format("YYYY-MM-DD"),
-                        "num": response.count()
+                        "num": openidsNum - response.count()
                     })
 
                     d_tmp+=1
