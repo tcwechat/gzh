@@ -1899,7 +1899,15 @@ class WeChatAPIView(viewsets.ViewSet):
             for item in res:
                 item['details'].sort(key=lambda k: k['stat_date'],reverse=True)
                 item['details'] = item['details'][0]
-                tmp['list'].append(item)
+                tmp['list'].append({
+                    "title":item['title'],
+                    "int_page_read_user":item['details']['int_page_read_user'],
+                    "int_page_read_count":item['details']['int_page_read_count'],
+                    "share_user": item['details']['share_user'],
+                    "share_count": item['details']['share_count'],
+                    "ori_page_read_user": item['details']['ori_page_read_user'],
+                    "ori_page_read_count": item['details']['ori_page_read_count'],
+                })
 
                 item1 = item['details']
                 tmp['target_user'] += item1['target_user']
