@@ -191,40 +191,40 @@ if __name__ == '__main__':
     """
 
 
-    start_date = "2020-06-08"
-    end_date="2020-06-18"
-
-    start_data_arrow = ut.string_to_arrow(start_date, "YYYY-MM-DD")
-    end_date_arrow = ut.string_to_arrow(end_date,"YYYY-MM-DD")
-
-    if ut.get_week_day(start_date) == 1:
-        s = start_data_arrow
-    else:
-        s = start_data_arrow.floor('week').shift(weeks=1)
-
-    if ut.get_week_day(end_date) == 7:
-        e = end_date_arrow
-    else:
-        e = end_date_arrow.floor('week').shift(weeks=-1).shift(weeks=1).shift(days=-1)
-
-    if e<s:
-        print("错误!")
-
-    today  = ut.today.floor('week').shift(days=-1)
-
-    if e>today:
-        e=today
-
-    w = int((e.shift(days=1)-s).days/7)
-    w_tmp = 1
-
-    while w_tmp<=w:
-        start = ut.arrow_to_string(e.shift(weeks=w_tmp*-1).shift(days=1))
-        end = ut.arrow_to_string(e.shift(weeks=(w_tmp-1)*-1).shift(days=1))
-
-        w_tmp+=1
-
-        print(start,end)
+    # start_date = "2020-06-08"
+    # end_date="2020-06-18"
+    #
+    # start_data_arrow = ut.string_to_arrow(start_date, "YYYY-MM-DD")
+    # end_date_arrow = ut.string_to_arrow(end_date,"YYYY-MM-DD")
+    #
+    # if ut.get_week_day(start_date) == 1:
+    #     s = start_data_arrow
+    # else:
+    #     s = start_data_arrow.floor('week').shift(weeks=1)
+    #
+    # if ut.get_week_day(end_date) == 7:
+    #     e = end_date_arrow
+    # else:
+    #     e = end_date_arrow.floor('week').shift(weeks=-1).shift(weeks=1).shift(days=-1)
+    #
+    # if e<s:
+    #     print("错误!")
+    #
+    # today  = ut.today.floor('week').shift(days=-1)
+    #
+    # if e>today:
+    #     e=today
+    #
+    # w = int((e.shift(days=1)-s).days/7)
+    # w_tmp = 1
+    #
+    # while w_tmp<=w:
+    #     start = ut.arrow_to_string(e.shift(weeks=w_tmp*-1).shift(days=1))
+    #     end = ut.arrow_to_string(e.shift(weeks=(w_tmp-1)*-1).shift(days=1))
+    #
+    #     w_tmp+=1
+    #
+    #     print(start,end)
 
 
     """
@@ -244,3 +244,20 @@ if __name__ == '__main__':
     #     m+=1
     #
     #     print(start,end)
+
+    date="2020-06-17"
+
+    date_arrow = ut.string_to_arrow(date, "YYYY-MM-DD")
+
+    today_arrow = ut.string_to_arrow(ut.today.format("YYYY-MM-DD"), "YYYY-MM-DD")
+    c = 0
+
+    while c < 7:
+        tmp_start_date_arrow = date_arrow.shift(days=c*-1)
+        tmp_end_date_arrow = tmp_start_date_arrow.shift(days=1)
+
+        d = (today_arrow - tmp_start_date_arrow).days
+
+        print(d,tmp_start_date_arrow,tmp_end_date_arrow)
+
+        c +=1

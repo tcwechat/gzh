@@ -1761,7 +1761,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
     @list_route(methods=['GET'])
     @Core_connector(isPagination=True)
-    def AccCount_fssx_hyd(self, request, *args, **kwargs):
+    def AccCount_hyd(self, request, *args, **kwargs):
 
         start_date = request.query_params_format.get("start_date",None)
         end_date = request.query_params_format.get("end_date", None)
@@ -1776,6 +1776,71 @@ class WeChatAPIView(viewsets.ViewSet):
 
         obj = AccCount.objects.filter(accid=accid,date__gte=start_date,date__lte=end_date).order_by('-date')
         return {"data": AccCountBaseSerializer1(obj[request.page_start:request.page_end],many=True).data}
+
+
+    @list_route(methods=['GET'])
+    @Core_connector(isPagination=True)
+    def AccCount_zcd(self, request, *args, **kwargs):
+
+        date = request.query_params_format.get("date", None)
+        accid  = request.query_params_format.get("accid", None)
+
+        ut = UtilTime()
+
+        if not date:
+            raise PubErrorCustom("时间区间有误!")
+
+        if not accid:
+            raise PubErrorCustom("公众号ID为空!")
+
+        date_arrow =  ut.string_to_arrow(date,"YYYY-MM-DD")
+
+        today_arrow = ut.string_to_arrow(ut.today.format("YYYY-MM-DD"),"YYYY-MM-DD")
+        c = 0
+
+        tables = []
+        while c<7:
+
+            inner_data = []
+
+            tmp_start_date_arrow = date_arrow.shift(days=c * -1)
+            tmp_end_date_arrow = tmp_start_date_arrow.shift(days=1)
+
+            d = (today_arrow - tmp_start_date_arrow).days
+            d_tmp = 1
+
+            response = AccLinkUser.objects.filter(
+                accid=accid,
+                createtime__gte=tmp_start_date_arrow.timestamp,
+                createtime__lte=tmp_end_date_arrow.timestamp,
+                umark='0')
+
+            if response.exists:
+
+                inner_data.append({
+                    "date":tmp_start_date_arrow.format("YYYY-MM-DD"),
+                    "num":response.count()
+                })
+
+                openids =  [ item.openid for item in response]
+
+                while d_tmp<=d:
+                    tmp_start_date_arrow = date_arrow.shift(days=d_tmp * 1)
+                    tmp_end_date_arrow = tmp_start_date_arrow.shift(days=1)
+
+                    response = AccLinkUser.objects.filter(
+                        accid=accid,
+                        createtime__gte=tmp_start_date_arrow.timestamp,
+                        createtime__lte=tmp_end_date_arrow.timestamp,
+                        umark='0',
+                        openid__in=openids)
+
+                    inner_data.append({
+                        "date": tmp_start_date_arrow.format("YYYY-MM-DD"),
+                        "num": response.count()
+                    })
+            tables.append(inner_data)
+            c+=1
 
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)
