@@ -1609,13 +1609,11 @@ class WeChatAPIView(viewsets.ViewSet):
                     tot_fs_num=tot_fs_num,
                     ut = ut))
 
-                r_data = countHandlerEx(
-                    data=data,
-                    tot_fs_num=tot_fs_num,
-                    num=h
-                )
-                r_data['data'] = data
-
+            r_data = countHandlerEx(
+                data=data,
+                num=h
+            )
+            r_data['data'] = data[request.page_start:request.page_end]
 
         elif type == 'd':
             if not start_date or not end_date:
@@ -1637,14 +1635,14 @@ class WeChatAPIView(viewsets.ViewSet):
                     ut = ut,
                     isday=True))
 
-                r_data=countHandlerEx(
-                    data=data,
-                    tot_fs_num=tot_fs_num,
-                    num = (ut.string_to_arrow(end_date,format_v="YYYY-MM-DD") - ut.string_to_arrow(start_date,format_v="YYYY-MM-DD")).days
-                )
-                r_data['data']=data
-
                 e = e.shift(days=-1)
+
+            r_data = countHandlerEx(
+                data=data,
+                num=(ut.string_to_arrow(end_date, format_v="YYYY-MM-DD") - ut.string_to_arrow(start_date,
+                                                                                              format_v="YYYY-MM-DD")).days
+            )
+            r_data['data'] = data[request.page_start:request.page_end]
 
         elif type == 'w':
             if not start_date or not end_date:
@@ -1688,12 +1686,11 @@ class WeChatAPIView(viewsets.ViewSet):
                     tot_fs_num=tot_fs_num,
                     ut = ut))
 
-                r_data=countHandlerEx(
-                    data=data,
-                    tot_fs_num=tot_fs_num,
-                    num = w
-                )
-                r_data['data']=data
+            r_data=countHandlerEx(
+                data=data,
+                num = w
+            )
+            r_data['data']=data[request.page_start:request.page_end]
 
         elif type == 'm':
             m = 1
@@ -1713,12 +1710,11 @@ class WeChatAPIView(viewsets.ViewSet):
                     tot_fs_num=tot_fs_num,
                     ut = ut))
 
-                r_data=countHandlerEx(
-                    data=data,
-                    tot_fs_num=tot_fs_num,
-                    num = 3
-                )
-                r_data['data']=data
+            r_data=countHandlerEx(
+                data=data,
+                num = 3
+            )
+            r_data['data']=data[request.page_start:request.page_end]
         else:
             raise PubErrorCustom("查询类型有误!")
 
