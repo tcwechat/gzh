@@ -1430,7 +1430,7 @@ class WeChatAPIView(viewsets.ViewSet):
             """
                 7天互动粉丝数量
             """
-            start = date_arrow.shift(days=-7)
+            start = date_arrow.shift(days=-7).timestamp
             sql_append="t1.accid = {} and t1.createtime<={} and t1.createtime>={}".format(str(item.accid),date_timestamp,start)
             aacObj1 = AccActionCount.objects.raw("""
                 SELECT t1.*,t2.sex FROM accactioncount as t1
@@ -1444,7 +1444,7 @@ class WeChatAPIView(viewsets.ViewSet):
             """
                 15天互动粉丝数量
             """
-            start = date_arrow.shift(days=-15)
+            start = date_arrow.shift(days=-15).timestamp
             sql_append="t1.accid = {} and t1.createtime<={} and t1.createtime>={}".format(str(item.accid),date_timestamp,start)
             aacObj2 = AccActionCount.objects.raw("""
                 SELECT t1.*,t2.sex FROM accactioncount as t1
