@@ -1583,7 +1583,7 @@ class WeChatAPIView(viewsets.ViewSet):
             # ut = UtilTime()
             # w = 1
             # today  = ut.today.floor('week').shift(days=-1)
-            # 
+            #
             # while w<=5:
             #     start = ut.arrow_to_string(today.shift(weeks=w*-1).shift(days=1))
             #     end = ut.arrow_to_string(today.shift(weeks=(w-1)*-1).shift(days=1))
@@ -1613,6 +1613,7 @@ class WeChatAPIView(viewsets.ViewSet):
                 m += 1
 
                 data.append(countHandler(
+                    accid = accid,
                     time=start.format("YYYY/MM"),
                     start=start.timestamp,
                     end=end.timestamp,

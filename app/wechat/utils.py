@@ -222,6 +222,7 @@ def customMsgListUpd(obj,lists,isHaveNewsList=True):
 
 def countHandler(**kwargs):
 
+    accid = kwargs.get("accid")
     time = kwargs.get("time")
     start = kwargs.get("start")
     end = kwargs.get("end")
