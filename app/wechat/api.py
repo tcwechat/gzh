@@ -1595,7 +1595,25 @@ class WeChatAPIView(viewsets.ViewSet):
                     tot_fs_num=tot_fs_num))
 
         elif type == 'd':
-            pass
+            if not start_date or not end_date:
+                raise PubErrorCustom("时间区间不能为空!")
+
+            s = ut.string_to_arrow(start_date + ' 00:00:00')
+            e = ut.string_to_arrow(end_date + ' 00:00:00').shift(days=1)
+
+            while e.timestamp > s.timestamp:
+                start = ut.string_to_arrow(e.shift(days=-1).format("YYYY-MM-DD"),format_v="YYYY-MM-DD")
+                end = e
+
+                data.append(countHandler(
+                    accid = accid,
+                    time="{}".format(start.format("YYYY-MM-DD")),
+                    start=start.timestamp,
+                    end=end.timestamp,
+                    tot_fs_num=tot_fs_num))
+
+                e = e.shift(days=-1)
+
         elif type == 'w':
             w = 1
             today  = ut.today.floor('week').shift(days=-1)

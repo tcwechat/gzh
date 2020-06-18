@@ -141,36 +141,36 @@ if __name__ == '__main__':
         按天
     """
 
-    # start_date = "2020-05-19"
-    # end_date="2020-06-18"
-    #
-    # ut = UtilTime()
-    # s = ut.string_to_arrow(start_date+' 00:00:00')
-    # e = ut.string_to_arrow(end_date+' 00:00:00').shift(days=1)
-    #
-    # while e.timestamp > s.timestamp:
-    #     start = ut.arrow_to_string(e.shift(days=-1))[:10] + ' 00:00:00'
-    #     end = ut.arrow_to_string(e)
-    #
-    #     e = e.shift(days=-1)
-    #     print(start,end)
+    start_date = "2020-05-19"
+    end_date="2020-06-18"
+
+    ut = UtilTime()
+    s = ut.string_to_arrow(start_date+' 00:00:00')
+    e = ut.string_to_arrow(end_date+' 00:00:00').shift(days=1)
+
+    while e.timestamp > s.timestamp:
+        start = ut.string_to_arrow(e.shift(days=-1).format("YYYY-MM-DD"), format_v="YYYY-MM-DD")
+        end = e
+
+        e = e.shift(days=-1)
+        print(ut.arrow_to_string(start),ut.arrow_to_string(end))
 
 
     """
         按小时
     """
 
-    ut = UtilTime()
-    h = 1
-    today  = ut.string_to_arrow(ut.arrow_to_string(ut.today)[:13] + ':00:00')
-
-    while h<=24:
-        start = ut.arrow_to_string(today.shift(hours=h*-1))
-        end = ut.arrow_to_string(today.shift(hours=(h-1)*-1))
-
-        h+=1
-
-        print(start,end)
+    # ut = UtilTime()
+    # h = 1
+    # today  = ut.string_to_arrow(ut.arrow_to_string(ut.today)[:13] + ':00:00')
+    #
+    # while h<=24:
+    #     start = ut.arrow_to_string(today.shift(hours=h*-1))
+    #     end = ut.arrow_to_string(today.shift(hours=(h-1)*-1))
+    #
+    #     h+=1
+    #
+    #     print(start,end)
 
     """
         按周
