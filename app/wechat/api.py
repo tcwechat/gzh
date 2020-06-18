@@ -1960,6 +1960,8 @@ class WeChatAPIView(viewsets.ViewSet):
             WHERE %s order by substr(from_unixtime(t1.createtime),12,2) desc
         """%(sql_append))
 
+        logger.info(res)
+
         r_data={
 
         }
