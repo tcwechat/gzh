@@ -160,33 +160,33 @@ if __name__ == '__main__':
         按小时
     """
 
-    # ut = UtilTime()
-    # h = 1
-    # today  = ut.string_to_arrow(ut.arrow_to_string(ut.today)[:13] + ':00:00')
-    #
-    # while h<=24:
-    #     start = ut.arrow_to_string(today.shift(hours=h*-1))
-    #     end = ut.arrow_to_string(today.shift(hours=(h-1)*-1))
-    #
-    #     h+=1
-    #
-    #     print(start,end)
+    ut = UtilTime()
+    h = 1
+    today  = ut.string_to_arrow(ut.arrow_to_string(ut.today)[:13] + ':00:00')
+
+    while h<=24:
+        start = ut.arrow_to_string(today.shift(hours=h*-1))
+        end = ut.arrow_to_string(today.shift(hours=(h-1)*-1))
+
+        h+=1
+
+        print(start,end)
 
     """
         按周
     """
 
-    ut = UtilTime()
-    w = 1
-    today  = ut.today.floor('week').shift(days=-1)
-
-    while w<=5:
-        start = ut.arrow_to_string(today.shift(weeks=w*-1).shift(days=1))
-        end = ut.arrow_to_string(today.shift(weeks=(w-1)*-1).shift(days=1))
-
-        w+=1
-
-        print(start,end)
+    # ut = UtilTime()
+    # w = 1
+    # today  = ut.today.floor('week').shift(days=-1)
+    #
+    # while w<=5:
+    #     start = ut.arrow_to_string(today.shift(weeks=w*-1).shift(days=1))
+    #     end = ut.arrow_to_string(today.shift(weeks=(w-1)*-1).shift(days=1))
+    #
+    #     w+=1
+    #
+    #     print(start,end)
 
 
     """

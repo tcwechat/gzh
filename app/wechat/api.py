@@ -1576,7 +1576,23 @@ class WeChatAPIView(viewsets.ViewSet):
         data=[]
 
         if type == 'h':
-            pass
+            h = 1
+            today = ut.string_to_arrow(ut.arrow_to_string(ut.today)[:13] + ':00:00')
+
+            while h <= 24:
+                start = today.shift(hours=h * -1)
+                end = today.shift(hours=(h - 1) * -1)
+
+                h += 1
+                data.append(countHandler(
+                    accid=accid,
+                    time="{}\\n{}-{}".format(start.format("YYYY-MM-DD"),
+                                             start.format("HH:mm"),
+                                             end.format("HH:mm") if end.format("HH:mm")!='00:00' else '24:00'),
+                    start=start.timestamp,
+                    end=end.timestamp,
+                    tot_fs_num=tot_fs_num))
+
         elif type == 'd':
             pass
         elif type == 'w':
