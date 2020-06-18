@@ -1983,7 +1983,7 @@ class WeChatAPIView(viewsets.ViewSet):
             tmp={
                 "time":item,
                 "fs_xx_num": item_tmp.get("0",0),
-                "gz_num": item_tmp.get("2",0) + item.get("1",0),
+                "gz_num": item_tmp.get("2",0) + item_tmp.get("1",0),
                 "qg_num": item_tmp.get("3",0),
                 "sm_qrcode_num":item_tmp.get("4",0),
                 "cd_click_num":item_tmp.get("5",0)
