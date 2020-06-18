@@ -1862,51 +1862,54 @@ class WeChatAPIView(viewsets.ViewSet):
         end_date = request.query_params_format.get("end_date", None)
         accid  = request.query_params_format.get("accid", None)
 
-        if not start_date or not end_date:
-            raise PubErrorCustom("时间区间有误!")
 
-        if not accid:
-            raise PubErrorCustom("公众号ID为空!")
+        logger.info(WechatAccCount(accid=accid).getarticlesummary("2020-06-10", "2020-06-18"))
 
-        ut = UtilTime()
-
-        start_date_arrow = ut.string_to_arrow(start_date,"YYYY-MM-DD")
-        end_date_arrow = ut.string_to_arrow(end_date,"YYYY-MM-DD")
-
-        response = []
-
-        while start_date_arrow <= end_date_arrow:
-            end_date = end_date_arrow.format("YYYY-MM-DD")
-
-            res = WechatAccCount(accid=accid).getarticlesummary(end_date, end_date)
-
-            tmp = {
-                "date":"end_date",
-                "list":res,
-                "fw_count":len(res),
-                "target_user":0,
-                "int_page_read_user":0,
-                "int_page_read_count":0,
-                "share_user":0,
-                "share_count":0,
-                "ori_page_read_user":0,
-                "ori_page_read_count":0
-            }
-
-            for item in res:
-                logger.info(item)
-                tmp['target_user'] += item['target_user']
-                tmp['int_page_read_user'] += item['int_page_read_user']
-                tmp['int_page_read_count'] += item['int_page_read_count']
-                tmp['share_user'] += item['share_user']
-                tmp['share_count'] += item['share_count']
-                tmp['ori_page_read_user'] += item['ori_page_read_user']
-                tmp['ori_page_read_count'] += item['ori_page_read_count']
-
-            response.append(tmp)
-            end_date_arrow.shift(days=-1)
-
-        return {"data":response}
+        # if not start_date or not end_date:
+        #     raise PubErrorCustom("时间区间有误!")
+        #
+        # if not accid:
+        #     raise PubErrorCustom("公众号ID为空!")
+        #
+        # ut = UtilTime()
+        #
+        # start_date_arrow = ut.string_to_arrow(start_date,"YYYY-MM-DD")
+        # end_date_arrow = ut.string_to_arrow(end_date,"YYYY-MM-DD")
+        #
+        # response = []
+        #
+        # while start_date_arrow <= end_date_arrow:
+        #     end_date = end_date_arrow.format("YYYY-MM-DD")
+        #
+        #     res = WechatAccCount(accid=accid).getarticlesummary(end_date, end_date)
+        #
+        #     tmp = {
+        #         "date":"end_date",
+        #         "list":res,
+        #         "fw_count":len(res),
+        #         "target_user":0,
+        #         "int_page_read_user":0,
+        #         "int_page_read_count":0,
+        #         "share_user":0,
+        #         "share_count":0,
+        #         "ori_page_read_user":0,
+        #         "ori_page_read_count":0
+        #     }
+        #
+        #     for item in res:
+        #         logger.info(item)
+        #         tmp['target_user'] += item['target_user']
+        #         tmp['int_page_read_user'] += item['int_page_read_user']
+        #         tmp['int_page_read_count'] += item['int_page_read_count']
+        #         tmp['share_user'] += item['share_user']
+        #         tmp['share_count'] += item['share_count']
+        #         tmp['ori_page_read_user'] += item['ori_page_read_user']
+        #         tmp['ori_page_read_count'] += item['ori_page_read_count']
+        #
+        #     response.append(tmp)
+        #     end_date_arrow.shift(days=-1)
+        #
+        # return {"data":response}
 
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)

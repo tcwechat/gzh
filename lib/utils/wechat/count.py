@@ -82,3 +82,20 @@ class WechatAccCount(WechatBase):
                 "begin_date": begin_date,
                 "end_date": end_date
             })['list']
+
+
+    def getarticletotal(self,begin_date,end_date):
+        """
+        获取图文群发总数据
+        :param begin_date:
+        :param end_date:
+        :return:
+        """
+
+        return self.request_handler(
+            method="POST",
+            url="https://api.weixin.qq.com/datacube/getarticletotal?access_token={}".format(self.auth_accesstoken),
+            json={
+                "begin_date": begin_date,
+                "end_date": end_date
+            })['list']
