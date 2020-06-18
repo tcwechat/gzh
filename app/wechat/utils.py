@@ -244,7 +244,7 @@ def countHandler(**kwargs):
         elif item.action == '3':
             res['qg_num'] += 1
 
-        res['qg_rate'] = res['qg_num'] * 100 / (tot_fs_num + res['qg_num']) if tot_fs_num + res['qg_num'] else 0.0
+        res['qg_rate'] = round(res['qg_num'] * 100 / (tot_fs_num + res['qg_num']) if tot_fs_num + res['qg_num'] else 0.0,2)
         res['jz_num'] = res['xgz_num'] - res['qg_num']
 
     return res
