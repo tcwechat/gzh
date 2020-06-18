@@ -1555,7 +1555,7 @@ class WeChatAPIView(viewsets.ViewSet):
         return {"data":AccCountBaseSerializer(query,many=False).data}
 
     @list_route(methods=['GET'])
-    @Core_connector()
+    @Core_connector(isPagination=True)
     def AccCount_fszz(self, request, *args, **kwargs):
 
         type = request.query_params_format.get("type",None)
