@@ -1811,8 +1811,8 @@ class WeChatAPIView(viewsets.ViewSet):
 
             response = AccLinkUser.objects.filter(
                 accid=accid,
-                createtime__gte=tmp_start_date_arrow.timestamp,
-                createtime__lte=tmp_end_date_arrow.timestamp,
+                subscribe_time__gte=tmp_start_date_arrow.timestamp,
+                subscribe_time__lte=tmp_end_date_arrow.timestamp,
                 umark='0')
 
             if response.exists:
@@ -1830,8 +1830,8 @@ class WeChatAPIView(viewsets.ViewSet):
 
                     response = AccLinkUser.objects.filter(
                         accid=accid,
-                        createtime__gte=tmp_start_date_arrow.timestamp,
-                        createtime__lte=tmp_end_date_arrow.timestamp,
+                        subscribe_time__gte=tmp_start_date_arrow.timestamp,
+                        subscribe_time__lte=tmp_end_date_arrow.timestamp,
                         umark='0',
                         openid__in=openids)
 
