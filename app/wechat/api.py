@@ -1957,7 +1957,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
         res = AccActionCount.objects.raw("""
             SELECT substr(from_unixtime(t1.createtime),12,2) as id,t1.action,count(*) as count FROM accactioncount as t1 
-            WHERE %s
+            WHERE %s order by substr(from_unixtime(t1.createtime),12,2) desc
         """%(sql_append))
 
         r_data={
