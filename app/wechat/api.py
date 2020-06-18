@@ -40,7 +40,7 @@ from lib.utils.log import logger
 from app.wechat.serialiers import AccSerializer,AccTagModelSerializer,AccQrcodeModelSerializer,AccLinkUserSerializer,\
     AccFollowModelSerializer,AccReplyModelSerializer,AccSendSerializer1,AccMsgCustomerModelSerializer,AccFollowSerializer,\
         AccReplySerializer,AccMsgMouldSerializer,AccMsgMouldModelSerializer,AccMsgMassSerializer,AccQrcodeListModelSerializer1,\
-            AccMsgMassModelSerializer,AccMsgCustomerModelSerializer1,AccMsgMouldModelSerializer1,AccMsgMassModelSerializer1
+            AccMsgMassModelSerializer,AccMsgCustomerModelSerializer1,AccMsgMouldModelSerializer1,AccMsgMassModelSerializer1,AccCountBaseSerializer
 
 class WeChatAPIView(viewsets.ViewSet):
 
@@ -1471,6 +1471,9 @@ class WeChatAPIView(viewsets.ViewSet):
                 "date":date_string
             })
 
+            acc_count_obj_new.jz_num = acc_count_obj_new.xz_num - acc_count_obj_new.qg_num
+
+            acc_count_obj_new.jz_add_rate = acc_count_obj_new.jz_num * 100.0 / acc_count_obj.jz_num if acc_count_obj and acc_count_obj.jz_num else 0.0
             acc_count_obj_new.xz_add_rate = acc_count_obj_new.xz_num * 100.0 / acc_count_obj.xz_num if acc_count_obj and acc_count_obj.xz_num else 0.0
             acc_count_obj_new.qg_add_rate = acc_count_obj_new.qg_num * 100.0 / acc_count_obj.qg_num if acc_count_obj and acc_count_obj.qg_num else 0.0
             acc_count_obj_new.hy_add_rate = acc_count_obj_new.hy_num * 100.0 / acc_count_obj.hy_num if acc_count_obj and acc_count_obj.hy_num else 0.0
@@ -1482,8 +1485,58 @@ class WeChatAPIView(viewsets.ViewSet):
     @Core_connector()
     def AccCountBase(self, request, *args, **kwargs):
 
-        pass
+        ut = UtilTime()
 
+        date_arrow  = ut.today.shift(days=-1)
+        date_string = ut.arrow_to_string(date_arrow,format_v="YYYY-MM-DD")
+
+        data_last=dict(
+            xz_num=0,
+            qg_num=0,
+            jz_num=0,
+            hy_num=0,
+            tot_fs_num=0,
+        )
+
+        data=dict(
+            xz_num=0,
+            xz_add_rate = 0.0,
+            qg_num = 0,
+            qg_add_rate = 0.0,
+            jz_num = 0,
+            jz_add_rate = 0.0,
+            hy_num = 0,
+            hy_add_rate = 0.0,
+            tot_fs_num = 0,
+            tot_fs_add_rate = 0.0
+        )
+
+        for item in AccCount.objects.filter(date=date_string):
+            data['xz_num'] += item.xz_num
+            data['qg_num'] += item.qg_num
+            data['jz_num'] += item.jz_num
+            data['hy_num'] += item.hy_num
+            data['tot_fs_num'] += item.tot_fs_num
+
+            try:
+                acc_count_obj = AccCount.objects.get(accid=item.accid,date=ut.arrow_to_string(date_arrow.shift(days=-1),format_v="YYYY-MM-DD"))
+            except AccCount.DoesNotExist:
+                acc_count_obj = None
+
+            if acc_count_obj:
+                data_last['xz_num'] += acc_count_obj.xz_num
+                data_last['qg_num'] += acc_count_obj.qg_num
+                data_last['jz_num'] += acc_count_obj.jz_num
+                data_last['hy_num'] += acc_count_obj.hy_num
+                data_last['tot_fs_num'] += acc_count_obj.tot_fs_num
+
+        data['jz_add_rate'] = data['jz_num'] * 100.0 / data_last['jz_num'] if data_last['jz_num'] else 0.0
+        data['xz_add_rate'] = data['xz_num'] * 100.0 / data_last['xz_num'] if data_last['xz_num'] else 0.0
+        data['qg_add_rate'] = data['qg_num'] * 100.0 / data_last['qg_num'] if data_last['qg_num'] else 0.0
+        data['hy_add_rate'] = data['hy_num'] * 100.0 / data_last['hy_num'] if data_last['hy_num'] else 0.0
+        data['tot_fs_add_rate'] = data['tot_fs_num'] * 100.0 / data_last['tot_fs_num'] if data_last['tot_fs_num'] else 0.0
+
+        return {"data":data}
 
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)

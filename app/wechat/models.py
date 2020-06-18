@@ -469,7 +469,9 @@ class AccCount(models.Model):
     hy_num = models.IntegerField(verbose_name="活跃数量",default=0)
     tot_fs_num = models.IntegerField(verbose_name="总粉丝数量",default=0)
     yd_num = models.IntegerField(verbose_name="阅读数量", default=0)
+    jz_num = models.IntegerField(verbose_name="净增数量",default=0)
 
+    jz_add_rate = models.DecimalField(verbose_name="新增比例", max_digits=18,decimal_places=6, default=0.0)
     xz_add_rate = models.DecimalField(verbose_name="新增比例", max_digits=18,decimal_places=6, default=0.0)
     qg_add_rate = models.DecimalField(verbose_name="取关比例", max_digits=18,decimal_places=6, default=0.0)
     hy_add_rate = models.DecimalField(verbose_name="活跃比例", max_digits=18, decimal_places=6, default=0.0)

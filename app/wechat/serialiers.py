@@ -467,3 +467,16 @@ class AccMsgMassModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = AccMsgMass
         fields = '__all__'
+
+class AccCountBaseSerializer(serializers.Serializer):
+
+    xz_num  = serializers.IntegerField()
+    xz_add_rate = serializers.DecimalField(max_digits=18,decimal_places=2)
+    qg_num = serializers.IntegerField()
+    qg_add_rate = serializers.DecimalField(max_digits=18,decimal_places=2)
+    jz_num = serializers.IntegerField()
+    jz_add_rate = serializers.DecimalField(max_digits=18,decimal_places=2)
+    hy_num = serializers.IntegerField()
+    hy_add_rate = serializers.DecimalField(max_digits=18,decimal_places=2)
+    tot_fs_num = serializers.IntegerField()
+    tot_fs_add_rate = serializers.DecimalField(max_digits=18,decimal_places=2)
