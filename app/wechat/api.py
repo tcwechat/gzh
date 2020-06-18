@@ -1795,11 +1795,16 @@ class WeChatAPIView(viewsets.ViewSet):
                 r_data['channel']['other_num'] += 1
 
             r_data['channel']['tot_num'] += 1
-
-            if item.province not in  r_data['city']:
-                r_data['city'][item.province] = 1
+            if not len(item.province):
+                province = '其它'
             else:
-                r_data['city'][item.province] += 1
+                province = item.province
+
+
+            if province not in  r_data['city']:
+                r_data['city'][province] = 1
+            else:
+                r_data['city'][province] += 1
 
         r_data['base']['man_rate'] = round(r_data['base']['man_fs_num'] * 100.0 / r_data['base']['xz_fs_num'] if r_data['base']['xz_fs_num'] else 0.0 ,2)
         r_data['base']['woman_rate'] = round(r_data['base']['woman_fs_num'] * 100.0 / r_data['base']['xz_fs_num'] if r_data['base']['xz_fs_num'] else 0.0, 2)
