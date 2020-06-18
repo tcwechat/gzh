@@ -1863,7 +1863,7 @@ class WeChatAPIView(viewsets.ViewSet):
         accid  = request.query_params_format.get("accid", None)
 
 
-        logger.info(WechatAccCount(accid=accid).getarticlesummary("2020-06-10", "2020-06-18"))
+        logger.info(WechatAccCount(accid=accid).getarticlesummary("2020-06-17", "2020-06-17"))
 
         # if not start_date or not end_date:
         #     raise PubErrorCustom("时间区间有误!")
