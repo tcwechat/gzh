@@ -1894,6 +1894,7 @@ class WeChatAPIView(viewsets.ViewSet):
             }
 
             for item in res:
+                print(item)
                 tmp['target_user'] += item['target_user']
                 tmp['int_page_read_user'] += item['int_page_read_user']
                 tmp['int_page_read_count'] += item['int_page_read_count']
