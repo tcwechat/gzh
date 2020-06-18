@@ -1383,7 +1383,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
 
     @list_route(methods=['POST'])
-    @Core_connector()
+    @Core_connector(isTransaction=True)
     def AccCount_Handler(self, request, *args, **kwargs):
 
         ut = UtilTime()
@@ -1423,6 +1423,8 @@ class WeChatAPIView(viewsets.ViewSet):
                 WHERE %s
             """%(sql_append))
 
+            logger.info(aacObj)
+
             aacObj=list(aacObj)
 
             """
@@ -1435,6 +1437,8 @@ class WeChatAPIView(viewsets.ViewSet):
                 INNER JOIN acclinkuser ad t2 ON t1.accid = t2.accid and t2.umark='0'
                 WHERE %s
             """%(sql_append))
+
+            logger.info(aacObj1)
             aacObj1 = list(aacObj1)
 
             """
@@ -1447,6 +1451,7 @@ class WeChatAPIView(viewsets.ViewSet):
                 INNER JOIN acclinkuser ad t2 ON t1.accid = t2.accid and t2.umark='0'
                 WHERE %s
             """%(sql_append))
+            logger.info(aacObj2)
             aacObj2 = list(aacObj2)
 
             AccCount.objects.create(**{
