@@ -1647,14 +1647,38 @@ class WeChatAPIView(viewsets.ViewSet):
                 e = e.shift(days=-1)
 
         elif type == 'w':
-            w = 1
-            today  = ut.today.floor('week').shift(days=-1)
+            if not start_date or not end_date:
+                raise PubErrorCustom("时间区间不能为空!")
 
-            while w<=5:
-                start = today.shift(weeks=w*-1).shift(days=1)
-                end = today.shift(weeks=(w-1)*-1).shift(days=1)
+            start_data_arrow = ut.string_to_arrow(start_date, "YYYY-MM-DD")
+            end_date_arrow = ut.string_to_arrow(end_date, "YYYY-MM-DD")
 
-                w+=1
+            if ut.get_week_day(start_date) == 1:
+                s = start_data_arrow
+            else:
+                s = start_data_arrow.floor('week').shift(weeks=1)
+
+            if ut.get_week_day(end_date) == 7:
+                e = end_date_arrow
+            else:
+                e = end_date_arrow.floor('week').shift(weeks=-1).shift(weeks=1).shift(days=-1)
+
+            if e < s:
+                raise PubErrorCustom("时间区间有误!")
+
+            today = ut.today.floor('week').shift(days=-1)
+
+            if e > today:
+                e = today
+
+            w = int((e.shift(days=1) - s).days / 7)
+            w_tmp = 1
+
+            while w_tmp <= w:
+                start = e.shift(weeks=w_tmp * -1).shift(days=1)
+                end = e.shift(weeks=(w_tmp - 1) * -1).shift(days=1)
+
+                w_tmp += 1
 
                 data.append(countHandler(
                     accid = accid,
@@ -1667,7 +1691,7 @@ class WeChatAPIView(viewsets.ViewSet):
                 r_data=countHandlerEx(
                     data=data,
                     tot_fs_num=tot_fs_num,
-                    num = 5
+                    num = w
                 )
                 r_data['data']=data
 

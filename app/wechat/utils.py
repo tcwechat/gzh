@@ -266,7 +266,8 @@ def countHandler(**kwargs):
         "xgz_num": 0,
         "qg_num": 0,
         "qg_rate": 0.0,
-        "jz_num": 0
+        "jz_num": 0,
+        "tot_fs_num":0
     }
 
     for item in AccActionCount.objects.filter(accid=accid, action__in=['1', '3'],
@@ -286,8 +287,6 @@ def countHandler(**kwargs):
 
         res['qg_rate'] = round(res['qg_num'] * 100 / (tot_fs_num + res['qg_num']) if tot_fs_num + res['qg_num'] else 0.0,2)
         res['jz_num'] = res['xgz_num'] - res['qg_num']
-
-        logger.info("{}-{}-{}".format(isday,start,end))
 
         if isday:
             res['tot_fs_num'] = tot_fs_num

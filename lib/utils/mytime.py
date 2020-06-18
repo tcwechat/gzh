@@ -94,22 +94,22 @@ class UtilTime(object):
         week1 = day_arrow.floor('week')
         if self.arrow_to_string(week1, format_v) == day_string:
             return 1
-        elif self.arrow_to_string(week1.replace(days=1),
+        elif self.arrow_to_string(week1.shift(days=1),
                                   format_v) == day_string:
             return 2
-        elif self.arrow_to_string(week1.replace(days=2),
+        elif self.arrow_to_string(week1.shift(days=2),
                                   format_v) == day_string:
             return 3
-        elif self.arrow_to_string(week1.replace(days=3),
+        elif self.arrow_to_string(week1.shift(days=3),
                                   format_v) == day_string:
             return 4
-        elif self.arrow_to_string(week1.replace(days=4),
+        elif self.arrow_to_string(week1.shift(days=4),
                                   format_v) == day_string:
             return 5
-        elif self.arrow_to_string(week1.replace(days=5),
+        elif self.arrow_to_string(week1.shift(days=5),
                                   format_v) == day_string:
             return 6
-        elif self.arrow_to_string(week1.replace(days=6),
+        elif self.arrow_to_string(week1.shift(days=6),
                                   format_v) == day_string:
             return 7
         else:
@@ -138,8 +138,8 @@ def get_current_month_start_and_end(date):
 if __name__ == '__main__':
     ut = UtilTime()
 
-    date_arrow = ut.today.shift(days=-1).shift(months=-2)
-    print(date_arrow)
+    # date_arrow = ut.today.shift(days=-1).shift(months=-2)
+    # print(date_arrow)
 
     """
         按天
@@ -190,17 +190,41 @@ if __name__ == '__main__':
         按周
     """
 
-    # ut = UtilTime()
-    # w = 1
-    # today  = ut.today.floor('week').shift(days=-1)
-    #
-    # while w<=5:
-    #     start = ut.arrow_to_string(today.shift(weeks=w*-1).shift(days=1))
-    #     end = ut.arrow_to_string(today.shift(weeks=(w-1)*-1).shift(days=1))
-    #
-    #     w+=1
-    #
-    #     print(start,end)
+
+    start_date = "2020-06-08"
+    end_date="2020-06-18"
+
+    start_data_arrow = ut.string_to_arrow(start_date, "YYYY-MM-DD")
+    end_date_arrow = ut.string_to_arrow(end_date,"YYYY-MM-DD")
+
+    if ut.get_week_day(start_date) == 1:
+        s = start_data_arrow
+    else:
+        s = start_data_arrow.floor('week').shift(weeks=1)
+
+    if ut.get_week_day(end_date) == 7:
+        e = end_date_arrow
+    else:
+        e = end_date_arrow.floor('week').shift(weeks=-1).shift(weeks=1).shift(days=-1)
+
+    if e<s:
+        print("错误!")
+
+    today  = ut.today.floor('week').shift(days=-1)
+
+    if e>today:
+        e=today
+
+    w = int((e.shift(days=1)-s).days/7)
+    w_tmp = 1
+
+    while w_tmp<=w:
+        start = ut.arrow_to_string(e.shift(weeks=w_tmp*-1).shift(days=1))
+        end = ut.arrow_to_string(e.shift(weeks=(w_tmp-1)*-1).shift(days=1))
+
+        w_tmp+=1
+
+        print(start,end)
 
 
     """
