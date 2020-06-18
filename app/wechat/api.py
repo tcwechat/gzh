@@ -1975,6 +1975,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
             r_data[item.id][item.action] += item.count
 
+        logger.info(r_data)
         r_data_array=[]
         for item in r_data:
 
