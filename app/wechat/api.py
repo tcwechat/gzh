@@ -1925,7 +1925,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
 
     @list_route(methods=['GET'])
-    @Core_connector()
+    @Core_connector(isPagination=True)
     def AccCount_hdmsg_hdsd(self, request, *args, **kwargs):
         start_date = request.query_params_format.get("start_date",None)
         end_date = request.query_params_format.get("end_date", None)
@@ -1994,8 +1994,62 @@ class WeChatAPIView(viewsets.ViewSet):
             tmp['tot_num'] = tmp['fs_xx_num'] + tmp['gz_num'] + tmp['qg_num'] + tmp['sm_qrcode_num'] + tmp['cd_click_num']
             r_data_array.append(tmp)
         r_data_array.sort(key=lambda k: k['time'],reverse=True)
-        return {"data":r_data_array}
+        return {"data":r_data_array[request.page_start:request.page_end]}
 
+    @list_route(methods=['GET'])
+    @Core_connector()
+    def AccCount_hdmsg_hdtype(self, request, *args, **kwargs):
+
+        start_date = request.query_params_format.get("start_date",None)
+        end_date = request.query_params_format.get("end_date", None)
+        accid  = request.query_params_format.get("accid", None)
+
+        if not start_date or not end_date:
+            raise PubErrorCustom("时间区间有误!")
+
+        if not accid:
+            raise PubErrorCustom("公众号ID为空!")
+
+        ut = UtilTime()
+
+        start_date_arrow = ut.string_to_arrow(start_date,"YYYY-MM-DD")
+        end_date_arrow = ut.string_to_arrow(end_date,"YYYY-MM-DD")
+
+        tmp_data={
+            "fs_xx_num":0,
+            "gz_num":0,
+            "qg_num":0,
+            "sm_qrcode_num":0,
+            "cd_click_num":0,
+            "tot_num":0
+        }
+
+        for item in AccActionCount.objects.filter(
+            accid=accid,
+            createtime__gte=start_date_arrow.timestamp,
+            createtime__lte=end_date_arrow.shift(days=1).timestamp):
+
+            tmp_data['tot_num'] += 1
+
+            if item.action == '0':
+                tmp_data['fs_xx_num'] += 1
+            elif item.action in ['1','2']:
+                tmp_data['gz_num'] += 1
+            elif item.action == '3':
+                tmp_data['qg_num'] += 1
+            elif item.action == '4':
+                tmp_data['sm_qrcode_num'] += 1
+            else:
+                tmp_data['cd_click_num'] += 1
+
+        return {"data":{
+            "tot_num":tmp_data['tot_num'],
+            "fs_xx_rate":round(tmp_data['fs_xx_num'] * 100.0 / tmp_data['tot_num'] if  tmp_data['tot_num'] else 0.0,2),
+            "gz_rate": round(tmp_data['gz_num'] * 100.0 / tmp_data['tot_num'] if tmp_data['tot_num'] else 0.0, 2),
+            "qg_rate": round(tmp_data['qg_num'] * 100.0 / tmp_data['tot_num'] if tmp_data['tot_num'] else 0.0, 2),
+            "sm_qrcode_rate": round(tmp_data['sm_qrcode_num'] * 100.0 / tmp_data['tot_num'] if tmp_data['tot_num'] else 0.0, 2),
+            "cd_click_rate": round(tmp_data['cd_click_num'] * 100.0 / tmp_data['tot_num'] if tmp_data['tot_num'] else 0.0, 2),
+        }}
 
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)
