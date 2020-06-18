@@ -137,10 +137,72 @@ def get_current_month_start_and_end(date):
 
 if __name__ == '__main__':
 
-    print(UtilTime().timestamp)
-    print(UtilTime().timestamp_to_string(1576920448))
-    # print(UtilTime().timestamp_to_arrow(1576920448))
-    #
-    # import arrow
-    # print(arrow.get(1576920448))
+    """
+        按天
+    """
 
+    # start_date = "2020-05-19"
+    # end_date="2020-06-18"
+    #
+    # ut = UtilTime()
+    # s = ut.string_to_arrow(start_date+' 00:00:00')
+    # e = ut.string_to_arrow(end_date+' 00:00:00').shift(days=1)
+    #
+    # while e.timestamp > s.timestamp:
+    #     start = ut.arrow_to_string(e.shift(days=-1))[:10] + ' 00:00:00'
+    #     end = ut.arrow_to_string(e)
+    #
+    #     e = e.shift(days=-1)
+    #     print(start,end)
+
+
+    """
+        按小时
+    """
+
+    # ut = UtilTime()
+    # h = 1
+    # today  = ut.string_to_arrow(ut.arrow_to_string(ut.today)[:13] + ':00:00')
+    #
+    # while h<=24:
+    #     start = ut.arrow_to_string(today.shift(hours=h*-1))
+    #     end = ut.arrow_to_string(today.shift(hours=(h-1)*-1))
+    #
+    #     h+=1
+    #
+    #     print(start,end)
+
+    """
+        按周
+    """
+
+    # ut = UtilTime()
+    # w = 1
+    # today  = ut.today.floor('week').shift(days=-1)
+    #
+    # while w<=5:
+    #     start = ut.arrow_to_string(today.shift(weeks=w*-1).shift(days=1))
+    #     end = ut.arrow_to_string(today.shift(weeks=(w-1)*-1).shift(days=1))
+    #
+    #     w+=1
+    #
+    #     print(start,end)
+
+
+    """
+        按月
+    """
+
+    # ut = UtilTime()
+    # m = 1
+    # # today  = ut.string_to_arrow( + '-00 00:00:00')
+    #
+    # today = ut.string_to_arrow(ut.today.format("YYYY-MM"),format_v="YYYY-MM")
+    #
+    # while m<=3:
+    #     start = ut.arrow_to_string(today.shift(months=m*-1))
+    #     end = ut.arrow_to_string(today.shift(months=(m-1)*-1))
+    #
+    #     m+=1
+    #
+    #     print(start,end)

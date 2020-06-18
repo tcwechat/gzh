@@ -1554,6 +1554,73 @@ class WeChatAPIView(viewsets.ViewSet):
 
         return {"data":AccCountBaseSerializer(query,many=False).data}
 
+    @list_route(methods=['GET'])
+    @Core_connector()
+    def AccCount_fszz(self, request, *args, **kwargs):
+
+        type = request.query_params_format.get("type",None)
+        accid = request.query_params_format.get("accid",None)
+
+        start_date = request.query_params_format.get("start_date",None)
+        end_date = request.query_params_format.get("end_date", None)
+
+        if not type:
+            raise PubErrorCustom("查询类型不能为空!")
+
+        if not accid:
+            raise PubErrorCustom("公众号ID不能为空!")
+
+        tot_fs_num = AccLinkUser.objects.filter(accid=accid,umark='0').count()
+
+        data=[]
+
+        if type == 'h':
+            pass
+        elif type == 'd':
+            pass
+        elif type == 'w':
+            pass
+        elif type == 'm':
+            ut = UtilTime()
+            m = 1
+            # today  = ut.string_to_arrow( + '-00 00:00:00')
+
+            today = ut.string_to_arrow(ut.today.format("YYYY-MM"), format_v="YYYY-MM")
+
+            while m <= 3:
+                start = today.shift(months=m * -1)
+                end = today.shift(months=(m - 1) * -1)
+
+                m += 1
+
+                print(start, end)
+
+                res={
+                    "time":start.format("YYYY/MM"),
+                    "xgz_num":0,
+                    "qg_num":0,
+                    "qg_rate":0.0,
+                    "jz_num":0
+                }
+
+                for item in AccActionCount.objects.filter(accid=accid, action__in=['1', '3'],
+                                                      createtime__gte=start.timestamp,
+                                                      createtime__lte=end.timestamp):
+                    if item.action == '1':
+                        res['xgz_num'] +=1
+                    elif item.action == '3':
+                        res['qg_num'] += 1
+
+                    res['qg_rate'] = res['qg_num'] * 100 / (tot_fs_num + res['qg_num'])
+                    res['jz_num'] = res['xgz_num'] - res['qg_num']
+
+                data.append(res)
+        else:
+            raise PubErrorCustom("查询类型有误!")
+
+        return {"data":data}
+
+
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)
     def test(self,request, *args, **kwargs):
