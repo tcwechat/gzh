@@ -1931,6 +1931,10 @@ class WeChatAPIView(viewsets.ViewSet):
         end_date = request.query_params_format.get("end_date", None)
         accid  = request.query_params_format.get("accid", None)
 
+        """
+        SELECT substr(from_unixtime(t1.createtime),11,3) as id,t1.action,count(*) as count FROM accactioncount as t1
+            WHERE t1.createtime>=1592150400 and t1.createtime<=1592409600 and t1.accid=2 group by substr(from_unixtime(t1.createtime),11,3),t1.action
+        """
 
         # logger.info(WechatAccCount(accid=accid).getarticletotal("2020-06-17", "2020-06-17"))
 
@@ -1945,18 +1949,33 @@ class WeChatAPIView(viewsets.ViewSet):
         start_date_arrow = ut.string_to_arrow(start_date,"YYYY-MM-DD")
         end_date_arrow = ut.string_to_arrow(end_date,"YYYY-MM-DD")
 
-        sql_append = "t1.createtime>={} and t1.createtime<={} and t1.accid={} group by substr(from_unixtime(t1.createtime),11,15),t1.action".format(
+        sql_append = "t1.createtime>={} and t1.createtime<={} and t1.accid={} group by substr(from_unixtime(t1.createtime),11,3),t1.action".format(
             start_date_arrow.timestamp,
             end_date_arrow.shift(days=1).timestamp,
             str(accid)
         )
 
         res = AccActionCount.objects.raw("""
-            SELECT substr(from_unixtime(t1.createtime),11,15) as id,t1.action,count(*) as count FROM accactioncount as t1 
+            SELECT substr(from_unixtime(t1.createtime),11,3) as id,t1.action,count(*) as count FROM accactioncount as t1 
             WHERE %s
         """%(sql_append))
 
-        logger.info(res)
+        r_data={
+
+        }
+
+        for item in res:
+            if item.id not in r_data:
+                r_data[item.id] = {}
+
+            if item.action not in r_data[item.id]:
+                r_data[item.id][item.action] = 0
+
+            r_data[item.id][item.action] += item.count
+
+
+        return {"data":r_data}
+
 
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)
