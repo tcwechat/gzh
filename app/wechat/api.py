@@ -1779,7 +1779,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
 
     @list_route(methods=['GET'])
-    @Core_connector(isPagination=True)
+    @Core_connector()
     def AccCount_zcd(self, request, *args, **kwargs):
 
         date = request.query_params_format.get("date", None)
@@ -1852,6 +1852,23 @@ class WeChatAPIView(viewsets.ViewSet):
             c+=1
 
         return {"data":tables}
+
+
+    @list_route(methods=['GET'])
+    @Core_connector()
+    def AccCount_twyxl(self, request, *args, **kwargs):
+
+        start_date = request.query_params_format.get("start_date",None)
+        end_date = request.query_params_format.get("end_date", None)
+        accid  = request.query_params_format.get("accid", None)
+
+        if not start_date or not end_date:
+            raise PubErrorCustom("时间区间有误!")
+
+        if not accid:
+            raise PubErrorCustom("公众号ID为空!")
+
+        return {"data":WechatAccCount(accid=accid).getarticlesummary(start_date,end_date)}
 
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)
