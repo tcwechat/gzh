@@ -1923,6 +1923,41 @@ class WeChatAPIView(viewsets.ViewSet):
 
         return {"data":response}
 
+
+    @list_route(methods=['GET'])
+    @Core_connector()
+    def AccCount_hdmsg_hdsd(self, request, *args, **kwargs):
+        start_date = request.query_params_format.get("start_date",None)
+        end_date = request.query_params_format.get("end_date", None)
+        accid  = request.query_params_format.get("accid", None)
+
+
+        # logger.info(WechatAccCount(accid=accid).getarticletotal("2020-06-17", "2020-06-17"))
+
+        if not start_date or not end_date:
+            raise PubErrorCustom("时间区间有误!")
+
+        if not accid:
+            raise PubErrorCustom("公众号ID为空!")
+
+        ut = UtilTime()
+
+        start_date_arrow = ut.string_to_arrow(start_date,"YYYY-MM-DD")
+        end_date_arrow = ut.string_to_arrow(end_date,"YYYY-MM-DD")
+
+        sql_append = "t1.createtime>={} and t1.createtime<={} and t1.accid={} group by substr(from_unixtime(t1.createtime),11,15),t1.action".format(
+            start_date_arrow.timestamp,
+            end_date_arrow.shift(days=1).timestamp,
+            str(accid)
+        )
+
+        res = AccActionCount.objects.raw("""
+            SELECT substr(from_unixtime(t1.createtime),11,15) as id,t1.action,count(*) as count FROM accactioncount as t1 
+            WHERE %s
+        """%(sql_append))
+
+        logger.info(res)
+
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)
     def test(self,request, *args, **kwargs):

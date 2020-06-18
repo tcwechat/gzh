@@ -507,6 +507,7 @@ class AccActionCount(models.Model):
 
     createtime = models.BigIntegerField(default=0)
 
+    count = None
     sex = None
 
     def save(self, *args, **kwargs):
