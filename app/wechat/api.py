@@ -1411,7 +1411,7 @@ class WeChatAPIView(viewsets.ViewSet):
             """
                 获取图文每日数据
             """
-            response2 = wacHandler.getarticlesummary(date_string, date_string)[0]
+            # response2 = wacHandler.getarticlesummary(date_string, date_string)[0]
 
             """
                 昨日活跃粉丝数量
@@ -1454,7 +1454,12 @@ class WeChatAPIView(viewsets.ViewSet):
             logger.info(aacObj2)
             aacObj2 = list(aacObj2)
 
-            AccCount.objects.create(**{
+            try:
+                acc_count_obj = AccCount.objects.get(accid=item.accid,date=ut.arrow_to_string(date_arrow.shift(days=-1),format_v="YYYY-MM-DD"))
+            except AccCount.DoesNotExist:
+                acc_count_obj = None
+
+            acc_count_obj_new = AccCount.objects.create(**{
                 "accid":item.accid,
                 "xz_num":response['new_user'],
                 "qg_num":response['cancel_user'],
@@ -1462,9 +1467,23 @@ class WeChatAPIView(viewsets.ViewSet):
                 "tot_fs_num":response1['cumulate_user'],
                 "seven_day_fs_num":len(set([ i.openid for i in aacObj1])),
                 "fifteen_day_fs_num":len(set([ i.openid for i in aacObj2])),
-                "yd_num":response2['int_page_read_user'],
+                "yd_num":0,
                 "date":date_string
             })
+
+            acc_count_obj_new.xz_add_rate = acc_count_obj_new.xz_num * 100.0 / acc_count_obj.xz_num if acc_count_obj and acc_count_obj.xz_num else 0.0
+            acc_count_obj_new.qg_add_rate = acc_count_obj_new.qg_num * 100.0 / acc_count_obj.qg_num if acc_count_obj and acc_count_obj.qg_num else 0.0
+            acc_count_obj_new.hy_add_rate = acc_count_obj_new.hy_num * 100.0 / acc_count_obj.hy_num if acc_count_obj and acc_count_obj.hy_num else 0.0
+            acc_count_obj_new.yd_add_rate = acc_count_obj_new.yd_num * 100.0 / acc_count_obj.yd_num if acc_count_obj and acc_count_obj.yd_num else 0.0
+            acc_count_obj_new.tot_fs_add_rate = acc_count_obj_new.tot_fs_num * 100.0 / acc_count_obj.tot_fs_num if acc_count_obj and acc_count_obj.tot_fs_num else 0.0
+            acc_count_obj_new.save()
+
+    @list_route(methods=['GET'])
+    @Core_connector()
+    def AccCountBase(self, request, *args, **kwargs):
+
+        pass
+
 
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)

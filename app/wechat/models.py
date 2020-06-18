@@ -470,6 +470,12 @@ class AccCount(models.Model):
     tot_fs_num = models.IntegerField(verbose_name="总粉丝数量",default=0)
     yd_num = models.IntegerField(verbose_name="阅读数量", default=0)
 
+    xz_add_rate = models.DecimalField(verbose_name="新增比例", max_digits=18,decimal_places=6, default=0.0)
+    qg_add_rate = models.DecimalField(verbose_name="取关比例", max_digits=18,decimal_places=6, default=0.0)
+    hy_add_rate = models.DecimalField(verbose_name="活跃比例", max_digits=18, decimal_places=6, default=0.0)
+    tot_fs_add_rate = models.DecimalField(verbose_name="总粉丝比例", max_digits=18, decimal_places=6, default=0.0)
+    yd_add_rate = models.DecimalField(verbose_name="阅读比例", max_digits=18, decimal_places=6, default=0.0)
+
     seven_day_fs_num = models.IntegerField(verbose_name="7天内互动粉丝数量", default=0)
     fifteen_day_fs_num = models.IntegerField(verbose_name="15天内互动粉丝数量", default=0)
 
