@@ -1773,7 +1773,7 @@ class WeChatAPIView(viewsets.ViewSet):
             raise PubErrorCustom("公众号ID为空!")
 
 
-        obj = AccCount.objects.filter(accid=accid,date__gte=start_date,date__lte=end_date).order_by('-createtime')
+        obj = AccCount.objects.filter(accid=accid,date__gte=start_date,date__lte=end_date).order_by('-date')
         return {"data": AccCountBaseSerializer(obj[request.page_start:request.page_end],many=True).data}
 
     @list_route(methods=['GET','POST'])
