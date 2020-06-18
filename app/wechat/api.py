@@ -1839,6 +1839,8 @@ class WeChatAPIView(viewsets.ViewSet):
                         "date": tmp_start_date_arrow.format("YYYY-MM-DD"),
                         "num": response.count()
                     })
+
+                    d_tmp+=1
             tables.append(inner_data)
             c+=1
 
