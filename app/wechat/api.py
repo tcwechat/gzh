@@ -20,7 +20,7 @@ from lib.utils.wechat.mouldmsg import MouldMsg
 from lib.utils.wechat.count import WechatAccCount
 from lib.utils.db import RedisTicketHandler
 
-from app.wechat.utils import tag_batchtagging,customMsgListAdd,customMsgListUpd,tag_canle,tag_del
+from app.wechat.utils import tag_batchtagging,customMsgListAdd,customMsgListUpd,tag_canle,tag_del,countHandler
 
 from lib.utils.mytime import UtilTime
 
@@ -1580,10 +1580,29 @@ class WeChatAPIView(viewsets.ViewSet):
             pass
         elif type == 'w':
             pass
+            # ut = UtilTime()
+            # w = 1
+            # today  = ut.today.floor('week').shift(days=-1)
+            # 
+            # while w<=5:
+            #     start = ut.arrow_to_string(today.shift(weeks=w*-1).shift(days=1))
+            #     end = ut.arrow_to_string(today.shift(weeks=(w-1)*-1).shift(days=1))
+            #
+            #     w+=1
+            #
+            #     res={
+            #         "time":start.format("YYYY/MM"),
+            #         "xgz_num":0,
+            #         "qg_num":0,
+            #         "qg_rate":0.0,
+            #         "jz_num":0
+            #     }
+            #
+            #
+            #     print(start,end)
         elif type == 'm':
             ut = UtilTime()
             m = 1
-            # today  = ut.string_to_arrow( + '-00 00:00:00')
 
             today = ut.string_to_arrow(ut.today.format("YYYY-MM"), format_v="YYYY-MM")
 
@@ -1593,28 +1612,11 @@ class WeChatAPIView(viewsets.ViewSet):
 
                 m += 1
 
-                print(start, end)
-
-                res={
-                    "time":start.format("YYYY/MM"),
-                    "xgz_num":0,
-                    "qg_num":0,
-                    "qg_rate":0.0,
-                    "jz_num":0
-                }
-
-                for item in AccActionCount.objects.filter(accid=accid, action__in=['1', '3'],
-                                                      createtime__gte=start.timestamp,
-                                                      createtime__lte=end.timestamp):
-                    if item.action == '1':
-                        res['xgz_num'] +=1
-                    elif item.action == '3':
-                        res['qg_num'] += 1
-
-                    res['qg_rate'] = res['qg_num'] * 100 / (tot_fs_num + res['qg_num'])
-                    res['jz_num'] = res['xgz_num'] - res['qg_num']
-
-                data.append(res)
+                data.append(countHandler(
+                    time=start.format("YYYY/MM"),
+                    start=start.timestamp,
+                    end=end.timestamp,
+                    tot_fs_num=tot_fs_num))
         else:
             raise PubErrorCustom("查询类型有误!")
 

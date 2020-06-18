@@ -4,7 +4,7 @@ from project.config_include.params import TX_WECHAT_TOKEN
 
 from lib.utils.wechat.user import WeChatAccTag
 
-from app.wechat.models import AccTag,AccQrcodeList,AccQrcodeImageTextList
+from app.wechat.models import AccTag,AccQrcodeList,AccQrcodeImageTextList,AccActionCount
 from app.public.models import Meterial
 
 from lib.utils.exceptions import PubErrorCustom
@@ -219,6 +219,34 @@ def customMsgListUpd(obj,lists,isHaveNewsList=True):
 #         else:
 #             return True
 
+
+def countHandler(**kwargs):
+
+    time = kwargs.get("time")
+    start = kwargs.get("start")
+    end = kwargs.get("end")
+    tot_fs_num = kwargs.get("tot_fs_num")
+
+    res = {
+        "time": time,
+        "xgz_num": 0,
+        "qg_num": 0,
+        "qg_rate": 0.0,
+        "jz_num": 0
+    }
+
+    for item in AccActionCount.objects.filter(accid=accid, action__in=['1', '3'],
+                                              createtime__gte=start,
+                                              createtime__lte=end):
+        if item.action == '1':
+            res['xgz_num'] += 1
+        elif item.action == '3':
+            res['qg_num'] += 1
+
+        res['qg_rate'] = res['qg_num'] * 100 / (tot_fs_num + res['qg_num']) if tot_fs_num + res['qg_num'] else 0.0
+        res['jz_num'] = res['xgz_num'] - res['qg_num']
+
+    return res
 
 
 if __name__ == '__main__':

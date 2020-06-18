@@ -176,17 +176,17 @@ if __name__ == '__main__':
         按周
     """
 
-    # ut = UtilTime()
-    # w = 1
-    # today  = ut.today.floor('week').shift(days=-1)
-    #
-    # while w<=5:
-    #     start = ut.arrow_to_string(today.shift(weeks=w*-1).shift(days=1))
-    #     end = ut.arrow_to_string(today.shift(weeks=(w-1)*-1).shift(days=1))
-    #
-    #     w+=1
-    #
-    #     print(start,end)
+    ut = UtilTime()
+    w = 1
+    today  = ut.today.floor('week').shift(days=-1)
+
+    while w<=5:
+        start = ut.arrow_to_string(today.shift(weeks=w*-1).shift(days=1))
+        end = ut.arrow_to_string(today.shift(weeks=(w-1)*-1).shift(days=1))
+
+        w+=1
+
+        print(start,end)
 
 
     """
