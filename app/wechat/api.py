@@ -20,7 +20,7 @@ from lib.utils.wechat.mouldmsg import MouldMsg
 from lib.utils.wechat.count import WechatAccCount
 from lib.utils.db import RedisTicketHandler
 
-from app.wechat.utils import tag_batchtagging,customMsgListAdd,customMsgListUpd,tag_canle,tag_del,countHandler,countHandlerEx
+from app.wechat.utils import tag_batchtagging,customMsgListAdd,customMsgListUpd,tag_canle,tag_del,countHandler,countHandlerEx,fs_count_hander
 
 from lib.utils.mytime import UtilTime
 
@@ -1741,93 +1741,23 @@ class WeChatAPIView(viewsets.ViewSet):
                                    umark='0',
                                    subscribe_time__gte=ut.string_to_arrow(start_date,"YYYY-MM-DD").timestamp,
                                    subscribe_time__lte=ut.string_to_arrow(end_date,"YYYY-MM-DD").shift(days=1).timestamp)
-        r_data={
-            "base":{
-                "xz_fs_num":0,
-                "man_fs_num":0,
-                "woman_fs_num":0,
-                "man_rate":0.0,
-                "woman_rate":0.0,
-                "wz_fs_num":0,
-                "wz_rate":0.0,
-            },
-            "channel":{
-                "sm_num":0,
-                "sm_rate":0.0,
-                "gzh_num":0,
-                "gzh_rate":0.0,
-                "mp_num":0,
-                "mp_rate":0.0,
-                "tw_click_num":0,
-                "tw_click_rate":0.0,
-                "other_num":0,
-                "other_rate":0.0,
-                "tot_num":0,
-                "tot_rate":100.0
-            },
-            "city":{
-
-            }
-        }
-
-        for item in obj:
-            r_data['base']['xz_fs_num'] += 1
-
-            if item.sex == '1':
-                r_data['base']['man_fs_num'] += 1
-            elif item.sex == '2':
-                r_data['base']['woman_fs_num'] += 1
-            else:
-                r_data['base']['wz_fs_num'] += 1
-            """
-            subscribe_scene = models.CharField(max_length=60,verbose_name="ADD_SCENE_SEARCH 公众号搜索，ADD_SCENE_ACCOUNT_MIGRATION 公众号迁移，ADD_SCENE_PROFILE_CARD 名片分享，ADD_SCENE_QR_CODE 扫描二维码，ADD_SCENE_PROFILE_LINK 图文页内名称点击，ADD_SCENE_PROFILE_ITEM 图文页右上角菜单，ADD_SCENE_PAID 支付后关注，ADD_SCENE_OTHERS 其他",default="")
-            """
-
-            if item.subscribe_scene == 'ADD_SCENE_SEARCH':
-                r_data['channel']['gzh_num'] += 1
-            elif item.subscribe_scene == 'ADD_SCENE_QR_CODE':
-                r_data['channel']['sm_num'] += 1
-            elif item.subscribe_scene == 'ADD_SCENE_PROFILE_CARD':
-                r_data['channel']['mp_num'] += 1
-            elif item.subscribe_scene == 'ADD_SCENE_PROFILE_LINK':
-                r_data['channel']['tw_click_num'] += 1
-            else:
-                r_data['channel']['other_num'] += 1
-
-            r_data['channel']['tot_num'] += 1
-            if not len(item.province):
-                province = '其它'
-            else:
-                province = item.province
 
 
-            if province not in  r_data['city']:
-                r_data['city'][province] = 1
-            else:
-                r_data['city'][province] += 1
+        return {"data":fs_count_hander(obj)}
 
-        r_data['base']['man_rate'] = round(r_data['base']['man_fs_num'] * 100.0 / r_data['base']['xz_fs_num'] if r_data['base']['xz_fs_num'] else 0.0 ,2)
-        r_data['base']['woman_rate'] = round(r_data['base']['woman_fs_num'] * 100.0 / r_data['base']['xz_fs_num'] if r_data['base']['xz_fs_num'] else 0.0, 2)
-        r_data['base']['wz_rate'] = round(r_data['base']['wz_rate'] * 100.0 / r_data['base']['xz_fs_num'] if r_data['base']['xz_fs_num'] else 0.0, 2)
+    @list_route(methods=['GET'])
+    @Core_connector()
+    def AccCount_fssx_all(self, request, *args, **kwargs):
 
-        r_data['channel']['sm_rate'] = round(r_data['channel']['sm_num'] * 100.0 / r_data['channel']['tot_num'] if r_data['channel']['tot_num'] else 0.0,2)
-        r_data['channel']['gzh_rate'] = round(r_data['channel']['gzh_num'] * 100.0 / r_data['channel']['tot_num'] if r_data['channel']['tot_num'] else 0.0, 2)
-        r_data['channel']['mp_rate'] = round(r_data['channel']['mp_num'] * 100.0 / r_data['channel']['tot_num'] if r_data['channel']['tot_num'] else 0.0, 2)
-        r_data['channel']['tw_click_rate'] = round(r_data['channel']['tw_click_num'] * 100.0 / r_data['channel']['tot_num'] if r_data['channel']['tot_num'] else 0.0, 2)
-        r_data['channel']['other_rate'] = round(r_data['channel']['other_num'] * 100.0 / r_data['channel']['tot_num'] if r_data['channel']['tot_num'] else 0.0, 2)
+        accid = request.query_params_format.get("accid", None)
 
-        city_tmp_array=[]
-        if len(r_data['city']):
-            for item in r_data['city']:
-                city_tmp_array.append(
-                    {
-                        "name":item,
-                        "num":r_data['city'][item]
-                    }
-                )
-        r_data['city'] = city_tmp_array
+        if not accid:
+            raise PubErrorCustom("公众号ID为空!")
 
-        return {"data":r_data}
+        obj = AccLinkUser.objects.filter(accid=accid,
+                                         umark='0')
+
+        return {"data": fs_count_hander(obj)}
 
     @list_route(methods=['GET','POST'])
     @Core_connector(isReturn=True)
