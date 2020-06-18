@@ -1572,6 +1572,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
         tot_fs_num = AccLinkUser.objects.filter(accid=accid,umark='0').count()
 
+        ut = UtilTime()
         data=[]
 
         if type == 'h':
@@ -1579,31 +1580,24 @@ class WeChatAPIView(viewsets.ViewSet):
         elif type == 'd':
             pass
         elif type == 'w':
-            pass
-            # ut = UtilTime()
-            # w = 1
-            # today  = ut.today.floor('week').shift(days=-1)
-            #
-            # while w<=5:
-            #     start = ut.arrow_to_string(today.shift(weeks=w*-1).shift(days=1))
-            #     end = ut.arrow_to_string(today.shift(weeks=(w-1)*-1).shift(days=1))
-            #
-            #     w+=1
-            #
-            #     res={
-            #         "time":start.format("YYYY/MM"),
-            #         "xgz_num":0,
-            #         "qg_num":0,
-            #         "qg_rate":0.0,
-            #         "jz_num":0
-            #     }
-            #
-            #
-            #     print(start,end)
-        elif type == 'm':
-            ut = UtilTime()
-            m = 1
+            w = 1
+            today  = ut.today.floor('week').shift(days=-1)
 
+            while w<=5:
+                start = ut.arrow_to_string(today.shift(weeks=w*-1).shift(days=1))
+                end = ut.arrow_to_string(today.shift(weeks=(w-1)*-1).shift(days=1))
+
+                w+=1
+
+                data.append(countHandler(
+                    accid = accid,
+                    time="{}~{}".format(start.format("YYYY-MM-DD"),end.shift(days=-1).format("YYYY-MM-DD")),
+                    start=start.timestamp,
+                    end=end.timestamp,
+                    tot_fs_num=tot_fs_num))
+
+        elif type == 'm':
+            m = 1
             today = ut.string_to_arrow(ut.today.format("YYYY-MM"), format_v="YYYY-MM")
 
             while m <= 3:
