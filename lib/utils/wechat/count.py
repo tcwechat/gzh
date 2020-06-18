@@ -23,7 +23,7 @@ class WechatAccCount(WechatBase):
 
         return self.request_handler(
             method="POST",
-            url="https://api.weixin.qq.com/datacube/getusersummary?access_token={}".formart(self.auth_accesstoken),
+            url="https://api.weixin.qq.com/datacube/getusersummary?access_token={}".format(self.auth_accesstoken),
             json={
                 "begin_date":begin_date,
                 "end_date":end_date
@@ -40,7 +40,7 @@ class WechatAccCount(WechatBase):
 
         return self.request_handler(
             method="POST",
-            url="https://api.weixin.qq.com/datacube/getusercumulate?access_token={}".formart(self.auth_accesstoken),
+            url="https://api.weixin.qq.com/datacube/getusercumulate?access_token={}".format(self.auth_accesstoken),
             json={
                 "begin_date":begin_date,
                 "end_date":end_date
@@ -77,7 +77,7 @@ class WechatAccCount(WechatBase):
         """
         return self.request_handler(
             method="POST",
-            url="https://api.weixin.qq.com/datacube/getarticlesummary?access_token={}".formart(self.auth_accesstoken),
+            url="https://api.weixin.qq.com/datacube/getarticlesummary?access_token={}".format(self.auth_accesstoken),
             json={
                 "begin_date": begin_date,
                 "end_date": end_date
