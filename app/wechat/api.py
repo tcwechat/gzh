@@ -1584,8 +1584,8 @@ class WeChatAPIView(viewsets.ViewSet):
             today  = ut.today.floor('week').shift(days=-1)
 
             while w<=5:
-                start = ut.arrow_to_string(today.shift(weeks=w*-1).shift(days=1))
-                end = ut.arrow_to_string(today.shift(weeks=(w-1)*-1).shift(days=1))
+                start = today.shift(weeks=w*-1).shift(days=1)
+                end = today.shift(weeks=(w-1)*-1).shift(days=1)
 
                 w+=1
 
