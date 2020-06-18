@@ -1681,7 +1681,7 @@ class WeChatAPIView(viewsets.ViewSet):
         else:
             raise PubErrorCustom("查询类型有误!")
 
-        return {"data":data}
+        return {"data":r_data}
 
 
     @list_route(methods=['GET','POST'])
