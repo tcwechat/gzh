@@ -1663,7 +1663,7 @@ class WeChatAPIView(viewsets.ViewSet):
                 e = end_date_arrow.floor('week').shift(weeks=-1).shift(weeks=1).shift(days=-1)
 
             if e < s:
-                raise PubErrorCustom("时间区间有误!")
+                return {"data":r_data}
 
             today = ut.today.floor('week').shift(days=-1)
 
