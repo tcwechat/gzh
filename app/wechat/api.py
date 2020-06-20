@@ -1817,6 +1817,7 @@ class WeChatAPIView(viewsets.ViewSet):
         c = 0
 
         tables = []
+        agree = []
         while c<7:
 
             inner_data = []
@@ -1834,8 +1835,6 @@ class WeChatAPIView(viewsets.ViewSet):
                 umark='0')
 
             if response.exists:
-
-
 
                 openids =  [ item.openid for item in response]
                 openidsNum = len(openids)
@@ -1869,7 +1868,20 @@ class WeChatAPIView(viewsets.ViewSet):
             tables.append(inner_data)
             c+=1
         tables.reverse()
-        return {"data":tables}
+
+        j = sum([ item[0].num for item in tables])
+        i=1
+        while i<7:
+            tot = 0
+            for item in tables:
+                tot += item[i].num if len(item)-1>=i else 0
+            i+=1
+            agree.append(round(tot * 100.0 / j if j else 0.0,2))
+
+        return {"data":{
+            "tables":tables,
+            "agree":agree
+        }}
 
 
     @list_route(methods=['GET'])
