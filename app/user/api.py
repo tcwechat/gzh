@@ -50,6 +50,7 @@ class UserAPIView(viewsets.ViewSet):
             uuid = request.data_format.get("login_name")
             name = request.data_format.get("name")
             pic = request.data_format.get("pic")
+            passwd = request.data_format.get("passwd")
 
             if not uuid:
                 raise PubErrorCustom('登录名称不能为空!')
@@ -71,6 +72,7 @@ class UserAPIView(viewsets.ViewSet):
             uuid = request.data_format.get("login_name")
             name = request.data_format.get("name")
             pic = request.data_format.get("pic")
+            passwd = request.data_format.get("passwd")
 
             try:
                 user = Users.objects.get(userid=userid)
@@ -81,6 +83,7 @@ class UserAPIView(viewsets.ViewSet):
             user.mobile = uuid if uuid else user.uuid
             user.name = name if name else user.name
             user.pic = pic if pic else user.pic
+            user.passwd = passwd
             user.save()
         elif request.method =='DELETE':
             Users.objects.filter(userid=request.data_format.get('userid')).delete()
