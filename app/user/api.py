@@ -63,6 +63,7 @@ class UserAPIView(viewsets.ViewSet):
                 "mobile":uuid,
                 "rolecode":1001,
                 "name":name,
+                "passwd":passwd,
                 "pic":pic
             })
             user.userid=user.id
