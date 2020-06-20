@@ -42,8 +42,8 @@ class UserAPIView(viewsets.ViewSet):
     @list_route(methods=['POST',"PUT","DELETE","GET"])
     @Core_connector(isPagination=True)
     def userHandler(self,request):
-        # if str(request.user['rolecode']) == '1000':
-        #     raise PubErrorCustom("只有超级管理员能操作!")
+        if str(request.user['rolecode']) == '1000':
+            raise PubErrorCustom("只有超级管理员能操作!")
 
         if request.method =='POST':
             # userid = request.data_format.get('userid')
