@@ -57,13 +57,15 @@ class UserAPIView(viewsets.ViewSet):
             if not name:
                 name = uuid
 
-            Users.objects.create(**{
+            user = Users.objects.create(**{
                 "uuid":uuid,
                 "mobile":uuid,
                 "rolecode":1001,
                 "name":name,
                 "pic":pic
             })
+            user.userid=user.id
+            user.save()
         elif request.method =='PUT':
             userid = request.data_format.get('userid')
             uuid = request.data_format.get("login_name")

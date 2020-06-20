@@ -22,7 +22,7 @@ class Login(models.Model):
 
 class Users(models.Model):
 
-    id=  models.BigIntegerField(primary_key=True)
+    id=  models.BigAutoField(primary_key=True)
 
     userid = models.BigIntegerField(verbose_name="用户ID")
     rolecode = models.IntegerField(verbose_name="角色代码")
