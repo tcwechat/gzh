@@ -1474,12 +1474,12 @@ class WeChatAPIView(viewsets.ViewSet):
 
             acc_count_obj_new.jz_num = acc_count_obj_new.xz_num - acc_count_obj_new.qg_num
 
-            acc_count_obj_new.jz_add_rate = acc_count_obj_new.jz_num * 100.0 / acc_count_obj.jz_num if acc_count_obj and acc_count_obj.jz_num else 0.0
-            acc_count_obj_new.xz_add_rate = acc_count_obj_new.xz_num * 100.0 / acc_count_obj.xz_num if acc_count_obj and acc_count_obj.xz_num else 0.0
-            acc_count_obj_new.qg_add_rate = acc_count_obj_new.qg_num * 100.0 / acc_count_obj.qg_num if acc_count_obj and acc_count_obj.qg_num else 0.0
-            acc_count_obj_new.hy_add_rate = acc_count_obj_new.hy_num * 100.0 / acc_count_obj.hy_num if acc_count_obj and acc_count_obj.hy_num else 0.0
-            acc_count_obj_new.yd_add_rate = acc_count_obj_new.yd_num * 100.0 / acc_count_obj.yd_num if acc_count_obj and acc_count_obj.yd_num else 0.0
-            acc_count_obj_new.tot_fs_add_rate = acc_count_obj_new.tot_fs_num * 100.0 / acc_count_obj.tot_fs_num if acc_count_obj and acc_count_obj.tot_fs_num else 0.0
+            acc_count_obj_new.jz_add_rate = (acc_count_obj_new.jz_num - acc_count_obj.jz_num) * 100.0 / acc_count_obj.jz_num if acc_count_obj and acc_count_obj.jz_num else 0.0
+            acc_count_obj_new.xz_add_rate = (acc_count_obj_new.xz_num - acc_count_obj.xz_num) * 100.0 / acc_count_obj.xz_num if acc_count_obj and acc_count_obj.xz_num else 0.0
+            acc_count_obj_new.qg_add_rate = (acc_count_obj_new.qg_num - acc_count_obj.qg_num) * 100.0 / acc_count_obj.qg_num if acc_count_obj and acc_count_obj.qg_num else 0.0
+            acc_count_obj_new.hy_add_rate = (acc_count_obj_new.hy_num - acc_count_obj.hy_num) * 100.0 / acc_count_obj.hy_num if acc_count_obj and acc_count_obj.hy_num else 0.0
+            acc_count_obj_new.yd_add_rate = (acc_count_obj_new.yd_num - acc_count_obj.yd_num) * 100.0 / acc_count_obj.yd_num if acc_count_obj and acc_count_obj.yd_num else 0.0
+            acc_count_obj_new.tot_fs_add_rate = (acc_count_obj_new.tot_fs_num - acc_count_obj.tot_fs_num) * 100.0 / acc_count_obj.tot_fs_num if acc_count_obj and acc_count_obj.tot_fs_num else 0.0
             acc_count_obj_new.save()
 
     @list_route(methods=['GET'])
@@ -1531,11 +1531,11 @@ class WeChatAPIView(viewsets.ViewSet):
                 data_last['hy_num'] += acc_count_obj.hy_num
                 data_last['tot_fs_num'] += acc_count_obj.tot_fs_num
 
-        data['jz_add_rate'] = data['jz_num'] * 100.0 / data_last['jz_num'] if data_last['jz_num'] else 0.0
-        data['xz_add_rate'] = data['xz_num'] * 100.0 / data_last['xz_num'] if data_last['xz_num'] else 0.0
-        data['qg_add_rate'] = data['qg_num'] * 100.0 / data_last['qg_num'] if data_last['qg_num'] else 0.0
-        data['hy_add_rate'] = data['hy_num'] * 100.0 / data_last['hy_num'] if data_last['hy_num'] else 0.0
-        data['tot_fs_add_rate'] = data['tot_fs_num'] * 100.0 / data_last['tot_fs_num'] if data_last['tot_fs_num'] else 0.0
+        data['jz_add_rate'] = (data['jz_num'] - data_last['jz_num']) * 100.0 / data_last['jz_num'] if data_last['jz_num'] else 0.0
+        data['xz_add_rate'] = (data['xz_num'] - data_last['xz_num']) * 100.0 / data_last['xz_num'] if data_last['xz_num'] else 0.0
+        data['qg_add_rate'] = (data['qg_num'] - data_last['qg_num']) * 100.0 / data_last['qg_num'] if data_last['qg_num'] else 0.0
+        data['hy_add_rate'] = (data['hy_num'] - data_last['hy_num']) * 100.0 / data_last['hy_num'] if data_last['hy_num'] else 0.0
+        data['tot_fs_add_rate'] = (data['tot_fs_num'] - data_last['tot_fs_num']) * 100.0 / data_last['tot_fs_num'] if data_last['tot_fs_num'] else 0.0
 
         return {"data":data}
 
