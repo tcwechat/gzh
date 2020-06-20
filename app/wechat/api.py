@@ -1872,7 +1872,7 @@ class WeChatAPIView(viewsets.ViewSet):
         j = sum([item[0]['num'] for item in tables])
 
         i = 1
-        while i < 7:
+        while i < 8:
             tot = 0
             for item in tables:
                 tot += item[i]['num'] if len(item) - 1 >= i else 0
