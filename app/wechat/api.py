@@ -1899,7 +1899,7 @@ class WeChatAPIView(viewsets.ViewSet):
             "fw_count":0,
             "wz_count":0,
             "int_page_read_user":0,
-            "share_count":0
+            "share_user":0
         }
 
         while start_date_arrow <= end_date_arrow:
