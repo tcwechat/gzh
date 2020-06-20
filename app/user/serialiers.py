@@ -15,6 +15,7 @@ class UsersSerializers(serializers.Serializer):
     userid = serializers.IntegerField()
     pic = serializers.CharField()
     name = serializers.CharField()
+    uuid = serializers.CharField()
 
 class UsersModelSerializer(serializers.ModelSerializer):
 
