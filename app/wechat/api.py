@@ -1897,7 +1897,7 @@ class WeChatAPIView(viewsets.ViewSet):
         response = []
         base={
             "fw_count":0,
-            "wz_count":0,
+            "tw_count":0,
             "int_page_read_user":0,
             "share_user":0
         }
@@ -1945,7 +1945,7 @@ class WeChatAPIView(viewsets.ViewSet):
             response.append(tmp)
             base['int_page_read_user'] += tmp['int_page_read_user']
             base['share_user'] += tmp['share_user']
-            base['wz_count'] += len(tmp['list'])
+            base['tw_count'] += len(tmp['list'])
             base['fw_count'] += tmp['fw_count']
             end_date_arrow = end_date_arrow.shift(days=-1)
 
