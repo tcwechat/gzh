@@ -46,7 +46,7 @@ from app.wechat.serialiers import AccSerializer,AccTagModelSerializer,AccQrcodeM
 class WeChatAPIView(viewsets.ViewSet):
 
     @list_route(methods=['POST'])
-    @Core_connector(isReturn=True,isRVliad=True)
+    @Core_connector(isReturn=True,isRVliad=True,isTicket=False)
     def notice(self,request, *args, **kwargs):
 
         """
@@ -78,7 +78,7 @@ class WeChatAPIView(viewsets.ViewSet):
         return HttpResponse("success")
 
     @list_route(methods=['POST','GET'])
-    @Core_connector(isReturn=True,isTransaction=True)
+    @Core_connector(isReturn=True,isTransaction=True,isTicket=False)
     def authCallback(self,request, *args, **kwargs):
 
         """
@@ -134,7 +134,7 @@ class WeChatAPIView(viewsets.ViewSet):
         })
 
     @detail_route(methods=['POST'])
-    @Core_connector(isReturn=True,isRVliad=True,isTransaction=True)
+    @Core_connector(isReturn=True,isRVliad=True,isTransaction=True,isTicket=False)
     def callback(self,request, *args, **kwargs):
 
         pk= kwargs.get("pk")
@@ -645,7 +645,7 @@ class WeChatAPIView(viewsets.ViewSet):
         return None
 
     @list_route(methods=['POST'])
-    @Core_connector(isTransaction=True)
+    @Core_connector(isTransaction=True,isTicket=False)
     def AccFollow_Send(self, request, *args, **kwargs):
         logger.info(request.data_format)
         Follow().sendmsg(
@@ -719,7 +719,7 @@ class WeChatAPIView(viewsets.ViewSet):
             return None
 
     @list_route(methods=['POST'])
-    @Core_connector(isTransaction=True)
+    @Core_connector(isTransaction=True,isTicket=False)
     def AccReply_Send(self, request, *args, **kwargs):
 
         # ut = UtilTime()
@@ -910,7 +910,7 @@ class WeChatAPIView(viewsets.ViewSet):
         return {"data": AccMsgCustomerModelSerializer(query[request.page_start:request.page_end], many=True).data, "count": count}
 
     @list_route(methods=['POST'])
-    @Core_connector(isTransaction=True)
+    @Core_connector(isTransaction=True,isTicket=False)
     def AccMsgCustomer_Send(self, request, *args, **kwargs):
 
         try:
@@ -1125,7 +1125,7 @@ class WeChatAPIView(viewsets.ViewSet):
         return {"data": AccMsgMouldModelSerializer(query, many=False).data}
 
     @list_route(methods=['POST'])
-    @Core_connector(isTransaction=True)
+    @Core_connector(isTransaction=True,isTicket=False)
     def AccMsgMould_Send(self, request, *args, **kwargs):
 
         try:
@@ -1319,7 +1319,7 @@ class WeChatAPIView(viewsets.ViewSet):
             raise PubErrorCustom("无此信息!")
 
     @list_route(methods=['POST'])
-    @Core_connector()
+    @Core_connector(isTicket=False)
     def AccMsgMass_Send(self, request, *args, **kwargs):
         try:
             obj = AccMsgMass.objects.get(id=request.data_format.get("id"))
@@ -1384,7 +1384,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
 
     @list_route(methods=['POST'])
-    @Core_connector(isTransaction=True)
+    @Core_connector(isTransaction=True,isTicket=False)
     def AccCount_Handler(self, request, *args, **kwargs):
 
         ut = UtilTime()

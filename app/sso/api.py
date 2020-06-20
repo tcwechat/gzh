@@ -17,7 +17,7 @@ class SsoAPIView(viewsets.ViewSet):
 
 
     @list_route(methods=['POST'])
-    @Core_connector(isTransaction=True)
+    @Core_connector(isTransaction=True,isTicket=False)
     def login(self,request, *args, **kwargs):
 
         """

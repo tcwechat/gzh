@@ -40,7 +40,7 @@ class UserAPIView(viewsets.ViewSet):
         user.save()
 
     @list_route(methods=['POST',"PUT","DELETE","GET"])
-    @Core_connector()
+    @Core_connector(isPagination=True)
     def userHandler(self,request):
         # if str(request.user['rolecode']) == '1000':
         #     raise PubErrorCustom("只有超级管理员能操作!")
@@ -85,4 +85,4 @@ class UserAPIView(viewsets.ViewSet):
         elif request.method =='DELETE':
             Users.objects.filter(userid=request.data_format.get('userid')).delete()
         elif request.method =='GET':
-            return {"data":UsersSerializers(Users.objects.filter(rolecode=1001).order_by('-createtime'),many=True).data}
+            return {"data":UsersSerializers(Users.objects.filter(rolecode=1001).order_by('-createtime')[request.page_start:request.page_end],many=True).data}
