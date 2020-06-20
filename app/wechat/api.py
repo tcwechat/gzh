@@ -1773,9 +1773,27 @@ class WeChatAPIView(viewsets.ViewSet):
         if not accid:
             raise PubErrorCustom("公众号ID为空!")
 
+        obj={
+            "list":None
+        }
 
-        obj = AccCount.objects.filter(accid=accid,date__gte=start_date,date__lte=end_date).order_by('-date')
-        return {"data": AccCountBaseSerializer1(obj[request.page_start:request.page_end],many=True).data}
+        obj['list']=AccCountBaseSerializer1(
+            AccCount.objects.filter(accid=accid,date__gte=start_date,date__lte=end_date).order_by('-date')[request.page_start:request.page_end],
+            many=True).data
+
+        hy_num=0
+        hy_rate=0.0
+        c=0
+        for item in obj['list']:
+            hy_num+=item['hy_num']
+            hy_rate+=item['hy_rate']
+            c+=1
+
+        obj['hy_agree'] = int(hy_num / c if c else 0)
+        obj['hy_rate_agree'] = round(hy_rate / c if c else 0.0,2)
+
+
+        return {"data": obj}
 
 
     @list_route(methods=['GET'])
@@ -1850,7 +1868,7 @@ class WeChatAPIView(viewsets.ViewSet):
                     d_tmp+=1
             tables.append(inner_data)
             c+=1
-
+        tables.reverse()
         return {"data":tables}
 
 
