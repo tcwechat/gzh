@@ -15,7 +15,11 @@ class UsersSerializers(serializers.Serializer):
     userid = serializers.IntegerField()
     pic = serializers.CharField()
     name = serializers.CharField()
-    uuid = serializers.CharField()
+    login_name = serializers.SerializerMethodField()
+
+    def get_login_name(self,obj):
+        return obj.uuid
+
 
 class UsersModelSerializer(serializers.ModelSerializer):
 
