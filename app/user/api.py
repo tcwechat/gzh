@@ -8,6 +8,7 @@ from lib.utils.exceptions import PubErrorCustom
 
 from app.user.serialiers import UsersModelSerializer,RoleModelSerializer,UsersSerializers
 from app.user.models import Users,Role
+from lib.utils.log import logger
 
 class UserAPIView(viewsets.ViewSet):
 
@@ -42,6 +43,7 @@ class UserAPIView(viewsets.ViewSet):
     @list_route(methods=['POST',"PUT","DELETE","GET"])
     @Core_connector(isPagination=True)
     def userHandler(self,request):
+        logger.info(request.user)
         if str(request.user['rolecode']) == '1000':
             raise PubErrorCustom("只有超级管理员能操作!")
 
