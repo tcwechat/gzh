@@ -1797,7 +1797,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
 
     @list_route(methods=['GET'])
-    @Core_connector(isTicket=False)
+    @Core_connector()
     def AccCount_zcd(self, request, *args, **kwargs):
 
         date = request.query_params_format.get("date", None)
