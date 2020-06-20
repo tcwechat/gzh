@@ -1895,6 +1895,12 @@ class WeChatAPIView(viewsets.ViewSet):
         end_date_arrow = ut.string_to_arrow(end_date,"YYYY-MM-DD")
 
         response = []
+        base={
+            "fw_count":0,
+            "wz_count":0,
+            "int_page_read_user":0,
+            "share_count":0
+        }
 
         while start_date_arrow <= end_date_arrow:
             end_date = end_date_arrow.format("YYYY-MM-DD")
@@ -1937,9 +1943,17 @@ class WeChatAPIView(viewsets.ViewSet):
                 tmp['ori_page_read_count'] += item1['ori_page_read_count']
 
             response.append(tmp)
+            base['int_page_read_user'] += tmp['int_page_read_user']
+            base['share_user'] += tmp['share_user']
+            base['wz_count'] += len(tmp['list'])
+            base['fw_count'] += tmp['fw_count']
             end_date_arrow = end_date_arrow.shift(days=-1)
 
-        return {"data":response}
+        responseEx={
+            "data":response,
+            "base":base
+        }
+        return {"data":responseEx}
 
 
     @list_route(methods=['GET'])
