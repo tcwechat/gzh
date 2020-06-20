@@ -40,7 +40,7 @@ class UserAPIView(viewsets.ViewSet):
         user.save()
 
     @list_route(methods=['POST',"PUT","DELETE","GET"])
-    @Core_connector(isTicket=True)
+    @Core_connector()
     def userHandler(self,request):
         if str(request.user['rolecode']) == '1000':
             raise PubErrorCustom("只有超级管理员能操作!")
