@@ -44,7 +44,7 @@ class UserAPIView(viewsets.ViewSet):
     @Core_connector(isPagination=True)
     def userHandler(self,request):
         logger.info(request.user)
-        if str(request.user['rolecode']) == '1000':
+        if request.user['rolecode'] != 1000:
             raise PubErrorCustom("只有超级管理员能操作!")
 
         if request.method =='POST':
