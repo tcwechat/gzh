@@ -1524,7 +1524,7 @@ class WeChatAPIView(viewsets.ViewSet):
                 data['hy_num'] += item.hy_num
                 data['tot_fs_num'] += item.tot_fs_num
 
-                date_arrow = ut.string_to_arrow(item.date)
+                date_arrow = ut.string_to_arrow(item.date,"YYYY-MM-DD")
                 # date_string = ut.arrow_to_string(date_arrow, format_v="YYYY-MM-DD")
 
                 try:
