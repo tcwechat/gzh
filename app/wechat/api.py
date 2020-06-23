@@ -11,6 +11,8 @@ from django.db.models import Q
 from django.shortcuts import render
 from project.settings import BASE_DIR,ServerUrl
 
+from django.db import transaction
+
 from lib.utils.wechat.ticket import WechatMsgValid
 from lib.utils.wechat.msg import WeChatAccEvent
 from lib.utils.wechat.base import WechatBaseForUser
@@ -78,7 +80,7 @@ class WeChatAPIView(viewsets.ViewSet):
         return HttpResponse("success")
 
     @list_route(methods=['POST','GET'])
-    @Core_connector(isReturn=True,isTransaction=True,isTicket=False)
+    @Core_connector(isReturn=True,isTransaction=False,isTicket=False)
     def authCallback(self,request, *args, **kwargs):
 
         """
@@ -97,35 +99,45 @@ class WeChatAPIView(viewsets.ViewSet):
         authorization_info = t.get_auth_by_authcode(auth_code)
         authorizer_info = t.get_authorizer_info(authorization_info)
 
+        with transaction.atomic():
+            try:
+                accObj = Acc.objects.get(authorizer_appid=authorization_info['authorizer_appid'])
+                accObj.authorizer_refresh_token = authorization_info['authorizer_refresh_token']
+                accObj.nick_name = authorizer_info['nick_name']
+                accObj.head_img = authorizer_info['head_img']
+                accObj.user_name = authorizer_info['user_name']
+                accObj.service_type_info = json.dumps(authorizer_info['service_type_info'])
+                accObj.verify_type_info = json.dumps(authorizer_info['verify_type_info'])
+                accObj.principal_name = authorizer_info['principal_name']
+                accObj.alias = authorizer_info['alias']
+                accObj.qrcode_url = authorizer_info['qrcode_url']
+                accObj.save()
+            except Acc.DoesNotExist:
+                accObj = Acc.objects.create(**dict(
+                    authorizer_appid = authorization_info['authorizer_appid'],
+                    authorizer_refresh_token = authorization_info['authorizer_refresh_token'],
+                    nick_name = authorizer_info['nick_name'],
+                    head_img = authorizer_info['head_img'],
+                    service_type_info=json.dumps(authorizer_info['service_type_info']),
+                    verify_type_info=json.dumps(authorizer_info['verify_type_info']),
+                    user_name=authorizer_info['user_name'],
+                    principal_name=authorizer_info['principal_name'],
+                    alias=authorizer_info['alias'],
+                    # business_info=json.dumps(authorizer_info['business_info']),
+                    qrcode_url=authorizer_info['qrcode_url'],
+                ))
 
-        try:
-            accObj = Acc.objects.get(authorizer_appid=authorization_info['authorizer_appid'])
-            accObj.authorizer_refresh_token = authorization_info['authorizer_refresh_token']
-            accObj.nick_name = authorizer_info['nick_name']
-            accObj.head_img = authorizer_info['head_img']
-            accObj.user_name = authorizer_info['user_name']
-            accObj.service_type_info = json.dumps(authorizer_info['service_type_info'])
-            accObj.verify_type_info = json.dumps(authorizer_info['verify_type_info'])
-            accObj.principal_name = authorizer_info['principal_name']
-            accObj.alias = authorizer_info['alias']
-            accObj.qrcode_url = authorizer_info['qrcode_url']
-            accObj.save()
-        except Acc.DoesNotExist:
-            accObj = Acc.objects.create(**dict(
-                authorizer_appid = authorization_info['authorizer_appid'],
-                authorizer_refresh_token = authorization_info['authorizer_refresh_token'],
-                nick_name = authorizer_info['nick_name'],
-                head_img = authorizer_info['head_img'],
-                service_type_info=json.dumps(authorizer_info['service_type_info']),
-                verify_type_info=json.dumps(authorizer_info['verify_type_info']),
-                user_name=authorizer_info['user_name'],
-                principal_name=authorizer_info['principal_name'],
-                alias=authorizer_info['alias'],
-                # business_info=json.dumps(authorizer_info['business_info']),
-                qrcode_url=authorizer_info['qrcode_url'],
-            ))
+            t.refrech_auth_access_token(accObj.accid,authorization_info['authorizer_access_token'],authorization_info['expires_in'])
 
-        t.refrech_auth_access_token(accObj.accid,authorization_info['authorizer_access_token'],authorization_info['expires_in'])
+        runprogram = os.path.join(BASE_DIR, 'run')
+
+        run = "nohup python {}/tag_sync.py {} 1>>{}/logs/tag_sync.log 2>&1 &".format(runprogram, accObj.accid,BASE_DIR)
+        logger.info(run)
+        os.system(run)
+
+        run = "nohup python {}/user_sync.py {} 1>>{}/logs/user_sync.log 2>&1 &".format(runprogram,accObj.accid,BASE_DIR)
+        logger.info(run)
+        os.system(run)
 
         return render(request, 'goindex.html', {
             'data': {
