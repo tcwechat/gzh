@@ -1401,8 +1401,14 @@ class WeChatAPIView(viewsets.ViewSet):
             """
                 昨日新增(取关)用户数据
             """
-
-            response = wacHandler.getusersunmmary(date_string,date_string)[0]
+            responseItem = {
+                "xz_num":0,
+                "qg_num":0
+            }
+            response = wacHandler.getusersunmmary(date_string,date_string)
+            for item in response:
+                responseItem['xz_num'] += item['new_user']
+                responseItem['qg_num'] += item['cancel_user']
 
             """
                 昨日总用户数据
@@ -1462,8 +1468,8 @@ class WeChatAPIView(viewsets.ViewSet):
 
             acc_count_obj_new = AccCount.objects.create(**{
                 "accid":item.accid,
-                "xz_num":response['new_user'],
-                "qg_num":response['cancel_user'],
+                "xz_num":responseItem['xz_num'],
+                "qg_num":responseItem['qg_num'],
                 "hy_num": len(set([ i.openid for i in aacObj])),
                 "tot_fs_num":response1['cumulate_user'],
                 "seven_day_fs_num":len(set([ i.openid for i in aacObj1])),
