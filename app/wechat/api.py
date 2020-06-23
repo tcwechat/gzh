@@ -1531,11 +1531,11 @@ class WeChatAPIView(viewsets.ViewSet):
                 data_last['hy_num'] += acc_count_obj.hy_num
                 data_last['tot_fs_num'] += acc_count_obj.tot_fs_num
 
-        data['jz_add_rate'] = (data['jz_num'] - data_last['jz_num']) * 100.0 / data_last['jz_num'] if data_last['jz_num'] else 0.0
-        data['xz_add_rate'] = (data['xz_num'] - data_last['xz_num']) * 100.0 / data_last['xz_num'] if data_last['xz_num'] else 0.0
-        data['qg_add_rate'] = (data['qg_num'] - data_last['qg_num']) * 100.0 / data_last['qg_num'] if data_last['qg_num'] else 0.0
-        data['hy_add_rate'] = (data['hy_num'] - data_last['hy_num']) * 100.0 / data_last['hy_num'] if data_last['hy_num'] else 0.0
-        data['tot_fs_add_rate'] = (data['tot_fs_num'] - data_last['tot_fs_num']) * 100.0 / data_last['tot_fs_num'] if data_last['tot_fs_num'] else 0.0
+        data['jz_add_rate'] = round((data['jz_num'] - data_last['jz_num']) * 100.0 / data_last['jz_num'] if data_last['jz_num'] else 0.0,2)
+        data['xz_add_rate'] = round((data['xz_num'] - data_last['xz_num']) * 100.0 / data_last['xz_num'] if data_last['xz_num'] else 0.0,2)
+        data['qg_add_rate'] = round((data['qg_num'] - data_last['qg_num']) * 100.0 / data_last['qg_num'] if data_last['qg_num'] else 0.0,2)
+        data['hy_add_rate'] = round((data['hy_num'] - data_last['hy_num']) * 100.0 / data_last['hy_num'] if data_last['hy_num'] else 0.0,2)
+        data['tot_fs_add_rate'] = round((data['tot_fs_num'] - data_last['tot_fs_num']) * 100.0 / data_last['tot_fs_num'] if data_last['tot_fs_num'] else 0.0,2)
 
         return {"data":data}
 
@@ -1551,9 +1551,11 @@ class WeChatAPIView(viewsets.ViewSet):
         if not request.query_params_format.get("accid",0):
             raise PubErrorCustom("请选择公众号!")
 
-        query = AccCount.objects.get(date=date_string,accid=request.query_params_format.get("accid",0))
-
-        return {"data":AccCountBaseSerializer(query,many=False).data}
+        try:
+            query = AccCount.objects.get(date=date_string,accid=request.query_params_format.get("accid",0))
+            return {"data": AccCountBaseSerializer(query, many=False).data}
+        except AccCount.DoesNotExist:
+            return {"data":{}}
 
     @list_route(methods=['GET'])
     @Core_connector(isPagination=True)
