@@ -1036,6 +1036,8 @@ class WeChatAPIView(viewsets.ViewSet):
         obj.mould_skip=mould_skip
         obj.select_sex=request.data_format.get("select_sex", "")
         obj.select_tags=request.data_format.get("select_tags", "")
+        obj.select_province = request.data_format.get("select_province", "")
+        obj.select_city = request.data_format.get("select_city", "")
 
         templateObj = MouldMsg(accid=obj.accid).get_list(template_id=obj.mould_id)
         if not templateObj:
@@ -1087,6 +1089,8 @@ class WeChatAPIView(viewsets.ViewSet):
             mould_skip=mould_skip,
             select_sex=request.data_format.get("select_sex", ""),
             select_tags=request.data_format.get("select_tags", ""),
+            select_province=request.data_format.get("select_province", ""),
+            select_city=request.data_format.get("select_city", ""),
         ))
 
         MsgMould().sendtask_add(obj=AccMsgMouldModelSerializer1(obj,many=False).data)
@@ -1157,6 +1161,13 @@ class WeChatAPIView(viewsets.ViewSet):
             if obj.select_sex in ['0','1','2']:
                 query_format = query_format + " and t1.sex =%s"
                 query_params.append(obj.select_sex)
+        elif obj.type == '3':
+            if len(obj.select_province):
+                query_format = query_format + " and t1.province=%s"
+                query_params.append(obj.select_province)
+            if len(obj.select_city):
+                query_format = query_format + " and t1.city=%s"
+                query_params.append(obj.select_city)
 
         res = AccLinkUser.objects.raw("""
             SELECT t1.* FROM acclinkuser as t1
