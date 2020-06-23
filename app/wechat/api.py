@@ -1494,9 +1494,6 @@ class WeChatAPIView(viewsets.ViewSet):
 
         ut = UtilTime()
 
-        date_arrow  = ut.today.shift(days=-1)
-        date_string = ut.arrow_to_string(date_arrow,format_v="YYYY-MM-DD")
-
         data_last=dict(
             xz_num=0,
             qg_num=0,
@@ -1518,24 +1515,30 @@ class WeChatAPIView(viewsets.ViewSet):
             tot_fs_add_rate = 0.0
         )
 
-        for item in AccCount.objects.filter(date=date_string):
-            data['xz_num'] += item.xz_num
-            data['qg_num'] += item.qg_num
-            data['jz_num'] += item.jz_num
-            data['hy_num'] += item.hy_num
-            data['tot_fs_num'] += item.tot_fs_num
+        for accItem in Acc.objects.filter():
 
-            try:
-                acc_count_obj = AccCount.objects.get(accid=item.accid,date=ut.arrow_to_string(date_arrow.shift(days=-1),format_v="YYYY-MM-DD"))
-            except AccCount.DoesNotExist:
-                acc_count_obj = None
+            for item in AccCount.objects.filter(accid=accItem.accid).order_by('-date'):
+                data['xz_num'] += item.xz_num
+                data['qg_num'] += item.qg_num
+                data['jz_num'] += item.jz_num
+                data['hy_num'] += item.hy_num
+                data['tot_fs_num'] += item.tot_fs_num
 
-            if acc_count_obj:
-                data_last['xz_num'] += acc_count_obj.xz_num
-                data_last['qg_num'] += acc_count_obj.qg_num
-                data_last['jz_num'] += acc_count_obj.jz_num
-                data_last['hy_num'] += acc_count_obj.hy_num
-                data_last['tot_fs_num'] += acc_count_obj.tot_fs_num
+                date_arrow = ut.string_to_arrow(item.date)
+                # date_string = ut.arrow_to_string(date_arrow, format_v="YYYY-MM-DD")
+
+                try:
+                    acc_count_obj = AccCount.objects.get(accid=item.accid,date=ut.arrow_to_string(date_arrow.shift(days=-1),format_v="YYYY-MM-DD"))
+                except AccCount.DoesNotExist:
+                    acc_count_obj = None
+
+                if acc_count_obj:
+                    data_last['xz_num'] += acc_count_obj.xz_num
+                    data_last['qg_num'] += acc_count_obj.qg_num
+                    data_last['jz_num'] += acc_count_obj.jz_num
+                    data_last['hy_num'] += acc_count_obj.hy_num
+                    data_last['tot_fs_num'] += acc_count_obj.tot_fs_num
+                break
 
         data['jz_add_rate'] = zz_rate(data['jz_num'],data_last['jz_num'])
         data['xz_add_rate'] = zz_rate(data['xz_num'],data_last['xz_num'])
@@ -1549,18 +1552,13 @@ class WeChatAPIView(viewsets.ViewSet):
     @Core_connector()
     def AccCountAcc(self, request, *args, **kwargs):
 
-        ut = UtilTime()
-
-        date_arrow = ut.today.shift(days=-1)
-        date_string = ut.arrow_to_string(date_arrow, format_v="YYYY-MM-DD")
-
         if not request.query_params_format.get("accid",0):
             raise PubErrorCustom("请选择公众号!")
 
-        try:
-            query = AccCount.objects.get(date=date_string,accid=request.query_params_format.get("accid",0))
-            return {"data": AccCountBaseSerializer(query, many=False).data}
-        except AccCount.DoesNotExist:
+        res = AccCount.objects.filter(accid=request.query_params_format.get("accid",0)).order_by('-date')
+        if res.exists:
+            return {"data": AccCountBaseSerializer(res[0], many=False).data}
+        else:
             return {"data":{}}
 
     @list_route(methods=['GET'])
