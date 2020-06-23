@@ -1406,9 +1406,9 @@ class WeChatAPIView(viewsets.ViewSet):
                 "qg_num":0
             }
             response = wacHandler.getusersunmmary(date_string,date_string)
-            for item in response:
-                responseItem['xz_num'] += item['new_user']
-                responseItem['qg_num'] += item['cancel_user']
+            for response_item in response:
+                responseItem['xz_num'] += response_item['new_user']
+                responseItem['qg_num'] += response_item['cancel_user']
 
             """
                 昨日总用户数据
