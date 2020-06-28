@@ -1579,7 +1579,7 @@ class WeChatAPIView(viewsets.ViewSet):
             raise PubErrorCustom("请选择公众号!")
 
         res = AccCount.objects.filter(accid=request.query_params_format.get("accid",0)).order_by('-date')
-        if res.exists:
+        if res.exists():
             return {"data": AccCountBaseSerializer(res[0], many=False).data}
         else:
             return {"data":{}}
