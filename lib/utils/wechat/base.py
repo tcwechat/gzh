@@ -75,7 +75,7 @@ class WechatBase(object):
             return res
 
     def getAuthAccessToken(self):
-        t = RedisAuthAccessTokenHandler(self.acc.accid)
+        t = RedisAuthAccessTokenHandler(before=self.acc.accid)
 
         res = t.get()
         if not res:
