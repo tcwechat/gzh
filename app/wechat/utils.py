@@ -19,6 +19,8 @@ def  zz_rate(num,lastnum):
         res = 0.0
     elif lastnum == 0 and num > 0:
         res = num * 100.0 / 1.0
+    elif lastnum == 0:
+        res = num * 100.0 / 1.0
     else:
         res = (num - lastnum) * 100.0 / lastnum
 
