@@ -1503,12 +1503,13 @@ class WeChatAPIView(viewsets.ViewSet):
 
             acc_count_obj_new.jz_num = acc_count_obj_new.xz_num - acc_count_obj_new.qg_num
 
-            acc_count_obj_new.jz_add_rate = zz_rate(acc_count_obj_new.jz_num,acc_count_obj.jz_num)
-            acc_count_obj_new.xz_add_rate = zz_rate(acc_count_obj_new.xz_num,acc_count_obj.xz_num)
-            acc_count_obj_new.qg_add_rate = zz_rate(acc_count_obj_new.qg_num,acc_count_obj.qg_num)
-            acc_count_obj_new.hy_add_rate = zz_rate(acc_count_obj_new.hy_num,acc_count_obj.hy_num)
-            acc_count_obj_new.yd_add_rate = zz_rate(acc_count_obj_new.yd_num,acc_count_obj.yd_num)
-            acc_count_obj_new.tot_fs_add_rate = zz_rate(acc_count_obj_new.tot_fs_num,acc_count_obj.tot_fs_num)
+            if acc_count_obj:
+                acc_count_obj_new.jz_add_rate = zz_rate(acc_count_obj_new.jz_num,acc_count_obj.jz_num)
+                acc_count_obj_new.xz_add_rate = zz_rate(acc_count_obj_new.xz_num,acc_count_obj.xz_num)
+                acc_count_obj_new.qg_add_rate = zz_rate(acc_count_obj_new.qg_num,acc_count_obj.qg_num)
+                acc_count_obj_new.hy_add_rate = zz_rate(acc_count_obj_new.hy_num,acc_count_obj.hy_num)
+                acc_count_obj_new.yd_add_rate = zz_rate(acc_count_obj_new.yd_num,acc_count_obj.yd_num)
+                acc_count_obj_new.tot_fs_add_rate = zz_rate(acc_count_obj_new.tot_fs_num,acc_count_obj.tot_fs_num)
             acc_count_obj_new.save()
 
     @list_route(methods=['GET'])
