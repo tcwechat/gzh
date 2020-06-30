@@ -392,7 +392,7 @@ class AccMsgMould(models.Model):
                                                 '4'-发送失败
                                             """,default='1')
 
-    type = models.CharField(max_length=1, verbose_name="群发粉丝 '0'-全部,'1'-选择标签,'2'-选择性别,'3'-选择地域")
+    type = models.CharField(max_length=1, verbose_name="群发粉丝 '0'-全部,'1'-选择标签,'2'-选择性别,'3'-选择地域",default='0')
     select_sex = models.CharField(max_length=1,verbose_name="条件筛选->性别,值为1时是男性，值为2时是女性，值为0时是未知")
     select_tags = models.CharField(max_length=1024,verbose_name="条件筛选->标签集合",default="[]")
     select_province = models.CharField(max_length=60,verbose_name="条件筛选->省份",default="")

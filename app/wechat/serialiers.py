@@ -348,8 +348,9 @@ class AccMsgMouldSerializer(serializers.Serializer):
         return UtilTime().timestamp_to_string(obj.sendtime)
 
     def get_sendobjects_format(self,obj):
+
         res = ""
-        if obj.type == '1':
+        if obj.type == '0':
             return "全部粉丝"
         else:
             if obj.select_sex == '1':
@@ -358,6 +359,9 @@ class AccMsgMouldSerializer(serializers.Serializer):
                 res += '仅女性粉丝'
             elif obj.select_sex == '0':
                 res += '未知性别'
+
+            if len(obj.select_province) and len(obj.select_city):
+                res += "{}-{}".format(obj.select_province,obj.select_city)
 
             for j,item in enumerate(AccTag.objects.filter(id__in=json.loads(obj.select_tags))):
                 if j>0:
