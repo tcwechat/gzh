@@ -1152,8 +1152,8 @@ class WeChatAPIView(viewsets.ViewSet):
         query_format=str()
         query_params=list()
 
-        query_format = query_format + " and t1.accid =%d"
-        query_params.append(obj.accid)
+        query_format = query_format + " and t1.accid =%s"
+        query_params.append(str(obj.accid))
 
         if obj.type == '1':
             select_tags = json.loads(obj.select_tags)
