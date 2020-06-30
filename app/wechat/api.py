@@ -1129,6 +1129,8 @@ class WeChatAPIView(viewsets.ViewSet):
         if status:
             query = query.filter(status=status)
 
+        query = query.order_by('-createtime')
+
         count = query.count()
 
         return {"data": AccMsgMouldSerializer(query[request.page_start:request.page_end], many=True).data, "count": count}
@@ -1191,9 +1193,12 @@ class WeChatAPIView(viewsets.ViewSet):
                 """
                 obj.content.replace("<粉丝昵称>",user['nickname'])
                 """
-                mould_data=json.loads(obj.mould_data['data'])
+                mould_data=json.loads(obj.mould_data)['data']
+
                 for key in mould_data:
-                    mould_data[key]['value'] = mould_data['key']['value'].replace("<粉丝昵称>",aluItem.nickname)
+                    mould_data[key]['value'] = mould_data[key]['value'].replace("<粉丝昵称>",aluItem.nickname)
+
+                logger.info(mould_data)
                 data = {
                     "touser": aluItem.openid,
                     "template_id": obj.mould_id,
