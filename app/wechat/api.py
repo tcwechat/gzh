@@ -1412,7 +1412,7 @@ class WeChatAPIView(viewsets.ViewSet):
 
 
     @list_route(methods=['POST'])
-    @Core_connector(isTransaction=True,isTicket=False)
+    @Core_connector(isTransaction=False,isTicket=False)
     def AccCount_Handler(self, request, *args, **kwargs):
 
         ut = UtilTime()
@@ -1424,98 +1424,105 @@ class WeChatAPIView(viewsets.ViewSet):
 
         for item in Acc.objects.filter():
 
-            wacHandler = WechatAccCount(accid=item.accid)
-
-            """
-                昨日新增(取关)用户数据
-            """
-            responseItem = {
-                "xz_num":0,
-                "qg_num":0
-            }
-            response = wacHandler.getusersunmmary(date_string,date_string)
-            for response_item in response:
-                responseItem['xz_num'] += response_item['new_user']
-                responseItem['qg_num'] += response_item['cancel_user']
-
-            """
-                昨日总用户数据
-            """
-            response1 = wacHandler.getusercumulate(date_string, date_string)[0]
-
-            """
-                获取图文每日数据
-            """
-            # response2 = wacHandler.getarticlesummary(date_string, date_string)[0]
-
-            """
-                昨日活跃粉丝数量
-            """
-            sql_append="t1.accid={} and t1.createtime<={} and t1.createtime>={}".format(str(item.accid),date_timestamp,date_timestamp)
-            aacObj = AccActionCount.objects.raw("""
-                SELECT t1.*,t2.sex FROM accactioncount as t1
-                INNER JOIN acclinkuser as t2 ON t1.accid = t2.accid and t2.umark='0'
-                WHERE %s
-            """%(sql_append))
-
-            logger.info(aacObj)
-
-            aacObj=list(aacObj)
-
-            """
-                7天互动粉丝数量
-            """
-            start = date_arrow.shift(days=-7).timestamp
-            sql_append="t1.accid = {} and t1.createtime<={} and t1.createtime>={}".format(str(item.accid),date_timestamp,start)
-            aacObj1 = AccActionCount.objects.raw("""
-                SELECT t1.*,t2.sex FROM accactioncount as t1
-                INNER JOIN acclinkuser as t2 ON t1.accid = t2.accid and t2.umark='0'
-                WHERE %s
-            """%(sql_append))
-
-            logger.info(aacObj1)
-            aacObj1 = list(aacObj1)
-
-            """
-                15天互动粉丝数量
-            """
-            start = date_arrow.shift(days=-15).timestamp
-            sql_append="t1.accid = {} and t1.createtime<={} and t1.createtime>={}".format(str(item.accid),date_timestamp,start)
-            aacObj2 = AccActionCount.objects.raw("""
-                SELECT t1.*,t2.sex FROM accactioncount as t1
-                INNER JOIN acclinkuser as t2 ON t1.accid = t2.accid and t2.umark='0'
-                WHERE %s
-            """%(sql_append))
-            logger.info(aacObj2)
-            aacObj2 = list(aacObj2)
-
             try:
-                acc_count_obj = AccCount.objects.get(accid=item.accid,date=ut.arrow_to_string(date_arrow.shift(days=-1),format_v="YYYY-MM-DD"))
-            except AccCount.DoesNotExist:
-                acc_count_obj = None
+                with transaction.atomic():
 
-            acc_count_obj_new = AccCount.objects.create(**{
-                "accid":item.accid,
-                "xz_num":responseItem['xz_num'],
-                "qg_num":responseItem['qg_num'],
-                "hy_num": len(set([ i.openid for i in aacObj])),
-                "tot_fs_num":response1['cumulate_user'],
-                "seven_day_fs_num":len(set([ i.openid for i in aacObj1])),
-                "fifteen_day_fs_num":len(set([ i.openid for i in aacObj2])),
-                "yd_num":0,
-                "date":date_string
-            })
+                    wacHandler = WechatAccCount(accid=item.accid)
 
-            acc_count_obj_new.jz_num = acc_count_obj_new.xz_num - acc_count_obj_new.qg_num
+                    """
+                        昨日新增(取关)用户数据
+                    """
+                    responseItem = {
+                        "xz_num":0,
+                        "qg_num":0
+                    }
+                    response = wacHandler.getusersunmmary(date_string,date_string)
+                    for response_item in response:
+                        responseItem['xz_num'] += response_item['new_user']
+                        responseItem['qg_num'] += response_item['cancel_user']
 
-            if acc_count_obj:
-                acc_count_obj_new.jz_add_rate = zz_rate(acc_count_obj_new.jz_num,acc_count_obj.jz_num)
-                acc_count_obj_new.xz_add_rate = zz_rate(acc_count_obj_new.xz_num,acc_count_obj.xz_num)
-                acc_count_obj_new.qg_add_rate = zz_rate(acc_count_obj_new.qg_num,acc_count_obj.qg_num)
-                acc_count_obj_new.hy_add_rate = zz_rate(acc_count_obj_new.hy_num,acc_count_obj.hy_num)
-                acc_count_obj_new.yd_add_rate = zz_rate(acc_count_obj_new.yd_num,acc_count_obj.yd_num)
-                acc_count_obj_new.tot_fs_add_rate = zz_rate(acc_count_obj_new.tot_fs_num,acc_count_obj.tot_fs_num)
-            acc_count_obj_new.save()
+                    """
+                        昨日总用户数据
+                    """
+                    response1 = wacHandler.getusercumulate(date_string, date_string)[0]
+
+                    """
+                        获取图文每日数据
+                    """
+                    # response2 = wacHandler.getarticlesummary(date_string, date_string)[0]
+
+                    """
+                        昨日活跃粉丝数量
+                    """
+                    sql_append="t1.accid={} and t1.createtime<={} and t1.createtime>={}".format(str(item.accid),date_timestamp,date_timestamp)
+                    aacObj = AccActionCount.objects.raw("""
+                        SELECT t1.*,t2.sex FROM accactioncount as t1
+                        INNER JOIN acclinkuser as t2 ON t1.accid = t2.accid and t2.umark='0'
+                        WHERE %s
+                    """%(sql_append))
+
+                    logger.info(aacObj)
+
+                    aacObj=list(aacObj)
+
+                    """
+                        7天互动粉丝数量
+                    """
+                    start = date_arrow.shift(days=-7).timestamp
+                    sql_append="t1.accid = {} and t1.createtime<={} and t1.createtime>={}".format(str(item.accid),date_timestamp,start)
+                    aacObj1 = AccActionCount.objects.raw("""
+                        SELECT t1.*,t2.sex FROM accactioncount as t1
+                        INNER JOIN acclinkuser as t2 ON t1.accid = t2.accid and t2.umark='0'
+                        WHERE %s
+                    """%(sql_append))
+
+                    logger.info(aacObj1)
+                    aacObj1 = list(aacObj1)
+
+                    """
+                        15天互动粉丝数量
+                    """
+                    start = date_arrow.shift(days=-15).timestamp
+                    sql_append="t1.accid = {} and t1.createtime<={} and t1.createtime>={}".format(str(item.accid),date_timestamp,start)
+                    aacObj2 = AccActionCount.objects.raw("""
+                        SELECT t1.*,t2.sex FROM accactioncount as t1
+                        INNER JOIN acclinkuser as t2 ON t1.accid = t2.accid and t2.umark='0'
+                        WHERE %s
+                    """%(sql_append))
+                    logger.info(aacObj2)
+                    aacObj2 = list(aacObj2)
+
+                    try:
+                        acc_count_obj = AccCount.objects.get(accid=item.accid,date=ut.arrow_to_string(date_arrow.shift(days=-1),format_v="YYYY-MM-DD"))
+                    except AccCount.DoesNotExist:
+                        acc_count_obj = None
+
+                    acc_count_obj_new = AccCount.objects.create(**{
+                        "accid":item.accid,
+                        "xz_num":responseItem['xz_num'],
+                        "qg_num":responseItem['qg_num'],
+                        "hy_num": len(set([ i.openid for i in aacObj])),
+                        "tot_fs_num":response1['cumulate_user'],
+                        "seven_day_fs_num":len(set([ i.openid for i in aacObj1])),
+                        "fifteen_day_fs_num":len(set([ i.openid for i in aacObj2])),
+                        "yd_num":0,
+                        "date":date_string
+                    })
+
+                    acc_count_obj_new.jz_num = acc_count_obj_new.xz_num - acc_count_obj_new.qg_num
+
+                    if acc_count_obj:
+                        acc_count_obj_new.jz_add_rate = zz_rate(acc_count_obj_new.jz_num,acc_count_obj.jz_num)
+                        acc_count_obj_new.xz_add_rate = zz_rate(acc_count_obj_new.xz_num,acc_count_obj.xz_num)
+                        acc_count_obj_new.qg_add_rate = zz_rate(acc_count_obj_new.qg_num,acc_count_obj.qg_num)
+                        acc_count_obj_new.hy_add_rate = zz_rate(acc_count_obj_new.hy_num,acc_count_obj.hy_num)
+                        acc_count_obj_new.yd_add_rate = zz_rate(acc_count_obj_new.yd_num,acc_count_obj.yd_num)
+                        acc_count_obj_new.tot_fs_add_rate = zz_rate(acc_count_obj_new.tot_fs_num,acc_count_obj.tot_fs_num)
+                    acc_count_obj_new.save()
+                logger.info("晚间批量处理公众号[{}]数据统计成功!".format(item.accid))
+            except Exception as e:
+                logger.error("晚间批量处理公众号[{}]数据统计错误->[{}]".format(item.accid,str(e)))
+
 
     @list_route(methods=['GET'])
     @Core_connector()
