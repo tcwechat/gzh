@@ -7,6 +7,7 @@ from app.wechat.models import Acc
 from lib.utils.exceptions import PubErrorCustom
 from lib.utils.wechat.error import error_dict
 from lib.utils.log import logger
+from project.config_include.params import WECHAT_APPID,WECHAT_SECRET,WECHAT_TOKEN,WECHAT_KEY
 
 class FormatException(Exception):
     pass
@@ -23,14 +24,14 @@ class WechatBase(object):
             # @param key: 公众平台上，开发者设置的EncodingAESKey
             # @param appid: 企业号的AppId
         """
-        self.token = "eNoUNRR4e7V85KLb"
-        self.appid = "wxbc8cf6d177029077"
-        self.secret = "cad9594114c9473b5d9a697cfe154b33"
+        self.token = WECHAT_TOKEN
+        self.appid = WECHAT_APPID
+        self.secret = WECHAT_SECRET
 
         self.xml_tree = ET.fromstring(kwargs.get("xmltext",None)) if kwargs.get("xmltext",None) else None
 
         try:
-            self.key = base64.b64decode("FDl8GfVXfGWwKs9LKc11xE6N2f8DM6MB8cyMm6xYsac" + "=")
+            self.key = base64.b64decode(WECHAT_KEY + "=")
             assert len(self.key) == 32
         except Exception:
             throw_exception("[error]: EncodingAESKey unvalid !",
