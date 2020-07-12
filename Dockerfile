@@ -11,8 +11,8 @@ RUN apk add --no-cache tzdata build-base libffi-dev openssl-dev python-dev py-pi
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone
 
-RUN pip install -i http://mirrors.aliyun.com/pypi/simple --upgrade pip \
-    && pip install -r requirements.txt -i http://mirrors.aliyun.com/pypi/simple \
+RUN pip install -i https://pypi.douban.com/simple --upgrade pip \
+    && pip install -r requirements.txt -i https://pypi.douban.com/simple \
     && mkdir -p /project/server/logs \
     && mkdir -p /project/server/static/images \
     && mkdir -p /var/logs/uwsgi/ \
