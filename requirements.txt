@@ -17,4 +17,4 @@ django_crontab
 pyotp
 cryptokit
 xmltodict
-crypto
+pycryptodome
